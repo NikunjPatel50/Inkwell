@@ -1,12 +1,4 @@
-import type {
-  AdjustedTone,
-  AnalysisResult,
-  ComplexityLevel,
-  GroqModel,
-  RemixCheckResult,
-  Tone,
-  VocabularyItem,
-} from "../types";
+import type { AdjustedTone, AnalysisResult, GroqModel, Tone } from "../types";
 import { clampRegisterScore } from "./registerScore";
 
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
@@ -18,8 +10,7 @@ const BASE_JSON_SHAPE = `{
   "intermediate": string,
   "intermediateTechnique": string,
   "advanced": string,
-  "advancedTechnique": string,
-  "vocabularyCatch": [{ "word": string, "definition": string, "sourceSentence": string }]
+  "advancedTechnique": string
 }`;
 
 const TONE_JSON_SHAPE = `${BASE_JSON_SHAPE.slice(0, -1)},
@@ -63,12 +54,6 @@ Rules for technique notes:
 - "intermediateTechnique": one short line naming the main structural/stylistic shift in the intermediate rewrite (e.g. "more formal connectors, clearer clause structure").
 - "advancedTechnique": one short line naming the main structural/stylistic shift in the advanced rewrite (e.g. "passive voice, nominalization, subordinate clause").
 - Keep each technique note under 12 words — a phrase, not a paragraph.
-
-Rules for "vocabularyCatch":
-- Extract 2–3 notable advanced-vocabulary words from the "advanced" rewrite ONLY (not from the original or other tiers).
-- Each item: "word" (the term), "definition" (one short plain-English sentence), "sourceSentence" (the full advanced sentence containing that word).
-- Choose words that are genuinely sophisticated or less common — not basic filler.
-- Return at most 3 items. If the advanced rewrite has no standout vocabulary, return fewer items or an empty array.
 
 Respond with valid JSON only. No markdown, no commentary outside the JSON object.`;
 }
@@ -126,28 +111,6 @@ function isWritingError(value: unknown): value is AnalysisResult["errors"][numbe
   return typeof obj.issue === "string" && typeof obj.explanation === "string";
 }
 
-function isVocabularyItem(value: unknown): value is VocabularyItem {
-  if (typeof value !== "object" || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return (
-    typeof obj.word === "string" &&
-    obj.word.trim().length > 0 &&
-    typeof obj.definition === "string" &&
-    obj.definition.trim().length > 0 &&
-    typeof obj.sourceSentence === "string" &&
-    obj.sourceSentence.trim().length > 0
-  );
-}
-
-function parseVocabularyCatch(data: unknown): VocabularyItem[] | undefined {
-  if (!Array.isArray(data)) {
-    return undefined;
-  }
-
-  const items = data.filter(isVocabularyItem).slice(0, 3);
-  return items.length > 0 ? items : undefined;
-}
-
 function parseAnalysisResult(raw: string, expectToneNote: boolean): AnalysisResult {
   let parsed: unknown;
   try {
@@ -201,7 +164,6 @@ function parseAnalysisResult(raw: string, expectToneNote: boolean): AnalysisResu
     advanced: data.advanced,
     advancedTechnique: data.advancedTechnique,
     toneDriftNote,
-    vocabularyCatch: parseVocabularyCatch(data.vocabularyCatch),
   };
 }
 
@@ -289,125 +251,4 @@ export async function analyzeWriting(
   }
 
   return parseAnalysisResult(content, isTonePass);
-}
-
-const REMIX_JSON_SHAPE = `{
-  "matchedVersion": string,
-  "feedback": string
-}`;
-
-const COMPLEXITY_GUIDANCE: Record<ComplexityLevel, string> = {
-  simple: "plain, accessible English suitable for beginners — short words, straightforward structure",
-  intermediate: "standard, clear English for general readers — balanced vocabulary and sentence flow",
-  advanced:
-    "sophisticated vocabulary and sentence structure for proficient readers — nuanced word choice and complex syntax",
-};
-
-function buildRemixSystemPrompt(complexity: ComplexityLevel, tone: Tone): string {
-  const complexityLine = COMPLEXITY_GUIDANCE[complexity];
-  const toneLine =
-    tone === "neutral"
-      ? "neutral, balanced tone — neither especially formal nor casual"
-      : TONE_GUIDANCE[tone as AdjustedTone];
-
-  return `You are an expert writing coach helping someone practice register and style matching.
-
-The user was challenged to write at this target:
-- Complexity: ${complexity} — ${complexityLine}
-- Tone: ${tone} — ${toneLine}
-
-Respond with JSON only in exactly this shape:
-${REMIX_JSON_SHAPE}
-
-Rules for "matchedVersion":
-- Rewrite the user's attempt at the SAME target complexity and tone above.
-- Preserve the user's core meaning and facts — do not invent new content.
-- This is a clean reference example of hitting the target register, not a grammar correction pass.
-
-Rules for "feedback":
-- One short, encouraging sentence on how close the user's attempt came to the target complexity+tone.
-- Focus on register, vocabulary, and tone — NOT grammar or spelling.
-- Be specific but kind. If they were far off, note what to lean into next time.
-
-Respond with valid JSON only. No markdown, no commentary outside the JSON object.`;
-}
-
-function parseRemixCheckResult(raw: string): RemixCheckResult {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(extractJsonPayload(raw));
-  } catch {
-    throw new GroqApiError(
-      "The model returned a response we couldn't parse. Try again or switch models.",
-    );
-  }
-
-  if (typeof parsed !== "object" || parsed === null) {
-    throw new GroqApiError("The model returned an invalid response shape.");
-  }
-
-  const data = parsed as Record<string, unknown>;
-  const matchedVersion =
-    typeof data.matchedVersion === "string" ? data.matchedVersion.trim() : "";
-  const feedback = typeof data.feedback === "string" ? data.feedback.trim() : "";
-
-  if (!matchedVersion) {
-    throw new GroqApiError("The model response is missing a matched version.");
-  }
-
-  return {
-    matchedVersion,
-    feedback: feedback || "Keep experimenting with vocabulary and tone to match the target.",
-  };
-}
-
-export interface RemixCheckOptions {
-  complexity: ComplexityLevel;
-  tone: Tone;
-}
-
-export async function checkRemixAttempt(
-  attempt: string,
-  apiKey: string,
-  model: GroqModel,
-  options: RemixCheckOptions,
-): Promise<RemixCheckResult> {
-  const { complexity, tone } = options;
-  const systemPrompt = buildRemixSystemPrompt(complexity, tone);
-
-  const response = await fetch(GROQ_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: systemPrompt },
-        {
-          role: "user",
-          content: `Target: ${complexity} complexity + ${tone} tone.\n\nUser's attempt:\n\n${attempt}`,
-        },
-      ],
-      temperature: 0.4,
-    }),
-  });
-
-  if (!response.ok) {
-    const apiMessage = await readErrorMessage(response);
-    throw new GroqApiError(mapHttpError(response.status, apiMessage));
-  }
-
-  const payload = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-
-  const content = payload.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new GroqApiError("GROQ returned an empty response. Try again.");
-  }
-
-  return parseRemixCheckResult(content);
 }

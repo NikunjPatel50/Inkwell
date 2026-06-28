@@ -1,21 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApiKeyPanel } from "./components/ApiKeyPanel";
-import { PracticeTab } from "./components/PracticeTab";
-import { TabBar } from "./components/TabBar";
 import { WorkshopTab } from "./components/WorkshopTab";
 import { getEnvGroqApiKey, hasEnvGroqApiKey } from "./lib/env";
 import { analyzeWriting, GroqApiError } from "./lib/groqClient";
 import { countWords } from "./lib/textMetrics";
-import { appendVocabularyCatch } from "./lib/vocabularyCatch";
 import type {
   AnalysisResult,
   AnalysisStatus,
-  AppTab,
   GroqModel,
   LadderResult,
   Tone,
   ToneCache,
-  VocabularyItem,
 } from "./types";
 import { ladderFromAnalysis } from "./types";
 import styles from "./App.module.css";
@@ -55,9 +50,7 @@ export default function App() {
   const [toneCache, setToneCache] = useState<ToneCache>({});
   const [toneLoading, setToneLoading] = useState(false);
   const [toneError, setToneError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<AppTab>("workshop");
   const [hasCompletedAnalysis, setHasCompletedAnalysis] = useState(false);
-  const [vocabularyItems, setVocabularyItems] = useState<VocabularyItem[]>([]);
 
   const wordCount = countWords(text);
   const isLoading = status === "loading";
@@ -149,7 +142,6 @@ export default function App() {
       setStatus("success");
       setPracticeCount((count) => count + 1);
       setHasCompletedAnalysis(true);
-      setVocabularyItems((items) => appendVocabularyCatch(items, analysis.vocabularyCatch));
       setRevealKey((key) => key + 1);
       setLadderAnimateReveal(true);
     } catch (err) {
@@ -210,16 +202,6 @@ export default function App() {
 
   const hasResultPanels = hasCompletedAnalysis && result !== null && analysedText !== null && displayLadder !== null;
 
-  const handleUsePrompt = useCallback((prompt: string) => {
-    setText(`${prompt}\n\n`);
-    setActiveErrorIndex(null);
-    setActiveTab("workshop");
-  }, []);
-
-  const handleGoToWrite = useCallback(() => {
-    setActiveTab("workshop");
-  }, []);
-
   return (
     <div className={styles.app}>
       <header className={styles.toolbar}>
@@ -258,51 +240,34 @@ export default function App() {
         </div>
       )}
 
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
-
       <main className={styles.main}>
-        <div className={styles.tabPanels}>
-          <div className={styles.tabPanel} hidden={activeTab !== "workshop"}>
-            <WorkshopTab
-              text={text}
-              wordCount={wordCount}
-              status={status}
-              isLoading={isLoading}
-              loadingMessage={LOADING_MESSAGES[loadingMessageIndex]}
-              canAnalyse={canAnalyse}
-              analyseHint={analyseHint}
-              errorMessage={status === "error" ? errorMessage : null}
-              hasResults={hasResultPanels}
-              registerScore={result?.registerScore ?? 0}
-              registerMeterKey={revealKey}
-              errors={result?.errors ?? []}
-              activeErrorIndex={activeErrorIndex}
-              analysedText={analysedText}
-              displayLadder={displayLadder}
-              selectedTone={selectedTone}
-              toneLoading={toneLoading}
-              toneLoadingMessage={TONE_LOADING_MESSAGES[toneLoadingMessageIndex]}
-              toneError={toneError}
-              revealKey={revealKey}
-              animateReveal={ladderAnimateReveal}
-              onTextChange={handleTextChange}
-              onAnalyse={handleAnalyse}
-              onErrorHover={setActiveErrorIndex}
-              onToneChange={handleToneChange}
-            />
-          </div>
-
-          <div className={styles.tabPanel} hidden={activeTab !== "practice"}>
-            <PracticeTab
-              apiKey={resolvedApiKey}
-              model={model}
-              hasApiKey={hasApiKey}
-              vocabularyItems={vocabularyItems}
-              onUsePrompt={handleUsePrompt}
-              onGoToWrite={handleGoToWrite}
-            />
-          </div>
-        </div>
+        <WorkshopTab
+          text={text}
+          wordCount={wordCount}
+          status={status}
+          isLoading={isLoading}
+          loadingMessage={LOADING_MESSAGES[loadingMessageIndex]}
+          canAnalyse={canAnalyse}
+          analyseHint={analyseHint}
+          errorMessage={status === "error" ? errorMessage : null}
+          hasResults={hasResultPanels}
+          registerScore={result?.registerScore ?? 0}
+          registerMeterKey={revealKey}
+          errors={result?.errors ?? []}
+          activeErrorIndex={activeErrorIndex}
+          analysedText={analysedText}
+          displayLadder={displayLadder}
+          selectedTone={selectedTone}
+          toneLoading={toneLoading}
+          toneLoadingMessage={TONE_LOADING_MESSAGES[toneLoadingMessageIndex]}
+          toneError={toneError}
+          revealKey={revealKey}
+          animateReveal={ladderAnimateReveal}
+          onTextChange={handleTextChange}
+          onAnalyse={handleAnalyse}
+          onErrorHover={setActiveErrorIndex}
+          onToneChange={handleToneChange}
+        />
       </main>
     </div>
   );

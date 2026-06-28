@@ -80,21 +80,6 @@
   background: #fff;
 }
 
-.tabPanels {
-  flex: 1;
-  min-height: 0;
-  position: relative;
-}
-
-.tabPanel {
-  height: 100%;
-  overflow: hidden;
-}
-
-.tabPanel[hidden] {
-  display: none !important;
-}
-
 @media (max-width: 860px) {
   .app {
     height: auto;
@@ -114,9 +99,6 @@
 
   .main {
     overflow: visible;
-  }
-
-  .tabPanels {
     min-height: calc(100dvh - 9rem);
   }
 }

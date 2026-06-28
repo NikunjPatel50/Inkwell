@@ -61,12 +61,7 @@ export function WorkshopTab({
   onToneChange,
 }: WorkshopTabProps) {
   return (
-    <section
-      id="panel-workshop"
-      role="tabpanel"
-      aria-labelledby="tab-workshop"
-      className={styles.workshop}
-    >
+    <section className={styles.workshop}>
       <div className={styles.workspace}>
         <div className={styles.editorColumn}>
           <div className={styles.editorWrap}>
