@@ -1,0 +1,52 @@
+.highlightedText {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.errorMark {
+  position: relative;
+  display: inline;
+  padding: 0 0.1em;
+  color: var(--color-ink);
+  text-decoration: underline wavy var(--color-terracotta);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  background: rgba(196, 92, 74, 0.08);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.errorMark:hover,
+.errorMarkActive {
+  background: rgba(196, 92, 74, 0.16);
+}
+
+.errorBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.2rem;
+  border-radius: 50%;
+  background: var(--color-terracotta);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 700;
+  vertical-align: super;
+  line-height: 1;
+}

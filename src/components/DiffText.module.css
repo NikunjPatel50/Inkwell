@@ -1,0 +1,28 @@
+.diffText {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.unchanged {
+  color: var(--color-ink-muted);
+}
+
+.changed {
+  padding: 0 0.12em;
+  border-radius: 3px;
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.simple.changed {
+  background: rgba(107, 143, 113, 0.28);
+}
+
+.intermediate.changed {
+  background: rgba(184, 146, 42, 0.28);
+}
+
+.advanced.changed {
+  background: rgba(196, 92, 74, 0.22);
+}

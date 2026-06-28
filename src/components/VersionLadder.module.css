@@ -1,0 +1,206 @@
+.ladder {
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin-top: 0.35rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--color-ink-faint);
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0 1rem;
+}
+
+.markerColumn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.marker {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid var(--color-border-strong);
+  background: var(--color-paper);
+  flex-shrink: 0;
+  margin-top: 0.35rem;
+  z-index: 1;
+}
+
+.simple .marker {
+  border-color: var(--color-sage);
+  background: var(--color-sage-soft);
+}
+
+.intermediate .marker {
+  border-color: var(--color-gold);
+  background: var(--color-gold-soft);
+}
+
+.advanced .marker {
+  border-color: var(--color-ink);
+  background: var(--color-paper-deep);
+}
+
+.connector {
+  flex: 1;
+  width: 2px;
+  min-height: 2rem;
+  background: linear-gradient(
+    to bottom,
+    var(--color-border-strong),
+    var(--color-border)
+  );
+  margin: 4px 0;
+}
+
+.content {
+  padding-bottom: 1.75rem;
+}
+
+.step:last-child .content {
+  padding-bottom: 0;
+}
+
+.stepHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.tierLabel {
+  display: inline;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tierTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.wordDelta {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.simple .tierLabel {
+  color: var(--color-sage);
+}
+
+.intermediate .tierLabel {
+  color: var(--color-gold);
+}
+
+.advanced .tierLabel {
+  color: var(--color-ink);
+}
+
+.tierDescription {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-ink-faint);
+  margin-top: 0.1rem;
+}
+
+.rewrite {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  border-left: 3px solid var(--color-border);
+}
+
+.technique {
+  margin: 0.55rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-ink-faint);
+  line-height: 1.5;
+}
+
+.simple .rewrite {
+  border-left-color: var(--color-sage);
+  background: var(--color-sage-soft);
+}
+
+.intermediate .rewrite {
+  border-left-color: var(--color-gold);
+  background: var(--color-gold-soft);
+}
+
+.advanced .rewrite {
+  border-left-color: var(--color-ink);
+  background: var(--color-paper-deep);
+}
+
+.copyButton {
+  flex-shrink: 0;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.copyButton:hover {
+  background: var(--color-paper-deep);
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+}
+
+@media (max-width: 480px) {
+  .ladder {
+    padding: 1.15rem;
+  }
+
+  .stepHeader {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .copyButton {
+    align-self: flex-start;
+  }
+}

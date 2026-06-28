@@ -1,0 +1,109 @@
+.card {
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.cardIssues {
+  border-left: 4px solid var(--color-terracotta);
+}
+
+.cardClean {
+  border-left: 4px solid var(--color-sage);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.75rem;
+  margin: 0 -0.75rem;
+  border-bottom: 1px solid var(--color-paper-deep);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.itemActive {
+  background: var(--color-terracotta-soft);
+}
+
+.item:last-child {
+  padding-bottom: 0.75rem;
+  border-bottom: none;
+}
+
+.issue {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-terracotta);
+}
+
+.issueBadge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: var(--color-terracotta);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-top: 0.15rem;
+}
+
+.explanation {
+  font-size: 0.92rem;
+  color: var(--color-ink-muted);
+  line-height: 1.6;
+}
+
+.cleanState {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.cleanIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-sage-soft);
+  color: var(--color-sage);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.cleanText {
+  font-size: 0.95rem;
+  color: var(--color-sage);
+  font-weight: 500;
+}
