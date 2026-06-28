@@ -7,6 +7,7 @@ interface EditorProps {
   wordCount: number;
   isLoading: boolean;
   canAnalyse: boolean;
+  analyseHint?: string;
   showHighlights: boolean;
   analysedText: string | null;
   errors: WritingError[];
@@ -24,6 +25,7 @@ export function Editor({
   wordCount,
   isLoading,
   canAnalyse,
+  analyseHint,
   showHighlights,
   analysedText,
   errors,
@@ -97,6 +99,9 @@ export function Editor({
             "Analyse my writing"
           )}
         </button>
+        {analyseHint && !isLoading && (
+          <p className={styles.analyseHint}>{analyseHint}</p>
+        )}
       </div>
     </section>
   );

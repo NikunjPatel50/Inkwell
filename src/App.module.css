@@ -17,6 +17,21 @@
   backdrop-filter: blur(8px);
 }
 
+.deployHint {
+  flex-shrink: 0;
+  padding: 0.65rem 1.25rem;
+  border-bottom: 1px solid var(--color-gold-soft);
+  background: var(--color-gold-soft);
+  color: var(--color-ink-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.deployHint code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.92em;
+}
+
 .brand {
   display: flex;
   align-items: center;

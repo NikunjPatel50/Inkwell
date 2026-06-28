@@ -43,6 +43,22 @@ npm run build
 npm run preview
 ```
 
+## Deploy on Vercel
+
+A `.env` file in your repo is **not** used by Vercel (and should stay gitignored). Set the key in the Vercel dashboard instead:
+
+1. Open your project on [vercel.com](https://vercel.com) → **Settings** → **Environment Variables**
+2. Add a variable named **`VITE_GROQ_API_KEY`** with your `gsk_…` key  
+   (Vite also accepts **`GROQ_API_KEY`** as a fallback name.)
+3. Enable it for **Production** (and Preview if you want)
+4. **Redeploy** the project — env vars are baked in at **build time**, so changing them requires a new deploy
+
+After a successful deploy with the variable set, the API key panel is hidden and **Analyse my writing** works immediately.
+
+If the variable is missing, paste your key in the toolbar and click **Analyse** (you do not need **Save for session** first).
+
+**Security note:** A key set as a Vite env var is included in the client JavaScript bundle. Anyone can view it in browser devtools. Use this only for personal deployments, or paste the key manually per session instead.
+
 ## GROQ API key
 
 1. Sign up at [console.groq.com](https://console.groq.com/)

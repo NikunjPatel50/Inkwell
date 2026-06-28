@@ -8,6 +8,7 @@ interface ApiKeyPanelProps {
   isEnvKey: boolean;
   compact?: boolean;
   onSave: (apiKey: string, model: GroqModel) => void;
+  onDraftKeyChange?: (apiKey: string) => void;
 }
 
 export function ApiKeyPanel({
@@ -16,6 +17,7 @@ export function ApiKeyPanel({
   isEnvKey,
   compact = false,
   onSave,
+  onDraftKeyChange,
 }: ApiKeyPanelProps) {
   const [draftKey, setDraftKey] = useState(sessionApiKey);
   const [draftModel, setDraftModel] = useState<GroqModel>(model);
@@ -77,7 +79,10 @@ export function ApiKeyPanel({
               type="password"
               className={styles.input}
               value={draftKey}
-              onChange={(e) => setDraftKey(e.target.value)}
+              onChange={(e) => {
+                setDraftKey(e.target.value);
+                onDraftKeyChange?.(e.target.value);
+              }}
               placeholder="gsk_…"
               autoComplete="off"
               spellCheck={false}

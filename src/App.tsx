@@ -20,6 +20,7 @@ const LOADING_MESSAGES = [
 export default function App() {
   const envApiKey = getEnvGroqApiKey();
   const [sessionApiKey, setSessionApiKey] = useState(envApiKey);
+  const [draftApiKey, setDraftApiKey] = useState("");
   const [model, setModel] = useState<GroqModel>("llama-3.3-70b-versatile");
   const [text, setText] = useState("");
   const [analysedText, setAnalysedText] = useState<string | null>(null);
@@ -34,7 +35,15 @@ export default function App() {
 
   const wordCount = countWords(text);
   const isLoading = status === "loading";
-  const canAnalyse = sessionApiKey.length > 0 && text.trim().length > 0;
+  const resolvedApiKey = sessionApiKey.trim() || draftApiKey.trim();
+  const hasApiKey = resolvedApiKey.length > 0;
+  const canAnalyse = hasApiKey && text.trim().length > 0;
+  const analyseHint = !hasApiKey
+    ? "Paste your GROQ API key in the toolbar, then click Analyse (Save is optional)."
+    : !text.trim()
+      ? "Write or paste some text to analyse."
+      : undefined;
+  const showDeployHint = import.meta.env.PROD && !hasEnvGroqApiKey();
 
   useEffect(() => {
     if (!isLoading) {
@@ -84,7 +93,12 @@ export default function App() {
 
   const handleAnalyse = useCallback(async () => {
     const trimmed = text.trim();
-    if (!trimmed || !sessionApiKey) return;
+    const apiKey = sessionApiKey.trim() || draftApiKey.trim();
+    if (!trimmed || !apiKey) return;
+
+    if (!sessionApiKey.trim()) {
+      setSessionApiKey(apiKey);
+    }
 
     setStatus("loading");
     setErrorMessage("");
@@ -94,7 +108,7 @@ export default function App() {
     setIsEditing(false);
 
     try {
-      const analysis = await analyzeWriting(trimmed, sessionApiKey, model);
+      const analysis = await analyzeWriting(trimmed, apiKey, model);
       setAnalysedText(trimmed);
       setResult(analysis);
       setStatus("success");
@@ -108,7 +122,7 @@ export default function App() {
       setErrorMessage(message);
       setStatus("error");
     }
-  }, [text, sessionApiKey, model]);
+  }, [text, sessionApiKey, draftApiKey, model]);
 
   return (
     <div className={styles.app}>
@@ -130,9 +144,18 @@ export default function App() {
             model={model}
             isEnvKey={false}
             onSave={handleSaveApiKey}
+            onDraftKeyChange={setDraftApiKey}
           />
         )}
       </header>
+
+      {showDeployHint && (
+        <div className={styles.deployHint} role="note">
+          No build-time API key detected. Set{" "}
+          <code>VITE_GROQ_API_KEY</code> in Vercel → Settings → Environment Variables, then{" "}
+          <strong>redeploy</strong>. Or paste your key in the toolbar below.
+        </div>
+      )}
 
       <main className={styles.main}>
         <div className={styles.workspace}>
@@ -142,6 +165,7 @@ export default function App() {
               wordCount={wordCount}
               isLoading={isLoading}
               canAnalyse={canAnalyse}
+              analyseHint={analyseHint}
               showHighlights={status === "success"}
               analysedText={analysedText}
               errors={result?.errors ?? []}

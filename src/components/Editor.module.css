@@ -118,6 +118,12 @@
   background: #b04f3f;
 }
 
+.analyseHint {
+  font-size: 0.82rem;
+  color: var(--color-ink-faint);
+  line-height: 1.5;
+}
+
 .spinner {
   width: 1rem;
   height: 1rem;
