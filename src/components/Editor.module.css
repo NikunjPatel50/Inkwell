@@ -1,10 +1,13 @@
 .editor {
   flex: 1;
   min-height: 0;
-  padding: 1.25rem;
+  height: 100%;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: transparent;
+  box-shadow: none;
+  border: none;
 }
 
 .header {
@@ -14,32 +17,6 @@
   margin-bottom: 0.85rem;
   gap: 1rem;
   flex-shrink: 0;
-}
-
-.headerMeta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.editButton {
-  padding: 0.25rem 0.55rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-ink-muted);
-  font-size: 0.78rem;
-  font-weight: 600;
-  transition:
-    background var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.editButton:hover {
-  background: var(--color-paper-deep);
-  border-color: var(--color-border-strong);
-  color: var(--color-ink);
 }
 
 .title {

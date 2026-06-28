@@ -4,6 +4,12 @@
   border: 1px solid var(--color-border);
   background: #fff;
   box-shadow: var(--shadow-soft);
+  transition: opacity var(--transition-medium);
+}
+
+.ladderDimmed {
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 .title {
@@ -14,9 +20,15 @@
 
 .subtitle {
   margin-top: 0.35rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   font-size: 0.85rem;
   color: var(--color-ink-faint);
+}
+
+.headerExtra {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-paper-deep);
 }
 
 .steps {
@@ -29,6 +41,30 @@
   display: grid;
   grid-template-columns: 2rem 1fr;
   gap: 0 1rem;
+}
+
+.stepReveal {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: stepFadeIn 300ms ease forwards;
+  animation-delay: calc(var(--stagger-index) * 150ms);
+}
+
+.stepVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stepVisible .marker {
+  border-color: var(--marker-border);
+  background: var(--marker-fill);
+}
+
+@keyframes stepFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .markerColumn {
@@ -49,19 +85,31 @@
   z-index: 1;
 }
 
-.simple .marker {
-  border-color: var(--color-sage);
-  background: var(--color-sage-soft);
+.stepReveal .marker {
+  animation: markerFill 300ms ease forwards;
+  animation-delay: calc(var(--stagger-index) * 150ms + 100ms);
 }
 
-.intermediate .marker {
-  border-color: var(--color-gold);
-  background: var(--color-gold-soft);
+@keyframes markerFill {
+  to {
+    border-color: var(--marker-border);
+    background: var(--marker-fill);
+  }
 }
 
-.advanced .marker {
-  border-color: var(--color-ink);
-  background: var(--color-paper-deep);
+.simple {
+  --marker-border: var(--color-sage);
+  --marker-fill: var(--color-sage-soft);
+}
+
+.intermediate {
+  --marker-border: var(--color-gold);
+  --marker-fill: var(--color-gold-soft);
+}
+
+.advanced {
+  --marker-border: var(--color-terracotta);
+  --marker-fill: var(--color-terracotta-soft);
 }
 
 .connector {
@@ -123,7 +171,7 @@
 }
 
 .advanced .tierLabel {
-  color: var(--color-ink);
+  color: var(--color-terracotta);
 }
 
 .tierDescription {
@@ -165,8 +213,8 @@
 }
 
 .advanced .rewrite {
-  border-left-color: var(--color-ink);
-  background: var(--color-paper-deep);
+  border-left-color: var(--color-terracotta);
+  background: var(--color-terracotta-soft);
 }
 
 .copyButton {
@@ -188,6 +236,20 @@
   background: var(--color-paper-deep);
   border-color: var(--color-border-strong);
   color: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepReveal {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .stepReveal .marker {
+    animation: none;
+    border-color: var(--marker-border);
+    background: var(--marker-fill);
+  }
 }
 
 @media (max-width: 480px) {

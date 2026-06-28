@@ -1,0 +1,79 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.ladderWrap {
+  position: relative;
+}
+
+.ladderLoading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border-radius: var(--radius-lg);
+  background: rgba(250, 247, 242, 0.82);
+  backdrop-filter: blur(2px);
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.loadingSpinner {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-terracotta);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingMessage {
+  font-size: 0.88rem;
+  color: var(--color-ink-muted);
+  font-style: italic;
+}
+
+.toneError {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-terracotta);
+  background: var(--color-terracotta-soft);
+  font-size: 0.82rem;
+  color: var(--color-ink);
+}
+
+.driftNote {
+  margin: 0;
+  padding: 0 0.15rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-ink-faint);
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingSpinner {
+    animation: none;
+    border-top-color: var(--color-border);
+  }
+}
+
+@media (max-width: 480px) {
+  .ladderLoading {
+    padding: 1rem;
+  }
+}

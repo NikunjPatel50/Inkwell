@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import type { CSSProperties } from "react";
 import { countWords, formatWordCountDelta } from "../lib/textMetrics";
 import { DiffText } from "./DiffText";
 import styles from "./VersionLadder.module.css";
@@ -10,6 +11,10 @@ interface VersionLadderProps {
   intermediateTechnique: string;
   advanced: string;
   advancedTechnique: string;
+  revealKey: number;
+  dimmed?: boolean;
+  headerExtra?: ReactNode;
+  animateReveal?: boolean;
 }
 
 interface LadderStep {
@@ -54,6 +59,10 @@ export function VersionLadder({
   intermediateTechnique,
   advanced,
   advancedTechnique,
+  revealKey,
+  dimmed = false,
+  headerExtra,
+  animateReveal = true,
 }: VersionLadderProps) {
   const originalWordCount = countWords(original);
 
@@ -81,23 +90,31 @@ export function VersionLadder({
   ];
 
   return (
-    <section className={styles.ladder} aria-labelledby="ladder-heading">
+    <section
+      className={`${styles.ladder} ${dimmed ? styles.ladderDimmed : ""}`}
+      aria-labelledby="ladder-heading"
+    >
       <h2 id="ladder-heading" className={styles.title}>
         Complexity ladder
       </h2>
       <p className={styles.subtitle}>
-        Three rewrites with the same meaning — only complexity changes.
+        Three rewrites with the same meaning — complexity and tone can shift independently.
       </p>
 
-      <ol className={styles.steps}>
+      {headerExtra && <div className={styles.headerExtra}>{headerExtra}</div>}
+
+      <ol className={styles.steps} key={revealKey}>
         {steps.map((step, index) => {
           const rewriteWordCount = countWords(step.text);
+          const staggerStyle = { "--stagger-index": index } as CSSProperties;
+          const stepClass = animateReveal ? styles.stepReveal : styles.stepVisible;
 
           return (
             <li
               key={step.tier}
-              className={`${styles.step} ${styles[step.tier]}`}
+              className={`${styles.step} ${styles[step.tier]} ${stepClass}`}
               data-tier={step.tier}
+              style={staggerStyle}
             >
               <div className={styles.markerColumn}>
                 <span className={styles.marker} aria-hidden="true" />

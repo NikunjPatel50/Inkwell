@@ -1,12 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApiKeyPanel } from "./components/ApiKeyPanel";
-import { Editor } from "./components/Editor";
-import { FeedbackCard } from "./components/FeedbackCard";
-import { VersionLadder } from "./components/VersionLadder";
+import { PracticeTab } from "./components/PracticeTab";
+import { TabBar } from "./components/TabBar";
+import { WorkshopTab } from "./components/WorkshopTab";
 import { getEnvGroqApiKey, hasEnvGroqApiKey } from "./lib/env";
 import { analyzeWriting, GroqApiError } from "./lib/groqClient";
 import { countWords } from "./lib/textMetrics";
-import type { AnalysisResult, AnalysisStatus, GroqModel } from "./types";
+import { appendVocabularyCatch } from "./lib/vocabularyCatch";
+import type {
+  AnalysisResult,
+  AnalysisStatus,
+  AppTab,
+  GroqModel,
+  LadderResult,
+  Tone,
+  ToneCache,
+  VocabularyItem,
+} from "./types";
+import { ladderFromAnalysis } from "./types";
 import styles from "./App.module.css";
 
 const LOADING_MESSAGES = [
@@ -15,6 +26,13 @@ const LOADING_MESSAGES = [
   "Building the simple version…",
   "Crafting the intermediate rewrite…",
   "Polishing the advanced version…",
+];
+
+const TONE_LOADING_MESSAGES = [
+  "Adjusting tone…",
+  "Recasting the simple version…",
+  "Shifting the intermediate rewrite…",
+  "Refining the advanced version…",
 ];
 
 export default function App() {
@@ -28,10 +46,18 @@ export default function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [toneLoadingMessageIndex, setToneLoadingMessageIndex] = useState(0);
   const [activeErrorIndex, setActiveErrorIndex] = useState<number | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const resultsRef = useRef<HTMLElement>(null);
+  const [practiceCount, setPracticeCount] = useState(0);
+  const [revealKey, setRevealKey] = useState(0);
+  const [ladderAnimateReveal, setLadderAnimateReveal] = useState(false);
+  const [selectedTone, setSelectedTone] = useState<Tone>("neutral");
+  const [toneCache, setToneCache] = useState<ToneCache>({});
+  const [toneLoading, setToneLoading] = useState(false);
+  const [toneError, setToneError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<AppTab>("workshop");
+  const [hasCompletedAnalysis, setHasCompletedAnalysis] = useState(false);
+  const [vocabularyItems, setVocabularyItems] = useState<VocabularyItem[]>([]);
 
   const wordCount = countWords(text);
   const isLoading = status === "loading";
@@ -44,6 +70,14 @@ export default function App() {
       ? "Write or paste some text to analyse."
       : undefined;
   const showDeployHint = import.meta.env.PROD && !hasEnvGroqApiKey();
+
+  const displayLadder = useMemo((): LadderResult | null => {
+    if (!result) return null;
+    if (selectedTone === "neutral") {
+      return ladderFromAnalysis(result);
+    }
+    return toneCache[selectedTone] ?? ladderFromAnalysis(result);
+  }, [result, selectedTone, toneCache]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -59,13 +93,27 @@ export default function App() {
   }, [isLoading]);
 
   useEffect(() => {
-    if (status !== "success" || !resultsRef.current) return;
-
-    const isStacked = window.matchMedia("(max-width: 860px)").matches;
-    if (isStacked) {
-      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!toneLoading) {
+      setToneLoadingMessageIndex(0);
+      return;
     }
-  }, [status]);
+
+    const interval = window.setInterval(() => {
+      setToneLoadingMessageIndex((prev) => (prev + 1) % TONE_LOADING_MESSAGES.length);
+    }, 2200);
+
+    return () => window.clearInterval(interval);
+  }, [toneLoading]);
+
+  useEffect(() => {
+    if (!ladderAnimateReveal) return;
+
+    const timeout = window.setTimeout(() => {
+      setLadderAnimateReveal(false);
+    }, 900);
+
+    return () => window.clearTimeout(timeout);
+  }, [ladderAnimateReveal, revealKey]);
 
   const handleSaveApiKey = useCallback((apiKey: string, selectedModel: GroqModel) => {
     setSessionApiKey(apiKey);
@@ -74,20 +122,6 @@ export default function App() {
 
   const handleTextChange = useCallback((nextText: string) => {
     setText(nextText);
-    setIsEditing(true);
-    setActiveErrorIndex(null);
-  }, []);
-
-  const handleEdit = useCallback(() => {
-    setIsEditing(true);
-    setActiveErrorIndex(null);
-  }, []);
-
-  const handleErrorFocus = useCallback((errorIndex: number) => {
-    setActiveErrorIndex(errorIndex);
-  }, []);
-
-  const handleErrorBlur = useCallback(() => {
     setActiveErrorIndex(null);
   }, []);
 
@@ -102,16 +136,22 @@ export default function App() {
 
     setStatus("loading");
     setErrorMessage("");
-    setResult(null);
-    setAnalysedText(null);
     setActiveErrorIndex(null);
-    setIsEditing(false);
+    setSelectedTone("neutral");
+    setToneCache({});
+    setToneError(null);
+    setToneLoading(false);
 
     try {
       const analysis = await analyzeWriting(trimmed, apiKey, model);
       setAnalysedText(trimmed);
       setResult(analysis);
       setStatus("success");
+      setPracticeCount((count) => count + 1);
+      setHasCompletedAnalysis(true);
+      setVocabularyItems((items) => appendVocabularyCatch(items, analysis.vocabularyCatch));
+      setRevealKey((key) => key + 1);
+      setLadderAnimateReveal(true);
     } catch (err) {
       const message =
         err instanceof GroqApiError
@@ -124,6 +164,62 @@ export default function App() {
     }
   }, [text, sessionApiKey, draftApiKey, model]);
 
+  const handleToneChange = useCallback(
+    async (tone: Tone) => {
+      if (!result || !analysedText) return;
+      if (tone === selectedTone && (tone === "neutral" || toneCache[tone])) return;
+
+      setSelectedTone(tone);
+      setToneError(null);
+
+      if (tone === "neutral" || toneCache[tone]) {
+        return;
+      }
+
+      const apiKey = sessionApiKey.trim() || draftApiKey.trim();
+      if (!apiKey) return;
+
+      setToneLoading(true);
+
+      try {
+        const toneResult = await analyzeWriting(analysedText, apiKey, model, { tone });
+        const ladder = ladderFromAnalysis(toneResult);
+        setToneCache((cache) => ({ ...cache, [tone]: ladder }));
+      } catch (err) {
+        const message =
+          err instanceof GroqApiError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : "Could not adjust tone. Please try again.";
+        setToneError(message);
+      } finally {
+        setToneLoading(false);
+      }
+    },
+    [
+      analysedText,
+      draftApiKey,
+      model,
+      result,
+      selectedTone,
+      sessionApiKey,
+      toneCache,
+    ],
+  );
+
+  const hasResultPanels = hasCompletedAnalysis && result !== null && analysedText !== null && displayLadder !== null;
+
+  const handleUsePrompt = useCallback((prompt: string) => {
+    setText(`${prompt}\n\n`);
+    setActiveErrorIndex(null);
+    setActiveTab("workshop");
+  }, []);
+
+  const handleGoToWrite = useCallback(() => {
+    setActiveTab("workshop");
+  }, []);
+
   return (
     <div className={styles.app}>
       <header className={styles.toolbar}>
@@ -134,6 +230,11 @@ export default function App() {
           <div>
             <h1 className={styles.title}>Inkwell</h1>
             <p className={styles.tagline}>Practice your writing, one paragraph at a time.</p>
+            {practiceCount > 0 && (
+              <p className={styles.practiceCounter} aria-live="polite">
+                {practiceCount} sentence{practiceCount === 1 ? "" : "s"} practiced this session
+              </p>
+            )}
           </div>
         </div>
 
@@ -157,74 +258,50 @@ export default function App() {
         </div>
       )}
 
+      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+
       <main className={styles.main}>
-        <div className={styles.workspace}>
-          <div className={styles.editorColumn}>
-            <Editor
+        <div className={styles.tabPanels}>
+          <div className={styles.tabPanel} hidden={activeTab !== "workshop"}>
+            <WorkshopTab
               text={text}
               wordCount={wordCount}
+              status={status}
               isLoading={isLoading}
+              loadingMessage={LOADING_MESSAGES[loadingMessageIndex]}
               canAnalyse={canAnalyse}
               analyseHint={analyseHint}
-              showHighlights={status === "success"}
-              analysedText={analysedText}
+              errorMessage={status === "error" ? errorMessage : null}
+              hasResults={hasResultPanels}
+              registerScore={result?.registerScore ?? 0}
+              registerMeterKey={revealKey}
               errors={result?.errors ?? []}
-              isEditing={isEditing}
               activeErrorIndex={activeErrorIndex}
+              analysedText={analysedText}
+              displayLadder={displayLadder}
+              selectedTone={selectedTone}
+              toneLoading={toneLoading}
+              toneLoadingMessage={TONE_LOADING_MESSAGES[toneLoadingMessageIndex]}
+              toneError={toneError}
+              revealKey={revealKey}
+              animateReveal={ladderAnimateReveal}
               onTextChange={handleTextChange}
               onAnalyse={handleAnalyse}
-              onEdit={handleEdit}
-              onErrorFocus={handleErrorFocus}
-              onErrorBlur={handleErrorBlur}
+              onErrorHover={setActiveErrorIndex}
+              onToneChange={handleToneChange}
             />
           </div>
 
-          <div className={styles.panelDivider} aria-hidden="true" />
-
-          <aside ref={resultsRef} className={styles.resultsColumn} aria-label="Analysis results">
-            {status === "idle" && (
-              <section className={styles.emptyState}>
-                <p className={styles.emptyText}>
-                  Your feedback and rewrites will appear here after you click{" "}
-                  <strong>Analyse my writing</strong>.
-                </p>
-              </section>
-            )}
-
-            {status === "loading" && (
-              <section className={styles.loadingState} aria-live="polite">
-                <span className={styles.loadingSpinner} aria-hidden="true" />
-                <p className={styles.loadingMessage}>
-                  {LOADING_MESSAGES[loadingMessageIndex]}
-                </p>
-              </section>
-            )}
-
-            {status === "error" && (
-              <section className={styles.errorState} role="alert">
-                <h2 className={styles.errorTitle}>Something went wrong</h2>
-                <p className={styles.errorMessage}>{errorMessage}</p>
-              </section>
-            )}
-
-            {status === "success" && result && analysedText && (
-              <div className={styles.results}>
-                <FeedbackCard
-                  errors={result.errors}
-                  activeErrorIndex={activeErrorIndex}
-                  onErrorHover={setActiveErrorIndex}
-                />
-                <VersionLadder
-                  original={analysedText}
-                  simple={result.simple}
-                  intermediate={result.intermediate}
-                  intermediateTechnique={result.intermediateTechnique}
-                  advanced={result.advanced}
-                  advancedTechnique={result.advancedTechnique}
-                />
-              </div>
-            )}
-          </aside>
+          <div className={styles.tabPanel} hidden={activeTab !== "practice"}>
+            <PracticeTab
+              apiKey={resolvedApiKey}
+              model={model}
+              hasApiKey={hasApiKey}
+              vocabularyItems={vocabularyItems}
+              onUsePrompt={handleUsePrompt}
+              onGoToWrite={handleGoToWrite}
+            />
+          </div>
         </div>
       </main>
     </div>
