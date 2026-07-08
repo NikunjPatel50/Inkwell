@@ -2,7 +2,7 @@
   padding: 1.5rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-surface);
   box-shadow: var(--shadow-soft);
 }
 
@@ -68,7 +68,7 @@
   height: 1.15rem;
   border-radius: 50%;
   background: var(--color-terracotta);
-  color: #fff;
+  color: var(--color-on-accent);
   font-family: var(--font-sans);
   font-size: 0.65rem;
   font-weight: 700;

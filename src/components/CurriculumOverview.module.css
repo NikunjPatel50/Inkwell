@@ -1,0 +1,227 @@
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--enterprise-section-gap);
+  width: 100%;
+}
+
+.recommendation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.05rem;
+  border-radius: var(--enterprise-card-radius);
+  border: 1px solid var(--color-chrome-border);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-sidebar-active) 100%);
+  box-shadow: var(--shadow-soft);
+}
+
+@media (min-width: 720px) {
+  .recommendation {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+  }
+}
+
+.recommendationBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.recommendationTitle {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-brand-teal);
+  margin-bottom: 0.35rem;
+}
+
+.recommendationSkill {
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.recommendationReason {
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--color-ink-muted);
+  line-height: 1.5;
+}
+
+.startButton {
+  flex-shrink: 0;
+  align-self: flex-start;
+  padding: 0.52rem 1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-teal);
+  color: var(--color-on-accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(26, 158, 150, 0.22);
+}
+
+@media (min-width: 720px) {
+  .startButton {
+    align-self: center;
+  }
+}
+
+.startButton:focus-visible,
+.practiceLink:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.curriculumBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--enterprise-card-radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.tierNote {
+  font-size: 0.78rem;
+  color: var(--color-ink-faint);
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-workspace-bg);
+  border: 1px solid var(--color-chrome-border);
+}
+
+.tierSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tierSection + .tierSection {
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-chrome-border);
+}
+
+.tierMuted {
+  opacity: 0.55;
+}
+
+.tierHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.tierPill {
+  flex-shrink: 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.tierPill1 {
+  color: var(--color-sage);
+  background: var(--color-sage-soft);
+}
+
+.tierPill2 {
+  color: var(--color-gold);
+  background: var(--color-gold-soft);
+}
+
+.tierPill3 {
+  color: var(--color-terracotta);
+  background: var(--color-terracotta-soft);
+}
+
+.tierName {
+  font-family: var(--font-serif);
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+.tierDescription {
+  font-size: 0.78rem;
+  color: var(--color-ink-faint);
+  margin-top: 0.15rem;
+}
+
+.skillList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.skillRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--color-chrome-border);
+}
+
+.skillRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.skillInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.skillName {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.practicedDot {
+  font-size: 0.72rem;
+  color: var(--color-sage);
+  font-weight: 700;
+}
+
+.skillDescription {
+  font-size: 0.78rem;
+  color: var(--color-ink-muted);
+  line-height: 1.45;
+}
+
+.practiceLink {
+  flex-shrink: 0;
+  padding: 0.38rem 0.7rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-workspace-bg);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-brand-teal);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.practiceLink:hover {
+  background: var(--color-sidebar-active);
+  border-color: rgba(26, 158, 150, 0.35);
+}

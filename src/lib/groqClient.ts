@@ -1,92 +1,11 @@
-import type { AdjustedTone, AnalysisResult, GroqModel, Tone } from "../types";
-import { clampRegisterScore } from "./registerScore";
+import type {
+  DuelResult,
+  DuelSentence,
+  EmotionRewriteResult,
+} from "../types";
 
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
-
-const BASE_JSON_SHAPE = `{
-  "errors": [{ "issue": string, "explanation": string }],
-  "registerScore": number,
-  "simple": string,
-  "intermediate": string,
-  "intermediateTechnique": string,
-  "advanced": string,
-  "advancedTechnique": string
-}`;
-
-const TONE_JSON_SHAPE = `${BASE_JSON_SHAPE.slice(0, -1)},
-  "toneDriftNote": string
-}`;
-
-const TONE_GUIDANCE: Record<AdjustedTone, string> = {
-  formal:
-    "more formal register, avoid contractions and casual phrasing, more precise word choice",
-  casual: "conversational, contractions allowed, relaxed phrasing",
-  direct: "shorter sentences, no hedging or softening language, get to the point",
-  warm: "friendlier, more personable phrasing, softer transitions, approachable word choice",
-};
-
-function buildFullSystemPrompt(): string {
-  return `You are an expert writing coach. Analyse the user's text and respond with JSON only.
-
-Return a JSON object with exactly this shape:
-${BASE_JSON_SHAPE}
-
-Rules for "registerScore":
-- A number from 0 to 100 estimating where the ORIGINAL text's vocabulary and sentence complexity fall on a simple-to-advanced spectrum.
-- 0 = very simple/plain, 50 = intermediate/standard, 100 = very advanced/sophisticated.
-- Base this only on the user's original text, not the rewrites.
-
-Rules for "errors":
-- List specific grammar, wording, punctuation, or clarity issues in the original text.
-- Each item needs a short "issue" (what is wrong) and "explanation" (plain-English fix).
-- In "issue", quote the exact problematic phrase from the user's text in double quotes when possible (e.g. Informal tone: "a nice platform").
-- If there are no mistakes, return "errors": [].
-
-Rules for rewrites (simple, intermediate, advanced):
-- Preserve the EXACT same meaning and facts as the original — do not add, remove, or change information.
-- Only change vocabulary and sentence complexity.
-- Keep similar length and scope to the original.
-- "simple": plain, accessible English suitable for beginners.
-- "intermediate": standard, clear English for general readers.
-- "advanced": sophisticated vocabulary and sentence structure for proficient readers.
-
-Rules for technique notes:
-- "intermediateTechnique": one short line naming the main structural/stylistic shift in the intermediate rewrite (e.g. "more formal connectors, clearer clause structure").
-- "advancedTechnique": one short line naming the main structural/stylistic shift in the advanced rewrite (e.g. "passive voice, nominalization, subordinate clause").
-- Keep each technique note under 12 words — a phrase, not a paragraph.
-
-Respond with valid JSON only. No markdown, no commentary outside the JSON object.`;
-}
-
-function buildToneSystemPrompt(tone: AdjustedTone): string {
-  const guidance = TONE_GUIDANCE[tone];
-
-  return `You are an expert writing coach. Adjust the tone of complexity-tier rewrites and respond with JSON only.
-
-Return a JSON object with exactly this shape:
-${TONE_JSON_SHAPE}
-
-The user wants the "${tone}" tone applied. In addition to preserving each rung's complexity level, adjust the tone of each rewrite to be more ${tone}:
-- ${guidance}
-
-Critical rules:
-- Do NOT change the underlying meaning, facts, or complexity tier of each version — tone is independent of complexity level.
-- "simple" must remain simple vocabulary/structure; "intermediate" must remain intermediate; "advanced" must remain advanced.
-- Preserve the EXACT same meaning and facts as the original — do not add, remove, or change information.
-- Keep similar length and scope to the original at each tier.
-
-For "toneDriftNote":
-- One short italic-ready sentence noting if the ${tone} adjustment significantly changed emotional warmth or interpersonal feel versus the original (e.g. "Note: this version reads more detached than your original tone.").
-- Return an empty string if there is no significant drift.
-
-For fields you are not evaluating on this pass:
-- Return "errors": [] and "registerScore": 50 — these are ignored.
-
-Rules for technique notes — describe structural/stylistic shifts, including tone where relevant:
-- Keep each under 12 words.
-
-Respond with valid JSON only. No markdown, no commentary outside the JSON object.`;
-}
+const DEFAULT_MODEL = "llama-3.3-70b-versatile";
 
 export class GroqApiError extends Error {
   constructor(message: string) {
@@ -95,76 +14,19 @@ export class GroqApiError extends Error {
   }
 }
 
-/** Strip markdown code fences if the model wraps JSON despite instructions. */
+function getApiKey(): string | null {
+  const key = process.env.NEXT_PUBLIC_GROQ_API_KEY;
+  return typeof key === "string" && key.trim() ? key.trim() : null;
+}
+
+export function isGroqConfigured(): boolean {
+  return Boolean(getApiKey());
+}
+
 function extractJsonPayload(content: string): string {
   const trimmed = content.trim();
   const fenceMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)```$/i);
-  if (fenceMatch) {
-    return fenceMatch[1].trim();
-  }
-  return trimmed;
-}
-
-function isWritingError(value: unknown): value is AnalysisResult["errors"][number] {
-  if (typeof value !== "object" || value === null) return false;
-  const obj = value as Record<string, unknown>;
-  return typeof obj.issue === "string" && typeof obj.explanation === "string";
-}
-
-function parseAnalysisResult(raw: string, expectToneNote: boolean): AnalysisResult {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(extractJsonPayload(raw));
-  } catch {
-    throw new GroqApiError(
-      "The model returned a response we couldn't parse. Try again or switch models.",
-    );
-  }
-
-  if (typeof parsed !== "object" || parsed === null) {
-    throw new GroqApiError("The model returned an invalid response shape.");
-  }
-
-  const data = parsed as Record<string, unknown>;
-
-  if (!Array.isArray(data.errors) || !data.errors.every(isWritingError)) {
-    throw new GroqApiError("The model response is missing a valid errors list.");
-  }
-
-  if (
-    typeof data.simple !== "string" ||
-    typeof data.intermediate !== "string" ||
-    typeof data.advanced !== "string"
-  ) {
-    throw new GroqApiError("The model response is missing one or more rewrites.");
-  }
-
-  if (
-    typeof data.intermediateTechnique !== "string" ||
-    typeof data.advancedTechnique !== "string"
-  ) {
-    throw new GroqApiError("The model response is missing technique notes.");
-  }
-
-  const toneDriftNote =
-    typeof data.toneDriftNote === "string" && data.toneDriftNote.trim().length > 0
-      ? data.toneDriftNote.trim()
-      : undefined;
-
-  if (expectToneNote && toneDriftNote === undefined && data.toneDriftNote !== "") {
-    // toneDriftNote is optional — empty string or omission both mean no note
-  }
-
-  return {
-    errors: data.errors,
-    registerScore: clampRegisterScore(data.registerScore),
-    simple: data.simple,
-    intermediate: data.intermediate,
-    intermediateTechnique: data.intermediateTechnique,
-    advanced: data.advanced,
-    advancedTechnique: data.advancedTechnique,
-    toneDriftNote,
-  };
+  return fenceMatch ? fenceMatch[1].trim() : trimmed;
 }
 
 async function readErrorMessage(response: Response): Promise<string | null> {
@@ -193,48 +55,44 @@ function mapHttpError(status: number, apiMessage: string | null): string {
     case 503:
       return "GROQ is temporarily unavailable. Please try again shortly.";
     default:
+      if (status === 0 || !navigator.onLine) {
+        return "Network error — check your connection and try again.";
+      }
       return apiMessage
         ? `Request failed (${status}): ${apiMessage}`
         : `Request failed with status ${status}.`;
   }
 }
 
-export interface AnalyzeOptions {
-  tone?: Tone;
-}
+async function callGroq(systemPrompt: string, userContent: string): Promise<string> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new GroqApiError(
+      "GROQ is not configured. Set NEXT_PUBLIC_GROQ_API_KEY in .env.local or connect InsForge.",
+    );
+  }
 
-export async function analyzeWriting(
-  text: string,
-  apiKey: string,
-  model: GroqModel,
-  options: AnalyzeOptions = {},
-): Promise<AnalysisResult> {
-  const tone = options.tone ?? "neutral";
-  const isTonePass = tone !== "neutral";
-  const systemPrompt = isTonePass
-    ? buildToneSystemPrompt(tone)
-    : buildFullSystemPrompt();
-
-  const userContent = isTonePass
-    ? `Adjust the simple, intermediate, and advanced rewrites of this text to the "${tone}" tone:\n\n${text}`
-    : `Analyse this text:\n\n${text}`;
-
-  const response = await fetch(GROQ_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userContent },
-      ],
-      temperature: 0.4,
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(GROQ_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: DEFAULT_MODEL,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userContent },
+        ],
+        temperature: 0.7,
+      }),
+    });
+  } catch {
+    throw new GroqApiError("Network error — check your connection and try again.");
+  }
 
   if (!response.ok) {
     const apiMessage = await readErrorMessage(response);
@@ -250,5 +108,179 @@ export async function analyzeWriting(
     throw new GroqApiError("GROQ returned an empty response. Try again.");
   }
 
-  return parseAnalysisResult(content, isTonePass);
+  return content;
 }
+
+const FLAW_TYPES = [
+  "overly vague",
+  "cliché-ridden",
+  "excessively wordy",
+  "tonally inconsistent",
+  "structurally awkward",
+] as const;
+
+export async function generateDuelSentence(): Promise<DuelSentence> {
+  const flawHint = FLAW_TYPES[Math.floor(Math.random() * FLAW_TYPES.length)];
+
+  const systemPrompt = `You generate deliberately weak writing for a rewrite duel. Respond with JSON only:
+{ "sentence": string, "flaw": string }
+
+Rules:
+- "sentence": exactly 1-2 sentences, genuinely weak in an interesting way (not just a typo).
+- The weakness should be primarily: ${flawHint} (vary how you express this flaw).
+- "flaw": one short phrase naming the weakness type (e.g. "overly vague", "cliché-ridden").
+- Make it challenging but fun — something a good writer could clearly improve.
+- No markdown. JSON only.`;
+
+  const content = await callGroq(systemPrompt, "Generate a new challenger sentence.");
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(extractJsonPayload(content));
+  } catch {
+    throw new GroqApiError("The model returned a response we couldn't parse. Try again.");
+  }
+
+  const data = parsed as Record<string, unknown>;
+  const sentence = typeof data.sentence === "string" ? data.sentence.trim() : "";
+  const flaw = typeof data.flaw === "string" ? data.flaw.trim() : "";
+
+  if (!sentence || !flaw) {
+    throw new GroqApiError("The model response is missing the duel sentence or flaw.");
+  }
+
+  return { sentence, flaw };
+}
+
+export async function judgeDuel(
+  badSentence: string,
+  flaw: string,
+  userRewrite: string,
+): Promise<DuelResult> {
+  const systemPrompt = `You are an honest editor judging a rewrite duel. Respond with JSON only:
+{
+  "aiRewrite": string,
+  "verdict": "user" | "ai" | "tie",
+  "judgment": string,
+  "takeaway": string
+}
+
+Rules:
+- Rewrite the bad sentence yourself in "aiRewrite" — your best version, same facts.
+- Compare the user's rewrite fairly. Pick "user", "ai", or "tie" honestly — users should win sometimes.
+- "judgment": 2-3 sentences of specific, editor-style reasoning (not cheerleading).
+- "takeaway": one transferable writing principle (plain sentence).
+- JSON only.`;
+
+  const userContent = `Bad sentence:\n${badSentence}\n\nKnown flaw: ${flaw}\n\nUser's rewrite:\n${userRewrite || "(blank — user ran out of time)"}`;
+
+  const content = await callGroq(systemPrompt, userContent);
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(extractJsonPayload(content));
+  } catch {
+    throw new GroqApiError("The model returned a response we couldn't parse. Try again.");
+  }
+
+  const data = parsed as Record<string, unknown>;
+  const aiRewrite = typeof data.aiRewrite === "string" ? data.aiRewrite.trim() : "";
+  const judgment = typeof data.judgment === "string" ? data.judgment.trim() : "";
+  const takeaway = typeof data.takeaway === "string" ? data.takeaway.trim() : "";
+  const verdict = data.verdict;
+
+  if (
+    !aiRewrite ||
+    !judgment ||
+    !takeaway ||
+    (verdict !== "user" && verdict !== "ai" && verdict !== "tie")
+  ) {
+    throw new GroqApiError("The model response is missing duel judgment fields.");
+  }
+
+  return { aiRewrite, verdict, judgment, takeaway };
+}
+
+export async function rewriteWithEmotion(text: string): Promise<EmotionRewriteResult> {
+  const systemPrompt = `You rewrite a neutral sentence in six emotional registers. Respond with JSON only:
+{
+  "emotions": {
+    "hopeful": string,
+    "melancholic": string,
+    "tense": string,
+    "ironic": string,
+    "nostalgic": string,
+    "urgent": string
+  },
+  "techniques": {
+    "hopeful": string,
+    "melancholic": string,
+    "tense": string,
+    "ironic": string,
+    "nostalgic": string,
+    "urgent": string
+  }
+}
+
+Rules:
+- Same facts in every version — only word choice, rhythm, and connotation change.
+- Show emotion; do NOT name it (no "sadly", "hopefully", etc.).
+- Keep length similar to the original.
+- "techniques": one short phrase per emotion naming the key technique.
+- JSON only.`;
+
+  const content = await callGroq(systemPrompt, `Rewrite this sentence:\n\n${text}`);
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(extractJsonPayload(content));
+  } catch {
+    throw new GroqApiError("The model returned a response we couldn't parse. Try again.");
+  }
+
+  const data = parsed as Record<string, unknown>;
+  const emotionsRaw = data.emotions;
+  const techniquesRaw = data.techniques;
+
+  if (typeof emotionsRaw !== "object" || emotionsRaw === null) {
+    throw new GroqApiError("The model response is missing emotion rewrites.");
+  }
+
+  const keys = [
+    "hopeful",
+    "melancholic",
+    "tense",
+    "ironic",
+    "nostalgic",
+    "urgent",
+  ] as const;
+
+  const emotions = {} as EmotionRewriteResult["emotions"];
+  const techniques = {} as EmotionRewriteResult["techniques"];
+
+  for (const key of keys) {
+    const emotionValue = (emotionsRaw as Record<string, unknown>)[key];
+    emotions[key] =
+      typeof emotionValue === "string" && emotionValue.trim()
+        ? emotionValue.trim()
+        : "—";
+
+    const techniqueValue =
+      typeof techniquesRaw === "object" && techniquesRaw !== null
+        ? (techniquesRaw as Record<string, unknown>)[key]
+        : undefined;
+    techniques[key] =
+      typeof techniqueValue === "string" && techniqueValue.trim()
+        ? techniqueValue.trim()
+        : "—";
+  }
+
+  return { emotions, techniques };
+}
+
+export {
+  generateBuildItExercise,
+  generateSpotTheErrorExercise,
+  generateCompleteItExercise,
+  checkCompleteIt,
+} from "./learnGroq";

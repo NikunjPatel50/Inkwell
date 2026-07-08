@@ -35,7 +35,7 @@
 .pill:hover:not(:disabled):not(.pillActive) {
   border-color: var(--color-border-strong);
   color: var(--color-ink);
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--color-overlay-light);
 }
 
 .pillActive {

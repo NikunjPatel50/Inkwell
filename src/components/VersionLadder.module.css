@@ -2,7 +2,7 @@
   padding: 1.5rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-surface);
   box-shadow: var(--shadow-soft);
   transition: opacity var(--transition-medium);
 }

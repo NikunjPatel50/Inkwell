@@ -1,0 +1,110 @@
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.backLink,
+.altLink {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 0.85rem;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.backLink:focus-visible,
+.altLink:focus-visible,
+.nextButton:focus-visible,
+.retryButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.skillTitle {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.tierBadge {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.tier1 {
+  color: var(--color-sage);
+  background: var(--color-sage-soft);
+}
+
+.tier2 {
+  color: var(--color-gold);
+  background: var(--color-gold-soft);
+}
+
+.tier3 {
+  color: var(--color-terracotta);
+  background: var(--color-terracotta-soft);
+}
+
+.introduction {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-ink-muted);
+}
+
+.exerciseEyebrow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.loading {
+  font-size: 0.9rem;
+  color: var(--color-ink-muted);
+  font-style: italic;
+}
+
+.error {
+  font-size: 0.9rem;
+  color: var(--color-terracotta);
+}
+
+.retryBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.retryButton,
+.nextButton {
+  padding: 0.6rem 1.1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-sage);
+  color: var(--color-on-accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.progressNote {
+  font-size: 0.82rem;
+  color: var(--color-ink-faint);
+}

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { WritingError } from "../types";
+import { TeachingNote } from "./TeachingNote";
 import styles from "./FeedbackCard.module.css";
 
 interface FeedbackCardProps {
@@ -53,6 +54,7 @@ export function FeedbackCard({ errors, activeErrorIndex, onErrorHover }: Feedbac
                   {error.issue}
                 </span>
                 <span className={styles.explanation}>{error.explanation}</span>
+                {error.teaching && <TeachingNote teaching={error.teaching} />}
               </li>
             );
           })}

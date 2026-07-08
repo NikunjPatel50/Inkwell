@@ -1,0 +1,119 @@
+.wrapper {
+  margin-top: 0.5rem;
+}
+
+.toggle {
+  padding: 0.15rem 0;
+  border: none;
+  background: none;
+  font-family: var(--font-serif);
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--color-ink-faint);
+  cursor: pointer;
+  text-align: left;
+}
+
+.toggle:hover {
+  color: var(--color-ink-muted);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition-medium) ease;
+}
+
+.panelOpen {
+  max-height: 24rem;
+}
+
+.panelInner {
+  margin-top: 0.65rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-teaching-panel);
+}
+
+.eyebrow {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.why {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--color-ink-muted);
+}
+
+.principle {
+  margin: 0 0 0.85rem;
+  padding: 0.35rem 0 0.35rem 0.75rem;
+  border: none;
+  border-left: 3px solid var(--color-gold);
+  font-family: var(--font-serif);
+  font-size: 0.98rem;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--color-ink);
+}
+
+.example {
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-overlay-light);
+}
+
+.exampleLine {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+}
+
+.exampleLine + .exampleLine {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(221, 213, 200, 0.65);
+}
+
+.exampleLabel {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.exampleText {
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+  }
+
+  .panelOpen {
+    max-height: none;
+    overflow: visible;
+  }
+}

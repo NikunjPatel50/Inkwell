@@ -1,0 +1,179 @@
+:root {
+  --color-paper: #faf7f2;
+  --color-paper-deep: #f0ebe3;
+  --color-ink: #1a2332;
+  --color-ink-muted: #4a5568;
+  --color-ink-faint: #7a8494;
+  --color-terracotta: #c45c4a;
+  --color-terracotta-soft: #f5e8e5;
+  --color-sage: #6b8f71;
+  --color-sage-soft: #e8f0e9;
+  --color-gold: #b8922a;
+  --color-gold-soft: #f5eed8;
+  --color-border: #ddd5c8;
+  --color-border-strong: #c4b9a8;
+  --color-focus: #1a9e96;
+
+  --color-brand-teal: #1a9e96;
+
+  --color-chrome-bg: #ffffff;
+  --color-chrome-border: #e2e8f0;
+  --color-sidebar-bg: #f8fafc;
+  --color-sidebar-hover: #eef2f6;
+  --color-sidebar-active: #e8f4f3;
+  --color-workspace-bg: #eef2f6;
+  --sidebar-width: 15.5rem;
+  --topbar-height: 4rem;
+  --tab-page-padding-x: clamp(1.15rem, 2.2vw, 1.75rem);
+  --tab-page-padding-y: clamp(1.1rem, 1.8vw, 1.5rem);
+  --enterprise-section-gap: 1rem;
+  --enterprise-card-radius: 12px;
+
+  --chart-1: #1a9e96;
+  --chart-2: #c45c4a;
+  --chart-3: #b8922a;
+  --chart-4: #6b8f71;
+  --chart-5: #5b7c99;
+  --chart-6: #9b6b9e;
+
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-toolbar-bg: rgba(255, 255, 255, 0.72);
+  --color-scratch: #fdf9f3;
+  --color-teaching-panel: #faf3e8;
+  --color-overlay-light: rgba(255, 255, 255, 0.55);
+  --color-overlay-soft: rgba(255, 255, 255, 0.45);
+  --color-on-accent: #ffffff;
+  --color-divider-highlight: rgba(255, 255, 255, 0.9);
+  --color-loading-overlay: rgba(250, 247, 242, 0.88);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05), 0 8px 28px rgba(15, 23, 42, 0.08);
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+
+  --transition-fast: 150ms ease;
+  --transition-medium: 250ms ease;
+}
+
+[data-theme="dark"] {
+  --color-paper: #1a1f28;
+  --color-paper-deep: #141820;
+  --color-ink: #e8eaed;
+  --color-ink-muted: #a8b0bc;
+  --color-ink-faint: #7a8494;
+  --color-terracotta: #d97362;
+  --color-terracotta-soft: #3a2520;
+  --color-sage: #8aaa90;
+  --color-sage-soft: #1e2a22;
+  --color-gold: #d4ae4a;
+  --color-gold-soft: #2a2518;
+  --color-border: #2e3542;
+  --color-border-strong: #3d4656;
+  --color-focus: #3dbdb4;
+
+  --color-brand-teal: #3dbdb4;
+
+  --color-chrome-bg: #1c2330;
+  --color-chrome-border: #2e3a4d;
+  --color-sidebar-bg: #171d28;
+  --color-sidebar-hover: #222a38;
+  --color-sidebar-active: #1a2e2d;
+  --color-workspace-bg: #0f141c;
+
+  --color-surface: #222833;
+  --color-surface-elevated: #282e3a;
+  --color-toolbar-bg: rgba(34, 40, 51, 0.92);
+  --color-scratch: #2a2620;
+  --color-teaching-panel: #2a2418;
+  --color-overlay-light: rgba(255, 255, 255, 0.06);
+  --color-overlay-soft: rgba(255, 255, 255, 0.04);
+  --color-on-accent: #ffffff;
+  --color-divider-highlight: rgba(255, 255, 255, 0.12);
+  --color-loading-overlay: rgba(26, 31, 40, 0.88);
+
+  --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.28);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.38);
+}
+
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(212, 174, 74, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(138, 170, 144, 0.05) 0%, transparent 50%);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-ink);
+  background-color: var(--color-workspace-bg);
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color var(--transition-medium),
+    color var(--transition-medium);
+}
+
+@media (max-width: 860px) {
+  body {
+    overflow: auto;
+  }
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(201, 162, 39, 0.25);
+}
+
+[data-theme="dark"] ::selection {
+  background: rgba(212, 174, 74, 0.35);
+}

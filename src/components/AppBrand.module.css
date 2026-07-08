@@ -1,0 +1,79 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  line-height: 0;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: opacity var(--transition-fast);
+}
+
+.root:hover {
+  opacity: 0.92;
+}
+
+.root:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.logo {
+  display: block;
+  width: auto;
+  height: 2rem;
+  max-width: min(100%, 11rem);
+  object-fit: contain;
+  object-position: left center;
+  flex-shrink: 0;
+}
+
+.logoHeader {
+  height: 2.15rem;
+  max-width: min(100%, 13.5rem);
+}
+
+.logoDark {
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .logoLight {
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .logoDark {
+  display: block;
+}
+
+:global(html[data-theme="dark"]) .logoHeader {
+  height: 2rem;
+}
+
+@media (max-width: 480px) {
+  .logo {
+    height: 1.75rem;
+    max-width: min(100%, 9rem);
+  }
+
+  .logoHeader {
+    height: 1.9rem;
+    max-width: min(100%, 11rem);
+  }
+
+  :global(html[data-theme="dark"]) .logoHeader {
+    height: 1.75rem;
+  }
+}

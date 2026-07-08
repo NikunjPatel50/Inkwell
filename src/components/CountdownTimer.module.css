@@ -1,0 +1,40 @@
+.timer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.barTrack {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-paper-deep);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: var(--color-terracotta);
+  transform-origin: left center;
+  transition: transform 1s linear;
+}
+
+.staticTime {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-terracotta);
+}
+
+.label {
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barFill {
+    transition: none;
+  }
+}

@@ -1,0 +1,133 @@
+.toggle {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.35rem;
+  height: 2.35rem;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  color: var(--color-ink);
+  cursor: pointer;
+  transform: translateY(0);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 3px 0 var(--color-border-strong),
+    0 5px 10px rgba(26, 35, 50, 0.14);
+}
+
+.toggleToolbar {
+  width: 2.15rem;
+  height: 2.15rem;
+  border-color: var(--color-chrome-border);
+  box-shadow: none;
+}
+
+.toggleToolbar:hover {
+  transform: none;
+}
+
+.toggleToolbar:active,
+.toggleToolbar.switching {
+  transform: none;
+}
+
+.toggleToolbar.isLight:hover,
+.toggleToolbar.isDark:hover {
+  box-shadow: none;
+}
+
+.toggleToolbar.isLight:active,
+.toggleToolbar.isLight.switching,
+.toggleToolbar.isDark:active,
+.toggleToolbar.isDark.switching {
+  box-shadow: none;
+}
+
+.isLight {
+  background: linear-gradient(180deg, #fff8ef 0%, #f0e6d8 100%);
+}
+
+.isDark {
+  background: linear-gradient(180deg, #3a4458 0%, #252d3d 100%);
+  color: #f0e6c8;
+  border-color: #1a2030;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 3px 0 #141820,
+    0 5px 10px rgba(0, 0, 0, 0.35);
+}
+
+.toggle:hover {
+  transform: translateY(-1px);
+}
+
+.isLight:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 4px 0 var(--color-border-strong),
+    0 7px 12px rgba(26, 35, 50, 0.16);
+}
+
+.isDark:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.14) inset,
+    0 4px 0 #141820,
+    0 7px 12px rgba(0, 0, 0, 0.4);
+}
+
+.toggle:active,
+.toggle.switching {
+  transform: translateY(3px);
+}
+
+.isLight:active,
+.isLight.switching {
+  box-shadow:
+    0 2px 4px rgba(26, 35, 50, 0.2) inset,
+    0 0 0 var(--color-border-strong),
+    0 1px 3px rgba(26, 35, 50, 0.12);
+}
+
+.isDark:active,
+.isDark.switching {
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.45) inset,
+    0 0 0 #141820,
+    0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.icon {
+  font-size: 1.05rem;
+  line-height: 1;
+  transform: scale(1) rotate(0deg);
+  transition: transform 420ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.toggle.switching .icon {
+  transform: scale(0.82) rotate(-180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle,
+  .icon {
+    transition: none;
+  }
+
+  .toggle.switching .icon {
+    transform: none;
+  }
+}

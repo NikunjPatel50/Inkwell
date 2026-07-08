@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { pickRandomPlaceholder } from "../constants/placeholders";
+import { useEffect, useState } from "react";
+import {
+  EDITOR_PLACEHOLDERS,
+  pickRandomPlaceholder,
+} from "../constants/placeholders";
 import styles from "./Editor.module.css";
 
 interface EditorProps {
@@ -21,7 +24,11 @@ export function Editor({
   onTextChange,
   onAnalyse,
 }: EditorProps) {
-  const [placeholder] = useState(() => pickRandomPlaceholder());
+  const [placeholder, setPlaceholder] = useState<string>(EDITOR_PLACEHOLDERS[0]);
+
+  useEffect(() => {
+    setPlaceholder(pickRandomPlaceholder());
+  }, []);
 
   return (
     <section className={styles.editor} aria-labelledby="editor-heading">
@@ -60,7 +67,7 @@ export function Editor({
               Analysing…
             </>
           ) : (
-            "Analyse my writing"
+            "Analyse"
           )}
         </button>
         {analyseHint && !isLoading && (

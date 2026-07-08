@@ -1,7 +1,36 @@
+export interface ErrorExample {
+  before: string;
+  after: string;
+}
+
+export interface TeachingNote {
+  why: string;
+  principle: string;
+  example: ErrorExample;
+}
+
 export interface WritingError {
   issue: string;
   explanation: string;
+  teaching?: TeachingNote;
 }
+
+export type Verdict = "fixed" | "partial" | "missed";
+
+export interface CorrectedItem {
+  issue: string;
+  userAttempt: string;
+  verdict: Verdict;
+  hint: string;
+}
+
+export interface CorrectionResult {
+  score: number;
+  corrected: CorrectedItem[];
+  encouragement: string;
+}
+
+export type SelfCorrectionPhase = "hidden" | "active" | "completed" | "skipped";
 
 export interface LadderResult {
   simple: string;
@@ -15,9 +44,10 @@ export interface LadderResult {
 export interface AnalysisResult extends LadderResult {
   errors: WritingError[];
   registerScore: number;
+  vocabularyCatch?: VocabularyItem[];
 }
 
-export type Tone = "neutral" | "formal" | "casual" | "direct" | "warm";
+export type Tone = "neutral" | "formal" | "casual";
 
 export type AdjustedTone = Exclude<Tone, "neutral">;
 
@@ -25,24 +55,167 @@ export const TONES: { value: Tone; label: string }[] = [
   { value: "neutral", label: "Neutral" },
   { value: "formal", label: "Formal" },
   { value: "casual", label: "Casual" },
-  { value: "direct", label: "Direct" },
-  { value: "warm", label: "Warm" },
-];
-
-export type GroqModel =
-  | "llama-3.3-70b-versatile"
-  | "llama-3.1-8b-instant"
-  | "gemma2-9b-it";
-
-export const GROQ_MODELS: { value: GroqModel; label: string }[] = [
-  { value: "llama-3.3-70b-versatile", label: "Llama 3.3 70B (versatile)" },
-  { value: "llama-3.1-8b-instant", label: "Llama 3.1 8B (instant)" },
-  { value: "gemma2-9b-it", label: "Gemma 2 9B" },
 ];
 
 export type AnalysisStatus = "idle" | "loading" | "success" | "error";
 
+export type AppTab = "dashboard" | "learn" | "write" | "creative" | "history";
+
+export const APP_TABS: { id: AppTab; label: string; description: string }[] = [
+  { id: "dashboard", label: "Dashboard", description: "Practice overview and quick actions" },
+  { id: "learn", label: "Learn", description: "Adaptive curriculum and skill exercises" },
+  { id: "write", label: "Write", description: "Analyse drafts with grammar feedback and rewrites" },
+  { id: "creative", label: "Creative", description: "Writing games and expressive rewrites" },
+  { id: "history", label: "History", description: "Session history and progress tracking" },
+];
+
+export interface VocabularyItem {
+  word: string;
+  definition: string;
+  sourceSentence: string;
+}
+
+export interface VocabularyWordRow {
+  id: string;
+  word: string;
+  definition: string;
+  source_sentence: string;
+  created_at: string;
+}
+
+export interface AnalyzedSentenceRow {
+  id: string;
+  created_at: string;
+  original_text: string;
+  register_score: number;
+  simple_version: string;
+  intermediate_version: string;
+  advanced_version: string;
+  error_count: number;
+}
+
+export interface SkillPatternRow {
+  id: string;
+  category: string;
+  occurrence_count: number;
+  last_seen_at: string;
+}
+
+export interface HistoryResponse {
+  sentences: AnalyzedSentenceRow[];
+  skillPatterns: SkillPatternRow[];
+  sentencesToday: number;
+}
+
+export interface VocabularyResponse {
+  words: VocabularyWordRow[];
+}
+
 export type ToneCache = Partial<Record<AdjustedTone, LadderResult>>;
+
+export interface DuelSentence {
+  sentence: string;
+  flaw: string;
+}
+
+export type DuelVerdict = "user" | "ai" | "tie";
+
+export interface DuelResult {
+  aiRewrite: string;
+  verdict: DuelVerdict;
+  judgment: string;
+  takeaway: string;
+}
+
+export const EMOTION_KEYS = [
+  "hopeful",
+  "melancholic",
+  "tense",
+  "ironic",
+  "nostalgic",
+  "urgent",
+] as const;
+
+export type EmotionKey = (typeof EMOTION_KEYS)[number];
+
+export type EmotionRewrites = Record<EmotionKey, string>;
+export type EmotionTechniques = Record<EmotionKey, string>;
+
+export interface EmotionRewriteResult {
+  emotions: EmotionRewrites;
+  techniques: EmotionTechniques;
+}
+
+export const EMOTION_LABELS: Record<EmotionKey, string> = {
+  hopeful: "Hopeful",
+  melancholic: "Melancholic",
+  tense: "Tense",
+  ironic: "Ironic",
+  nostalgic: "Nostalgic",
+  urgent: "Urgent",
+};
+
+export type Tier = 1 | 2 | 3;
+
+export type ExerciseType = "build-it" | "spot-error" | "complete-it";
+
+export interface Skill {
+  id: string;
+  name: string;
+  tier: Tier;
+  description: string;
+}
+
+export interface BuildItExercise {
+  words: string[];
+  correctOrder: string[];
+  explanation: string;
+}
+
+export interface SpotTheErrorExercise {
+  sentence: string;
+  errorWord: string;
+  errorIndex: number;
+  correction: string;
+  principle: string;
+}
+
+export interface CompleteItExercise {
+  stem: string;
+  hint: string;
+}
+
+export interface CompleteItCheckResult {
+  correct: boolean;
+  feedback: string;
+  exampleCompletion: string;
+  principle: string;
+}
+
+export interface ExerciseResult {
+  score: number;
+  exerciseType: ExerciseType;
+}
+
+export interface PracticedSkill {
+  skillId: string;
+  exercisesCompleted: number;
+  averageScore: number;
+  lastPracticedAt?: string;
+}
+
+export interface PracticedSkillRow extends PracticedSkill {
+  id: string;
+}
+
+export interface PracticedSkillsResponse {
+  skills: PracticedSkillRow[];
+}
+
+export interface AdaptiveRecommendation {
+  skillId: string;
+  reason: string;
+}
 
 export function ladderFromAnalysis(result: AnalysisResult): LadderResult {
   return {
