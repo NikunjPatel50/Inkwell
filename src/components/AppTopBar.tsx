@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { APP_TABS, type AppTab } from "../types";
 import type { Theme } from "../lib/theme";
 import type { AuthUser } from "../hooks/useAuth";
+import { isAdminEmail } from "../lib/admin";
 import { AppBrand } from "./AppBrand";
 import { ThemeToggle } from "./ThemeToggle";
 import { SignInButton, UserMenu } from "./UserMenu";
@@ -15,6 +17,7 @@ interface AppTopBarProps {
   onSignOut: () => void;
   onPasswordChanged?: () => void;
   onToggleTheme: () => void;
+  showAdminButton?: boolean;
 }
 
 function BreadcrumbIcon() {
@@ -40,8 +43,10 @@ export function AppTopBar({
   onSignOut,
   onPasswordChanged,
   onToggleTheme,
+  showAdminButton = true,
 }: AppTopBarProps) {
   const activeLabel = APP_TABS.find((tab) => tab.id === activeTab)?.label ?? "Dashboard";
+  const showAdmin = showAdminButton && user && isAdminEmail(user.email);
 
   return (
     <header className={styles.topBar}>
@@ -59,6 +64,11 @@ export function AppTopBar({
 
       <div className={styles.trailing}>
         <div className={styles.actionCluster} role="group" aria-label="Account and display">
+          {showAdmin && (
+            <Link href="/admin" className={styles.adminButton}>
+              Admin
+            </Link>
+          )}
           {user ? (
             <UserMenu
               user={user}

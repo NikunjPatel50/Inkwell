@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { getLoginRedirectUrl } from "../lib/authRedirect";
 import { insforge } from "../lib/insforge";
 
 export interface AuthUser {
@@ -7,13 +8,24 @@ export interface AuthUser {
   name?: string;
 }
 
+export type VerifyEmailMethod = "code" | "link";
+
+export interface SignUpResult {
+  verificationRequired: boolean;
+  verifyEmailMethod?: VerifyEmailMethod;
+  email: string;
+}
+
 interface UseAuthResult {
   user: AuthUser | null;
   loading: boolean;
+  verifyEmailMethod: VerifyEmailMethod;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name?: string) => Promise<void>;
+  signUp: (email: string, password: string, name?: string) => Promise<SignUpResult>;
+  verifyEmail: (email: string, otp: string) => Promise<void>;
+  resendVerificationEmail: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+  refreshUser: () => Promise<AuthUser | null>;
 }
 
 function userDisplayName(user: {
@@ -26,19 +38,22 @@ function userDisplayName(user: {
 export function useAuth(): UseAuthResult {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [verifyEmailMethod, setVerifyEmailMethod] = useState<VerifyEmailMethod>("link");
 
-  const refreshUser = useCallback(async () => {
+  const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
     const { data, error } = await insforge.auth.getCurrentUser();
     if (error || !data?.user) {
       setUser(null);
-      return;
+      return null;
     }
 
-    setUser({
+    const nextUser = {
       id: data.user.id,
       email: data.user.email ?? "",
       name: userDisplayName(data.user),
-    });
+    };
+    setUser(nextUser);
+    return nextUser;
   }, []);
 
   useEffect(() => {
@@ -47,7 +62,14 @@ export function useAuth(): UseAuthResult {
       if (!cancelled) setLoading(false);
     }, 8000);
 
-    refreshUser().finally(() => {
+    Promise.all([
+      refreshUser(),
+      insforge.auth.getPublicAuthConfig().then(({ data }) => {
+        if (data?.verifyEmailMethod === "code" || data?.verifyEmailMethod === "link") {
+          setVerifyEmailMethod(data.verifyEmailMethod);
+        }
+      }),
+    ]).finally(() => {
       if (!cancelled) {
         window.clearTimeout(timeout);
         setLoading(false);
@@ -76,12 +98,12 @@ export function useAuth(): UseAuthResult {
     }
   }, [refreshUser]);
 
-  const signUp = useCallback(async (email: string, password: string, name?: string) => {
+  const signUp = useCallback(async (email: string, password: string, name?: string): Promise<SignUpResult> => {
     const { data, error } = await insforge.auth.signUp({
       email,
       password,
       name,
-      redirectTo: window.location.origin,
+      redirectTo: getLoginRedirectUrl(),
     });
 
     if (error) {
@@ -89,7 +111,11 @@ export function useAuth(): UseAuthResult {
     }
 
     if (data?.requireEmailVerification) {
-      throw new Error("Check your email to verify your account, then sign in.");
+      return {
+        verificationRequired: true,
+        verifyEmailMethod,
+        email,
+      };
     }
 
     if (data?.accessToken && data.user) {
@@ -101,12 +127,54 @@ export function useAuth(): UseAuthResult {
     } else {
       await refreshUser();
     }
+
+    return {
+      verificationRequired: false,
+      email,
+    };
+  }, [refreshUser, verifyEmailMethod]);
+
+  const verifyEmail = useCallback(async (email: string, otp: string) => {
+    const { data, error } = await insforge.auth.verifyEmail({ email, otp });
+    if (error) {
+      throw new Error(error.message ?? "Verification failed.");
+    }
+
+    if (data?.user) {
+      setUser({
+        id: data.user.id,
+        email: data.user.email ?? email,
+        name: userDisplayName(data.user),
+      });
+    } else {
+      await refreshUser();
+    }
   }, [refreshUser]);
+
+  const resendVerificationEmail = useCallback(async (email: string) => {
+    const { error } = await insforge.auth.resendVerificationEmail({
+      email,
+      redirectTo: getLoginRedirectUrl(),
+    });
+    if (error) {
+      throw new Error(error.message ?? "Failed to resend verification email.");
+    }
+  }, []);
 
   const signOut = useCallback(async () => {
     await insforge.auth.signOut();
     setUser(null);
   }, []);
 
-  return { user, loading, signIn, signUp, signOut, refreshUser };
+  return {
+    user,
+    loading,
+    verifyEmailMethod,
+    signIn,
+    signUp,
+    verifyEmail,
+    resendVerificationEmail,
+    signOut,
+    refreshUser,
+  };
 }

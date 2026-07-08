@@ -1,0 +1,217 @@
+.page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-workspace-bg);
+}
+
+.main {
+  flex: 1;
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.shell {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-brand-teal);
+}
+
+.title {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 2.5vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 40rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-ink-muted);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.refreshButton,
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.refreshButton {
+  border: 1px solid var(--color-chrome-border);
+  background: var(--color-chrome-bg);
+  color: var(--color-ink);
+}
+
+.refreshButton:hover:not(:disabled) {
+  background: var(--color-sidebar-hover);
+}
+
+.refreshButton:disabled {
+  opacity: 0.65;
+}
+
+.backLink {
+  border: 1px solid color-mix(in srgb, var(--color-brand-teal) 70%, #0f766e);
+  background: linear-gradient(180deg, var(--color-brand-teal) 0%, #178f87 100%);
+  color: var(--color-on-accent);
+  text-decoration: none;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.statCard {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--enterprise-card-radius);
+  background: var(--color-chrome-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.statLabel {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.statValue {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.errorBanner {
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--color-terracotta) 28%, var(--color-chrome-border));
+  background: var(--color-terracotta-soft);
+  font-size: 0.88rem;
+  color: var(--color-ink);
+}
+
+.tableCard {
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--enterprise-card-radius);
+  background: var(--color-chrome-bg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.tableHeader {
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid var(--color-chrome-border);
+}
+
+.tableTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.table th,
+.table td {
+  padding: 0.8rem 1.15rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-chrome-border);
+}
+
+.table th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  background: var(--color-sidebar-bg);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.emailCell {
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.emptyCell {
+  text-align: center;
+  color: var(--color-ink-muted);
+}
+
+.badgeVerified,
+.badgePending {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.badgeVerified {
+  background: color-mix(in srgb, var(--color-sage) 16%, var(--color-chrome-bg));
+  color: var(--color-sage);
+}
+
+.badgePending {
+  background: color-mix(in srgb, var(--color-terracotta) 12%, var(--color-chrome-bg));
+  color: var(--color-terracotta);
+}
+
+@media (max-width: 720px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
