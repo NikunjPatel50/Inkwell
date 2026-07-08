@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { useTheme } from "../hooks/useTheme";
 import type { SignUpResult, VerifyEmailMethod } from "../hooks/useAuth";
 import {
@@ -19,8 +19,11 @@ interface LoginPageProps {
   onResendVerification: (email: string) => Promise<void>;
   onSuccess: () => void;
   onContinueAsGuest: () => void;
+  onDismissVerification?: () => void;
   verifyEmailMethod: VerifyEmailMethod;
   initialMode?: AuthMode;
+  initialVerificationEmail?: string;
+  initialVerificationStep?: VerificationStep;
   redirecting?: boolean;
   statusMessage?: string;
   verificationError?: string | null;
@@ -61,15 +64,20 @@ export function LoginPage({
   onResendVerification,
   onSuccess,
   onContinueAsGuest,
+  onDismissVerification,
   verifyEmailMethod,
   initialMode = "signin",
+  initialVerificationEmail,
+  initialVerificationStep,
   redirecting = false,
   statusMessage,
   verificationError,
 }: LoginPageProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
-  const [verificationStep, setVerificationStep] = useState<VerificationStep>("form");
-  const [pendingEmail, setPendingEmail] = useState("");
+  const [verificationStep, setVerificationStep] = useState<VerificationStep>(
+    initialVerificationStep ?? "form",
+  );
+  const [pendingEmail, setPendingEmail] = useState(initialVerificationEmail ?? "");
   const [verificationCode, setVerificationCode] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -79,7 +87,19 @@ export function LoginPage({
   const [showPassword, setShowPassword] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
+  useEffect(() => {
+    if (initialVerificationEmail) {
+      setPendingEmail(initialVerificationEmail);
+    }
+    if (initialVerificationStep) {
+      setVerificationStep(initialVerificationStep);
+    }
+  }, [initialVerificationEmail, initialVerificationStep]);
+
   const switchMode = (nextMode: AuthMode) => {
+    if (verificationStep !== "form") {
+      onDismissVerification?.();
+    }
     setMode(nextMode);
     setVerificationStep("form");
     setPendingEmail("");
@@ -236,7 +256,8 @@ export function LoginPage({
             {verificationStep === "verify-link" ? (
               <div className="loginPage-verificationPanel">
                 <p className="loginPage-verificationHint">
-                  After you click the link, this page will sign you in automatically and open your workspace.
+                  Verify on your phone or any device — keep this page open and we&apos;ll sign you in
+                  here automatically once your email is confirmed.
                 </p>
                 {displayError && (
                   <div className="loginPage-errorBanner" role="alert">

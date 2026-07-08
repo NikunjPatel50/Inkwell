@@ -12,6 +12,7 @@ import {
   clearPendingSignup,
   readPendingSignup,
   savePendingSignup,
+  tryCompletePendingSignup,
 } from "../lib/pendingAuth";
 import { clearLoginSession, enableGuestSession } from "../lib/sessionBridge";
 
@@ -31,6 +32,14 @@ export function LoginRoute() {
   const verificationHandledRef = useRef(false);
   const [statusMessage, setStatusMessage] = useState<string | undefined>();
   const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [awaitingVerificationEmail, setAwaitingVerificationEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const pending = readPendingSignup();
+    if (pending) {
+      setAwaitingVerificationEmail(pending.email);
+    }
+  }, []);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -64,19 +73,19 @@ export function LoginRoute() {
         return;
       }
 
+      const signedIn = await tryCompletePendingSignup(signIn);
+      if (signedIn) {
+        setAwaitingVerificationEmail(null);
+        return;
+      }
+
       const pending = readPendingSignup();
       if (pending) {
-        try {
-          await signIn(pending.email, pending.password);
-          clearPendingSignup();
-          return;
-        } catch {
-          setVerificationError(
-            "Your email is verified. Sign in with the email and password you used to create your account.",
-          );
-          clearPendingSignup();
-          return;
-        }
+        setAwaitingVerificationEmail(pending.email);
+        setStatusMessage(
+          "Your email is verified. Keep this page open — we'll sign you in automatically in a moment.",
+        );
+        return;
       }
 
       setVerificationError(
@@ -86,6 +95,34 @@ export function LoginRoute() {
 
     void completeVerificationSignIn();
   }, [loading, refreshUser, signIn]);
+
+  useEffect(() => {
+    if (loading || user || !awaitingVerificationEmail) return;
+
+    let cancelled = false;
+    setStatusMessage(
+      "Waiting for email verification… We'll sign you in automatically on this device.",
+    );
+
+    const attemptSignIn = async () => {
+      if (cancelled || user) return;
+      const signedIn = await tryCompletePendingSignup(signIn);
+      if (signedIn) {
+        setAwaitingVerificationEmail(null);
+        setStatusMessage("Email verified. Opening your workspace…");
+      }
+    };
+
+    void attemptSignIn();
+    const interval = window.setInterval(() => {
+      void attemptSignIn();
+    }, 3000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [loading, user, awaitingVerificationEmail, signIn]);
 
   useEffect(() => {
     if (!user || redirectingRef.current) return;
@@ -103,8 +140,10 @@ export function LoginRoute() {
       const result = await signUp(email, password, name);
       if (result.verificationRequired) {
         savePendingSignup(email, password);
+        setAwaitingVerificationEmail(email);
         return result;
       }
+      setAwaitingVerificationEmail(null);
       clearPendingSignup();
       return result;
     },
@@ -117,6 +156,13 @@ export function LoginRoute() {
     router.replace("/");
   }, [router]);
 
+  const handleDismissVerification = useCallback(() => {
+    clearPendingSignup();
+    setAwaitingVerificationEmail(null);
+    setStatusMessage(undefined);
+    setVerificationError(null);
+  }, []);
+
   return (
     <LoginPage
       onSignIn={signIn}
@@ -125,7 +171,10 @@ export function LoginRoute() {
       onResendVerification={resendVerificationEmail}
       onSuccess={handleAuthSuccess}
       onContinueAsGuest={handleContinueAsGuest}
+      onDismissVerification={handleDismissVerification}
       verifyEmailMethod={verifyEmailMethod}
+      initialVerificationEmail={awaitingVerificationEmail ?? undefined}
+      initialVerificationStep={awaitingVerificationEmail ? "verify-link" : undefined}
       redirecting={Boolean(user)}
       statusMessage={
         user

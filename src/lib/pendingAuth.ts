@@ -6,23 +6,12 @@ interface PendingSignup {
   createdAt: number;
 }
 
-const MAX_AGE_MS = 30 * 60 * 1000;
+const MAX_AGE_MS = 60 * 60 * 1000;
 
-export function savePendingSignup(email: string, password: string): void {
-  if (typeof window === "undefined") return;
-
-  const payload: PendingSignup = {
-    email,
-    password,
-    createdAt: Date.now(),
-  };
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-}
-
-export function readPendingSignup(): PendingSignup | null {
+function readRawPendingSignup(): PendingSignup | null {
   if (typeof window === "undefined") return null;
 
-  const raw = sessionStorage.getItem(STORAGE_KEY);
+  const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
 
   try {
@@ -44,7 +33,37 @@ export function readPendingSignup(): PendingSignup | null {
   }
 }
 
+export function savePendingSignup(email: string, password: string): void {
+  if (typeof window === "undefined") return;
+
+  const payload: PendingSignup = {
+    email,
+    password,
+    createdAt: Date.now(),
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+}
+
+export function readPendingSignup(): PendingSignup | null {
+  return readRawPendingSignup();
+}
+
 export function clearPendingSignup(): void {
   if (typeof window === "undefined") return;
-  sessionStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+export async function tryCompletePendingSignup(
+  signIn: (email: string, password: string) => Promise<void>,
+): Promise<boolean> {
+  const pending = readRawPendingSignup();
+  if (!pending) return false;
+
+  try {
+    await signIn(pending.email, pending.password);
+    clearPendingSignup();
+    return true;
+  } catch {
+    return false;
+  }
 }
