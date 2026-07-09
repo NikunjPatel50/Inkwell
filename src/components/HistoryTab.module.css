@@ -50,6 +50,21 @@
   line-height: 1.45;
 }
 
+.signInPrompt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.signInText {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--color-ink-muted);
+  line-height: 1.5;
+}
+
 .signInButton {
   padding: 0.5rem 0.95rem;
   border: none;

@@ -6,6 +6,7 @@ import { AppTopBar } from "./AppTopBar";
 import { DashboardTab } from "./DashboardTab";
 import { LearnTab } from "./LearnTab";
 import { CreativeTab } from "./CreativeTab";
+import { CoachTab } from "./coach/CoachTab";
 import { HistoryTab } from "./HistoryTab";
 import { TabBar } from "./TabBar";
 import { WorkshopTab } from "./WorkshopTab";
@@ -453,11 +454,16 @@ export function HomeApp() {
               </div>
 
               <div className={styles.tabPanel} hidden={activeTab !== "learn"} id="panel-learn">
-                <LearnTab isAuthenticated={isAuthenticated} skillPatterns={skillPatterns} />
+                <LearnTab
+                  isAuthenticated={isAuthenticated}
+                  skillPatterns={skillPatterns}
+                  onTabChange={setActiveTab}
+                />
               </div>
 
               <div className={styles.tabPanel} hidden={activeTab !== "write"} id="panel-write">
                 <WorkshopTab
+                  onTabChange={setActiveTab}
                   text={text}
                   wordCount={wordCount}
                   status={status}
@@ -497,8 +503,12 @@ export function HomeApp() {
                 />
               </div>
 
+              <div className={styles.tabPanel} hidden={activeTab !== "coach"} id="panel-coach">
+                <CoachTab onTabChange={setActiveTab} />
+              </div>
+
               <div className={styles.tabPanel} hidden={activeTab !== "creative"} id="panel-creative">
-                <CreativeTab />
+                <CreativeTab onTabChange={setActiveTab} />
               </div>
 
               <div className={styles.tabPanel} hidden={activeTab !== "history"} id="panel-history">
@@ -506,6 +516,7 @@ export function HomeApp() {
                   isAuthenticated={isAuthenticated}
                   refreshKey={historyRefreshKey}
                   onSignIn={() => openLogin()}
+                  onTabChange={setActiveTab}
                 />
               </div>
             </main>

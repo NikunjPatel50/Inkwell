@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useState } from "react";
+import "../app/login/login.css";
 import { useTheme } from "../hooks/useTheme";
-import type { SignUpResult, VerifyEmailMethod } from "../hooks/useAuth";
+import type { SignUpResult } from "../hooks/useAuth";
 import {
   PASSWORD_MIN_LENGTH,
   PASSWORD_RULES,
@@ -10,7 +11,7 @@ import { AppBrand } from "./AppBrand";
 import { ThemeToggle } from "./ThemeToggle";
 
 export type AuthMode = "signin" | "signup";
-type VerificationStep = "form" | "verify-link" | "verify-code";
+type VerificationStep = "form" | "verify-code";
 
 interface LoginPageProps {
   onSignIn: (email: string, password: string) => Promise<void>;
@@ -20,40 +21,59 @@ interface LoginPageProps {
   onSuccess: () => void;
   onContinueAsGuest: () => void;
   onDismissVerification?: () => void;
-  verifyEmailMethod: VerifyEmailMethod;
   initialMode?: AuthMode;
   initialVerificationEmail?: string;
   initialVerificationStep?: VerificationStep;
   redirecting?: boolean;
   statusMessage?: string;
-  verificationError?: string | null;
 }
 
 function EyeIcon({ open }: { open: boolean }) {
-  if (open) {
-    return (
-      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="loginPage-passwordToggleIcon">
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="loginPage-passwordToggleIcon">
+      <path
+        d="M2.25 12s4-6.75 9.75-6.75S21.75 12 21.75 12s-4 6.75-9.75 6.75S2.25 12 2.25 12Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="2.85" stroke="currentColor" strokeWidth="1.75" />
+      {!open && (
         <path
-          d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5Z"
+          d="M5.5 5.5 18.5 18.5"
           stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
+          strokeWidth="1.85"
+          strokeLinecap="round"
         />
-        <circle cx="10" cy="10" r="2.25" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
+      )}
+    </svg>
+  );
+}
+
+function PasswordRuleIcon({ met }: { met: boolean }) {
+  if (met) {
+    return (
+      <span className="loginPage-passwordRuleIcon loginPage-passwordRuleIconMet" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="8" fill="currentColor" />
+          <path
+            d="M5 8.25 6.75 10 11 6"
+            stroke="#fff"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
     );
   }
 
   return (
-    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="loginPage-passwordToggleIcon">
-      <path
-        d="M2.5 10s2.8-5 7.5-5c1.5 0 2.8.45 3.85 1.15M17.5 10s-2.8 5-7.5 5c-1.45 0-2.75-.4-3.85-1.1"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path d="m3.5 3.5 13 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
+    <span className="loginPage-passwordRuleIcon loginPage-passwordRuleIconUnmet" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.35" />
+      </svg>
+    </span>
   );
 }
 
@@ -65,13 +85,11 @@ export function LoginPage({
   onSuccess,
   onContinueAsGuest,
   onDismissVerification,
-  verifyEmailMethod,
   initialMode = "signin",
   initialVerificationEmail,
   initialVerificationStep,
   redirecting = false,
   statusMessage,
-  verificationError,
 }: LoginPageProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [verificationStep, setVerificationStep] = useState<VerificationStep>(
@@ -133,11 +151,7 @@ export function LoginPage({
         const result = await onSignUp(email.trim(), password, name.trim() || undefined);
         if (result.verificationRequired) {
           setPendingEmail(result.email);
-          setVerificationStep(
-            (result.verifyEmailMethod ?? verifyEmailMethod) === "code"
-              ? "verify-code"
-              : "verify-link",
-          );
+          setVerificationStep("verify-code");
         } else {
           onSuccess();
         }
@@ -153,8 +167,8 @@ export function LoginPage({
     event.preventDefault();
     setError(null);
 
-    if (!verificationCode.trim()) {
-      setError("Enter the 6-digit verification code from your email.");
+    if (!/^\d{6}$/.test(verificationCode.trim())) {
+      setError("Enter the 6-digit passcode from your email.");
       return;
     }
 
@@ -182,7 +196,7 @@ export function LoginPage({
   };
 
   const busy = isSubmitting || redirecting;
-  const displayError = error ?? verificationError ?? null;
+  const displayError = error;
   const showingVerification = verificationStep !== "form";
 
   return (
@@ -198,26 +212,25 @@ export function LoginPage({
         <ThemeToggle theme={theme} onToggle={toggleTheme} variant="toolbar" />
       </div>
 
-      <main className="loginPage-center">
-        <div className="loginPage-shell">
-          <div className="loginPage-formCard">
+      <main className="loginPage-layout">
+        <div className="loginPage-authColumn">
+          <div className="loginPage-shell">
+            <div className="loginPage-formCard">
             <div className="loginPage-brandBlock">
-              <AppBrand size="header" href={false} />
+              <AppBrand size="header" href={false} className="loginPage-brandLogo" />
             </div>
 
             <header className="loginPage-formIntro">
               <h1 className="loginPage-formTitle">
                 {showingVerification
-                  ? "Verify your email"
+                  ? "Enter your passcode"
                   : mode === "signin"
                     ? "Sign in"
                     : "Create account"}
               </h1>
               <p className="loginPage-formSubtitle">
                 {showingVerification
-                  ? verificationStep === "verify-link"
-                    ? `We sent a verification link to ${pendingEmail}. Open the email and click the link to finish creating your account.`
-                    : `Enter the 6-digit code sent to ${pendingEmail}.`
+                  ? `We sent a 6-digit passcode to ${pendingEmail}. Enter it below to finish creating your account.`
                   : mode === "signin"
                     ? "Access your practice history, skill patterns, and saved progress."
                     : "Start building foundational writing skills with a personal workspace."}
@@ -253,50 +266,23 @@ export function LoginPage({
               </div>
             )}
 
-            {verificationStep === "verify-link" ? (
-              <div className="loginPage-verificationPanel">
-                <p className="loginPage-verificationHint">
-                  Verify on your phone or any device — keep this page open and we&apos;ll sign you in
-                  here automatically once your email is confirmed.
-                </p>
-                {displayError && (
-                  <div className="loginPage-errorBanner" role="alert">
-                    {displayError}
-                  </div>
-                )}
-                <button
-                  type="button"
-                  className="loginPage-secondaryButton"
-                  onClick={() => void handleResendVerification()}
-                  disabled={busy}
-                >
-                  Resend verification email
-                </button>
-                <button
-                  type="button"
-                  className="loginPage-textButton"
-                  onClick={() => switchMode("signin")}
-                  disabled={busy}
-                >
-                  Back to sign in
-                </button>
-              </div>
-            ) : verificationStep === "verify-code" ? (
+            {verificationStep === "verify-code" ? (
               <form className="loginPage-form" onSubmit={handleVerifyCode} noValidate>
                 <div className="loginPage-field">
                   <label className="loginPage-label" htmlFor="auth-verification-code">
-                    Verification code
+                    6-digit passcode
                   </label>
                   <input
                     id="auth-verification-code"
                     type="text"
                     inputMode="numeric"
                     autoComplete="one-time-code"
-                    className="loginPage-input"
+                    className="loginPage-input loginPage-passcodeInput"
                     value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
-                    placeholder="123456"
+                    onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder="000000"
                     maxLength={6}
+                    pattern="\d{6}"
                     disabled={busy}
                   />
                 </div>
@@ -314,7 +300,7 @@ export function LoginPage({
                   onClick={() => void handleResendVerification()}
                   disabled={busy}
                 >
-                  Resend verification email
+                  Resend passcode
                 </button>
                 <button
                   type="button"
@@ -397,22 +383,30 @@ export function LoginPage({
                   </div>
 
                   {mode === "signup" && (
-                    <ul id="auth-password-rules" className="loginPage-passwordRules" aria-live="polite">
-                      {PASSWORD_RULES.map((rule) => {
-                        const met = rule.test(password);
-                        return (
-                          <li
-                            key={rule.id}
-                            className={met ? "loginPage-passwordRuleMet" : "loginPage-passwordRuleUnmet"}
-                          >
-                            <span className="loginPage-passwordRuleMarker" aria-hidden="true">
-                              {met ? "✓" : "○"}
-                            </span>
-                            {rule.label}
-                          </li>
-                        );
-                      })}
-                    </ul>
+                    <div className="loginPage-passwordRulesPanel">
+                      <p className="loginPage-passwordRulesTitle" id="auth-password-rules-label">
+                        Password requirements
+                      </p>
+                      <ul
+                        id="auth-password-rules"
+                        className="loginPage-passwordRules"
+                        aria-labelledby="auth-password-rules-label"
+                        aria-live="polite"
+                      >
+                        {PASSWORD_RULES.map((rule) => {
+                          const met = rule.test(password);
+                          return (
+                            <li
+                              key={rule.id}
+                              className={met ? "loginPage-passwordRuleMet" : "loginPage-passwordRuleUnmet"}
+                            >
+                              <PasswordRuleIcon met={met} />
+                              <span className="loginPage-passwordRuleLabel">{rule.label}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
                   )}
                 </div>
 
@@ -440,6 +434,7 @@ export function LoginPage({
           <button type="button" className="loginPage-guestLink" onClick={onContinueAsGuest}>
             Continue without signing in
           </button>
+        </div>
         </div>
       </main>
     </div>

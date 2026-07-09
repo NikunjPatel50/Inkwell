@@ -1,16 +1,19 @@
 import { EmotionRewriter } from "./EmotionRewriter";
 import { RewriteDuel } from "./RewriteDuel";
 import { TabPageShell } from "./TabPageShell";
+import type { AppTab } from "../types";
 import styles from "./CreativeTab.module.css";
 
-export function CreativeTab() {
+interface CreativeTabProps {
+  onTabChange: (tab: AppTab) => void;
+}
+
+export function CreativeTab({ onTabChange }: CreativeTabProps) {
   return (
     <TabPageShell
       id="panel-creative"
       labelledBy="tab-creative"
-      eyebrow="Studio"
-      title="Creative"
-      description="Expressive writing games to stretch voice, rhythm, and word choice."
+      backTo={{ label: "Dashboard", onBack: () => onTabChange("dashboard") }}
     >
       <div className={styles.gameGrid}>
         <section className={styles.gameCard} aria-labelledby="rewrite-duel-heading">

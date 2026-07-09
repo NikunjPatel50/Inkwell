@@ -1,87 +1,212 @@
 .view {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--enterprise-section-gap);
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .view {
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 17.5rem);
+    align-items: start;
+  }
+}
+
+.mainColumn {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--enterprise-section-gap);
+  min-width: 0;
 }
 
-.backLink,
-.altLink {
-  align-self: flex-start;
-  padding: 0;
-  border: none;
-  background: none;
-  font-size: 0.85rem;
-  color: var(--color-ink-muted);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
 }
 
-.backLink:focus-visible,
-.altLink:focus-visible,
-.nextButton:focus-visible,
-.retryButton:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
+.skillCard,
+.exerciseCard,
+.statsCard,
+.actionsCard {
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--enterprise-card-radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
 }
 
-.header {
+.skillCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.1rem 1.15rem;
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-sidebar-active) 100%);
+}
+
+.skillCardHeader {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
   flex-wrap: wrap;
 }
 
+.skillEyebrow {
+  margin: 0;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-brand-teal);
+}
+
 .skillTitle {
+  margin: 0;
   font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
   font-weight: 600;
+  color: var(--color-ink);
+  line-height: 1.25;
 }
 
 .tierBadge {
-  padding: 0.2rem 0.55rem;
+  padding: 0.22rem 0.6rem;
   border-radius: 999px;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .tier1 {
   color: var(--color-sage);
   background: var(--color-sage-soft);
+  border: 1px solid rgba(90, 122, 90, 0.15);
 }
 
 .tier2 {
   color: var(--color-gold);
   background: var(--color-gold-soft);
+  border: 1px solid rgba(160, 130, 60, 0.15);
 }
 
 .tier3 {
   color: var(--color-terracotta);
   background: var(--color-terracotta-soft);
+  border: 1px solid rgba(180, 90, 60, 0.15);
 }
 
 .introduction {
-  font-size: 0.92rem;
+  margin: 0;
+  font-size: 0.86rem;
   line-height: 1.6;
   color: var(--color-ink-muted);
+  max-width: 44rem;
+}
+
+.exerciseCard {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.exerciseCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1.15rem;
+  border-bottom: 1px solid var(--color-chrome-border);
+  background: var(--color-workspace-bg);
+}
+
+.exerciseCardHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
 }
 
 .exerciseEyebrow {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  margin: 0;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-ink-faint);
+  color: var(--color-brand-teal);
 }
 
-.loading {
-  font-size: 0.9rem;
+.exerciseTitle {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.exerciseBadge {
+  flex-shrink: 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-chrome-border);
+  background: var(--color-surface);
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--color-ink-faint);
+  white-space: nowrap;
+}
+
+.exerciseCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.15rem;
+}
+
+.exerciseCardFooter {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.15rem;
+  border-top: 1px solid var(--color-chrome-border);
+  background: var(--color-workspace-bg);
+}
+
+.loadingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.82rem;
   color: var(--color-ink-muted);
-  font-style: italic;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(26, 158, 150, 0.2);
+  border-top-color: var(--color-brand-teal);
+  border-radius: 50%;
+  animation: skillSpin 0.8s linear infinite;
+}
+
+@keyframes skillSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorBanner {
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(200, 72, 72, 0.25);
+  background: rgba(200, 72, 72, 0.08);
+  font-size: 0.82rem;
+  color: #a33;
 }
 
 .error {
-  font-size: 0.9rem;
+  margin: 0;
+  font-size: 0.86rem;
   color: var(--color-terracotta);
 }
 
@@ -94,17 +219,135 @@
 
 .retryButton,
 .nextButton {
-  padding: 0.6rem 1.1rem;
+  padding: 0.52rem 1rem;
   border: none;
   border-radius: var(--radius-sm);
-  background: var(--color-sage);
+  background: var(--color-brand-teal);
   color: var(--color-on-accent);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(26, 158, 150, 0.22);
+}
+
+.changeSkillButton {
+  width: 100%;
+  padding: 0.52rem 1rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-workspace-bg);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--color-brand-teal);
   cursor: pointer;
 }
 
-.progressNote {
-  font-size: 0.82rem;
+.statsCard,
+.actionsCard {
+  padding: 1rem 1.05rem;
+}
+
+.statsTitle {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-serif);
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin-bottom: 0.95rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.65rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-chrome-border);
+  background: var(--color-workspace-bg);
+}
+
+.statValue {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  line-height: 1.1;
+}
+
+.statLabel {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--color-ink-faint);
+}
+
+.progressBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.progressMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.progressLabel {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+}
+
+.progressPct {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--color-brand-teal);
+}
+
+.progressTrack {
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--color-workspace-bg);
+  border: 1px solid var(--color-chrome-border);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-brand-teal);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.actionsHint {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-ink-faint);
+}
+
+.retryButton:focus-visible,
+.nextButton:focus-visible,
+.changeSkillButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+
+  .progressFill {
+    transition: none;
+  }
 }

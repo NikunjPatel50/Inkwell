@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { TabBackBar } from "./TabBackBar";
+import backStyles from "./TabBackBar.module.css";
 import styles from "./TabPageShell.module.css";
 
 interface TabPageShellProps {
@@ -12,6 +14,10 @@ interface TabPageShellProps {
   className?: string;
   contentClassName?: string;
   fullBleed?: boolean;
+  backTo?: {
+    label: string;
+    onBack: () => void;
+  };
 }
 
 export function TabPageShell({
@@ -25,28 +31,51 @@ export function TabPageShell({
   className,
   contentClassName,
   fullBleed = false,
+  backTo,
 }: TabPageShellProps) {
   const hasHeader = Boolean(title || description || eyebrow || action);
+  const useBackLayout = Boolean(backTo);
 
   return (
     <section
       id={id}
       role="tabpanel"
       aria-labelledby={labelledBy}
-      className={`${styles.shell} ${fullBleed ? styles.shellFullBleed : ""} ${className ?? ""}`}
+      className={`${styles.shell} ${useBackLayout || fullBleed ? styles.shellFullBleed : ""} ${className ?? ""}`}
     >
-      <div className={`${styles.content} ${contentClassName ?? ""}`}>
-        {hasHeader && (
-          <header className={styles.header}>
-            <div className={styles.headerText}>
-              {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
-              {title && <h2 className={styles.title}>{title}</h2>}
-              {description && <p className={styles.description}>{description}</p>}
-            </div>
-            {action && <div className={styles.headerAction}>{action}</div>}
-          </header>
+      <div
+        className={`${styles.content} ${useBackLayout ? backStyles.subPageView : ""} ${contentClassName ?? ""}`}
+      >
+        {backTo && <TabBackBar label={backTo.label} onBack={backTo.onBack} />}
+        {useBackLayout ? (
+          <div className={backStyles.subPageBody}>
+            {hasHeader && (
+              <header className={styles.header}>
+                <div className={styles.headerText}>
+                  {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
+                  {title && <h2 className={styles.title}>{title}</h2>}
+                  {description && <p className={styles.description}>{description}</p>}
+                </div>
+                {action && <div className={styles.headerAction}>{action}</div>}
+              </header>
+            )}
+            {children}
+          </div>
+        ) : (
+          <>
+            {hasHeader && (
+              <header className={styles.header}>
+                <div className={styles.headerText}>
+                  {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
+                  {title && <h2 className={styles.title}>{title}</h2>}
+                  {description && <p className={styles.description}>{description}</p>}
+                </div>
+                {action && <div className={styles.headerAction}>{action}</div>}
+              </header>
+            )}
+            {children}
+          </>
         )}
-        {children}
       </div>
     </section>
   );

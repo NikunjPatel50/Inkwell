@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ApiError, fetchHistory, fetchVocabulary } from "../lib/apiClient";
-import type { AnalyzedSentenceRow, SkillPatternRow, VocabularyItem } from "../types";
+import type { AnalyzedSentenceRow, AppTab, SkillPatternRow, VocabularyItem } from "../types";
 import { TabPageShell } from "./TabPageShell";
 import { VocabularyCatch } from "./VocabularyCatch";
 import styles from "./HistoryTab.module.css";
@@ -9,9 +9,10 @@ interface HistoryTabProps {
   isAuthenticated: boolean;
   refreshKey: number;
   onSignIn: () => void;
+  onTabChange: (tab: AppTab) => void;
 }
 
-export function HistoryTab({ isAuthenticated, refreshKey, onSignIn }: HistoryTabProps) {
+export function HistoryTab({ isAuthenticated, refreshKey, onSignIn, onTabChange }: HistoryTabProps) {
   const [sentences, setSentences] = useState<AnalyzedSentenceRow[]>([]);
   const [skillPatterns, setSkillPatterns] = useState<SkillPatternRow[]>([]);
   const [vocabulary, setVocabulary] = useState<VocabularyItem[]>([]);
@@ -71,15 +72,17 @@ export function HistoryTab({ isAuthenticated, refreshKey, onSignIn }: HistoryTab
       <TabPageShell
         id="panel-history"
         labelledBy="tab-history"
-        eyebrow="Records"
-        title="History"
-        description="Sign in to review sessions, skill patterns, and your vocabulary bank."
-        action={
+        backTo={{ label: "Dashboard", onBack: () => onTabChange("dashboard") }}
+      >
+        <div className={styles.signInPrompt}>
+          <p className={styles.signInText}>
+            Sign in to review sessions, skill patterns, and your vocabulary bank.
+          </p>
           <button type="button" className={styles.signInButton} onClick={onSignIn}>
             Sign in
           </button>
-        }
-      />
+        </div>
+      </TabPageShell>
     );
   }
 
@@ -87,9 +90,7 @@ export function HistoryTab({ isAuthenticated, refreshKey, onSignIn }: HistoryTab
     <TabPageShell
       id="panel-history"
       labelledBy="tab-history"
-      eyebrow="Records"
-      title="History"
-      description="Session archive, recurring error patterns, and saved vocabulary."
+      backTo={{ label: "Dashboard", onBack: () => onTabChange("dashboard") }}
     >
       {loading && <p className={styles.status}>Loading your history…</p>}
       {error && (

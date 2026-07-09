@@ -1,18 +1,27 @@
 .shell {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
   overflow-y: auto;
   background: var(--color-workspace-bg);
 }
 
 .shellFullBleed {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
 .shellFullBleed .content {
-  height: 100%;
+  flex: 1;
   min-height: 0;
+  height: auto;
   padding: 0;
   gap: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .content {

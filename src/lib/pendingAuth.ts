@@ -1,69 +1,52 @@
-const STORAGE_KEY = "wrytesmart_pending_signup";
+const STORAGE_KEY = "wrytesmart_pending_verification";
 
-interface PendingSignup {
+interface PendingVerification {
   email: string;
-  password: string;
   createdAt: number;
 }
 
 const MAX_AGE_MS = 60 * 60 * 1000;
 
-function readRawPendingSignup(): PendingSignup | null {
+function readRawPendingVerification(): PendingVerification | null {
   if (typeof window === "undefined") return null;
 
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
 
   try {
-    const payload = JSON.parse(raw) as PendingSignup;
-    if (!payload.email || !payload.password || !payload.createdAt) {
-      clearPendingSignup();
+    const payload = JSON.parse(raw) as PendingVerification;
+    if (!payload.email || !payload.createdAt) {
+      clearPendingVerification();
       return null;
     }
 
     if (Date.now() - payload.createdAt > MAX_AGE_MS) {
-      clearPendingSignup();
+      clearPendingVerification();
       return null;
     }
 
     return payload;
   } catch {
-    clearPendingSignup();
+    clearPendingVerification();
     return null;
   }
 }
 
-export function savePendingSignup(email: string, password: string): void {
+export function savePendingVerification(email: string): void {
   if (typeof window === "undefined") return;
 
-  const payload: PendingSignup = {
+  const payload: PendingVerification = {
     email,
-    password,
     createdAt: Date.now(),
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 
-export function readPendingSignup(): PendingSignup | null {
-  return readRawPendingSignup();
+export function readPendingVerification(): string | null {
+  return readRawPendingVerification()?.email ?? null;
 }
 
-export function clearPendingSignup(): void {
+export function clearPendingVerification(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY);
-}
-
-export async function tryCompletePendingSignup(
-  signIn: (email: string, password: string) => Promise<void>,
-): Promise<boolean> {
-  const pending = readRawPendingSignup();
-  if (!pending) return false;
-
-  try {
-    await signIn(pending.email, pending.password);
-    clearPendingSignup();
-    return true;
-  } catch {
-    return false;
-  }
 }

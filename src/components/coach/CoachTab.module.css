@@ -1,0 +1,11 @@
+.levelList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.thinkingSection {
+  margin-top: var(--enterprise-section-gap);
+  padding-top: var(--enterprise-section-gap);
+  border-top: 1px solid var(--color-chrome-border);
+}

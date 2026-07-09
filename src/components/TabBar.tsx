@@ -41,6 +41,18 @@ function TabIcon({ tab }: { tab: AppTab }) {
           <path d="M11 5 15 9" stroke="currentColor" strokeWidth="1.4" />
         </svg>
       );
+    case "coach":
+      return (
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={styles.icon}>
+          <path
+            d="M10 3.5a4.5 4.5 0 0 1 4.5 4.5v1.5H14a2 2 0 0 1 2 2v4.5A2 2 0 0 1 14 18H6a2 2 0 0 1-2-2v-4.5a2 2 0 0 1 2-2h-.5V8A4.5 4.5 0 0 1 10 3.5Z"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinejoin="round"
+          />
+          <path d="M8 11.5h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      );
     case "creative":
       return (
         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={styles.icon}>

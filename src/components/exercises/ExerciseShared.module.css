@@ -1,32 +1,55 @@
 .exercise {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .instruction {
-  font-size: 0.88rem;
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
   color: var(--color-ink-muted);
 }
 
 .dropZone {
-  min-height: 3.5rem;
-  padding: 0.85rem 1rem;
-  border: 2px dashed var(--color-border-strong);
-  border-radius: var(--radius-md);
-  background: var(--color-paper);
+  min-height: 4rem;
+  padding: 1rem 1.05rem;
+  border: 1px dashed rgba(26, 158, 150, 0.35);
+  border-radius: var(--enterprise-card-radius);
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-workspace-bg) 100%);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.dropZone:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .dropPlaceholder {
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   color: var(--color-ink-faint);
   font-style: italic;
 }
 
+.poolLabel {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
 .pool {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-md);
+  background: var(--color-workspace-bg);
 }
 
 .chipRow {
@@ -37,17 +60,27 @@
 
 .chip {
   padding: 0.45rem 0.85rem;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-chrome-border);
   border-radius: 999px;
   background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-serif);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.chip:hover:not(:disabled) {
+  border-color: rgba(26, 158, 150, 0.35);
 }
 
 .chipDraggable:active {
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-1px);
 }
 
 .chipSelected {
@@ -65,35 +98,40 @@
 
 .checkButton {
   align-self: flex-start;
-  padding: 0.6rem 1.1rem;
+  padding: 0.52rem 1rem;
   border: none;
   border-radius: var(--radius-sm);
-  background: var(--color-sage);
+  background: var(--color-brand-teal);
   color: var(--color-on-accent);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(26, 158, 150, 0.22);
 }
 
 .checkButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .feedback {
   padding: 0.9rem 1rem;
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   line-height: 1.55;
+  border: 1px solid transparent;
 }
 
 .feedbackCorrect {
-  background: var(--color-sage-soft);
+  background: rgba(26, 158, 150, 0.08);
+  border-color: rgba(26, 158, 150, 0.16);
   color: var(--color-ink);
 }
 
 .feedbackWrong {
-  background: var(--color-terracotta-soft);
+  background: rgba(200, 72, 72, 0.06);
+  border-color: rgba(200, 72, 72, 0.16);
   color: var(--color-ink);
 }
 
@@ -101,8 +139,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-md);
+  background: var(--color-workspace-bg);
   font-family: var(--font-serif);
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   line-height: 1.6;
 }
 
@@ -128,41 +170,50 @@
 }
 
 .wordCorrect {
-  background: var(--color-sage-soft);
+  background: rgba(26, 158, 150, 0.12);
 }
 
 .wordWrong {
-  background: var(--color-terracotta-soft);
+  background: rgba(200, 72, 72, 0.1);
 }
 
 .hint {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--color-ink-muted);
   font-style: italic;
 }
 
 .principle {
   margin-top: 0.5rem;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   color: var(--color-ink-muted);
 }
 
 .stem {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-md);
+  background: var(--color-workspace-bg);
   font-family: var(--font-serif);
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   line-height: 1.55;
 }
 
 .completionInput {
   width: 100%;
-  padding: 0.75rem 0.9rem;
-  border: 1px solid var(--color-border);
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--color-chrome-border);
   border-radius: var(--radius-md);
   font-family: var(--font-serif);
   font-size: 1rem;
   background: var(--color-surface);
   color: var(--color-ink);
   resize: vertical;
+}
+
+.completionInput:focus {
+  outline: 2px solid rgba(26, 158, 150, 0.35);
+  border-color: rgba(26, 158, 150, 0.45);
 }
 
 .comparison {
@@ -173,16 +224,16 @@
 }
 
 .compareLabel {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.68rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   color: var(--color-ink-faint);
   margin-bottom: 0.25rem;
 }
 
 .error {
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   color: var(--color-terracotta);
 }
 
@@ -206,5 +257,6 @@
 @media (prefers-reduced-motion: reduce) {
   .chipDraggable:active {
     box-shadow: none;
+    transform: none;
   }
 }

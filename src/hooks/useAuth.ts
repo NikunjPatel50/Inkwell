@@ -38,7 +38,7 @@ function userDisplayName(user: {
 export function useAuth(): UseAuthResult {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [verifyEmailMethod, setVerifyEmailMethod] = useState<VerifyEmailMethod>("link");
+  const [verifyEmailMethod, setVerifyEmailMethod] = useState<VerifyEmailMethod>("code");
 
   const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
     const { data, error } = await insforge.auth.getCurrentUser();

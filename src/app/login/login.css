@@ -2,19 +2,23 @@
 
 .loginPage {
   position: relative;
+  width: 100%;
   min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   background: #e8eef4;
-  overflow: auto;
 }
 
 .loginPage-backdrop {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  z-index: 0;
 }
 
 .loginPage-backdropMesh {
@@ -87,29 +91,41 @@
   background: radial-gradient(circle, rgba(26, 158, 150, 0.12) 0%, transparent 70%);
 }
 
-.loginPage-center {
+.loginPage-layout {
   position: relative;
   z-index: 1;
   flex: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 2rem 1.25rem 2.5rem;
+  align-items: center;
+  min-height: 100dvh;
+  height: 100%;
+  padding: 2rem clamp(1.25rem, 3vw, 2.5rem);
+  overflow-y: auto;
+}
+
+.loginPage-authColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 32rem;
 }
 
 .loginPage-themeToggleWrap {
   position: fixed;
   top: 1.15rem;
   right: 1.15rem;
-  z-index: 2;
+  z-index: 3;
 }
 
 .loginPage-shell {
-  width: min(100%, 36rem);
+  width: min(100%, 32rem);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 1.25rem;
+  background: transparent;
 }
 
 .loginPage-brandBlock {
@@ -119,37 +135,88 @@
   text-align: center;
   margin-bottom: 1.15rem;
   padding-bottom: 1.15rem;
-  border-bottom: 1px solid var(--color-chrome-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="dark"] .loginPage-brandBlock {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
 .loginPage-brandBlock > div {
   justify-content: center;
+  padding: 0.55rem 1rem;
+  border-radius: 0.8rem;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(26, 35, 50, 0.06);
+}
+
+[data-theme="dark"] .loginPage-brandBlock > div {
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(26, 35, 50, 0.06);
+}
+
+.loginPage-brandLogo {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 .loginPage-brandBlock img {
   height: 4rem;
   max-width: min(100%, 22rem);
-}
-
-html[data-theme="dark"] .loginPage-brandBlock img {
-  height: 4rem;
+  filter: none;
 }
 
 .loginPage-formCard {
+  position: relative;
   width: 100%;
   padding: 2rem 2rem 1.75rem;
-  border: 1px solid var(--color-chrome-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-chrome-bg);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 1.35rem;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
   box-shadow:
-    0 1px 2px rgba(26, 35, 50, 0.04),
-    0 12px 40px rgba(26, 35, 50, 0.08);
+    0 1px 0 rgba(255, 255, 255, 0.72) inset,
+    0 16px 48px rgba(26, 35, 50, 0.12),
+    0 4px 12px rgba(26, 35, 50, 0.06);
+}
+
+.loginPage-formCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(255, 255, 255, 0.48) 48%,
+    rgba(255, 255, 255, 0.32) 100%
+  );
+  pointer-events: none;
+}
+
+.loginPage-formCard > * {
+  position: relative;
+  z-index: 1;
 }
 
 [data-theme="dark"] .loginPage-formCard {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(12, 18, 28, 0.84);
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.2),
-    0 12px 40px rgba(0, 0, 0, 0.35);
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 16px 48px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] .loginPage-formCard::before {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 48%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
 }
 
 .loginPage-formIntro {
@@ -192,24 +259,25 @@ html[data-theme="dark"] .loginPage-brandBlock img {
 .loginPage-modeSwitch {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.3rem;
+  gap: 0.35rem;
   margin-bottom: 1.35rem;
-  padding: 0.3rem;
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(135deg, rgba(26, 158, 150, 0.1) 0%, rgba(232, 244, 243, 0.85) 48%, rgba(237, 242, 248, 0.9) 100%);
-  border: 1px solid rgba(26, 158, 150, 0.16);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1.5px solid rgba(26, 35, 50, 0.16);
+  box-shadow:
+    0 1px 3px rgba(26, 35, 50, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .loginPage-modeButton {
   padding: 0.55rem 0.75rem;
-  border: 1px solid transparent;
-  border-radius: calc(var(--radius-md) - 2px);
+  border: 1.5px solid transparent;
+  border-radius: 999px;
   background: transparent;
   font-size: 0.86rem;
   font-weight: 600;
-  color: var(--color-ink-faint, #7a8494);
+  color: var(--color-ink-muted, #4a5568);
   transition:
     background var(--transition-fast),
     color var(--transition-fast),
@@ -218,34 +286,40 @@ html[data-theme="dark"] .loginPage-brandBlock img {
 }
 
 .loginPage-modeButton:hover:not(.loginPage-modeActive) {
-  background: rgba(26, 158, 150, 0.07);
-  color: var(--color-ink-muted);
+  background: rgba(26, 158, 150, 0.08);
+  border-color: rgba(26, 158, 150, 0.2);
+  color: var(--color-ink, #1a2332);
 }
 
-.loginPage-modeActive {
+.loginPage-modeButton.loginPage-modeActive {
   background: var(--color-brand-teal);
-  color: var(--color-on-accent);
-  border-color: var(--color-brand-teal);
+  color: #ffffff;
+  border-color: rgba(15, 107, 101, 0.55);
   box-shadow:
     0 2px 6px rgba(26, 158, 150, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 [data-theme="dark"] .loginPage-modeSwitch {
-  background:
-    linear-gradient(135deg, rgba(61, 189, 180, 0.14) 0%, rgba(26, 46, 45, 0.75) 50%, rgba(20, 28, 38, 0.85) 100%);
-  border-color: rgba(61, 189, 180, 0.2);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: rgba(16, 24, 34, 0.72);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .loginPage-modeButton {
+  color: var(--color-ink-muted);
 }
 
 [data-theme="dark"] .loginPage-modeButton:hover:not(.loginPage-modeActive) {
-  background: rgba(61, 189, 180, 0.1);
+  background: rgba(61, 189, 180, 0.12);
+  border-color: rgba(61, 189, 180, 0.28);
+  color: var(--color-ink);
 }
 
-[data-theme="dark"] .loginPage-modeActive {
-  background: var(--color-brand-teal);
-  color: var(--color-on-accent);
-  border-color: var(--color-brand-teal);
+[data-theme="dark"] .loginPage-modeButton.loginPage-modeActive {
+  color: #ffffff;
 }
 
 .loginPage-form {
@@ -271,14 +345,27 @@ html[data-theme="dark"] .loginPage-brandBlock img {
 .loginPage-input {
   width: 100%;
   padding: 0.7rem 0.88rem;
-  border: 1px solid var(--color-chrome-border);
+  border: 1.5px solid rgba(26, 35, 50, 0.18);
   border-radius: var(--radius-sm);
-  background: var(--color-workspace-bg);
+  background: rgba(255, 255, 255, 0.96);
   color: var(--color-ink, #1a2332);
   font-size: 0.96rem;
+  box-shadow:
+    0 1px 2px rgba(26, 35, 50, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
   transition:
     border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+}
+
+[data-theme="dark"] .loginPage-input {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(16, 24, 34, 0.82);
+  color: var(--color-ink);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .loginPage-passwordField {
@@ -286,66 +373,173 @@ html[data-theme="dark"] .loginPage-brandBlock img {
 }
 
 .loginPage-passwordInput {
-  padding-right: 2.75rem;
+  padding-right: 3.4rem;
 }
 
 .loginPage-passwordToggle {
   position: absolute;
   top: 50%;
-  right: 0.45rem;
+  right: 0.42rem;
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.4rem;
+  height: 2.4rem;
   padding: 0;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
+  border: 1.5px solid rgba(26, 35, 50, 0.16);
+  border-radius: 0.5rem;
+  background: rgba(245, 248, 252, 0.98);
   color: var(--color-ink-muted, #4a5568);
+  box-shadow: 0 1px 2px rgba(26, 35, 50, 0.06);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .loginPage-passwordToggle:hover:not(:disabled) {
-  color: var(--color-ink, #1a2332);
+  color: var(--color-brand-teal, #1a9e96);
+  border-color: rgba(26, 158, 150, 0.35);
   background: rgba(26, 158, 150, 0.08);
 }
 
+.loginPage-passwordToggle[aria-pressed="true"] {
+  color: var(--color-brand-teal, #1a9e96);
+  border-color: rgba(26, 158, 150, 0.42);
+  background: rgba(26, 158, 150, 0.12);
+  box-shadow:
+    0 0 0 2px rgba(26, 158, 150, 0.12),
+    0 1px 2px rgba(26, 35, 50, 0.06);
+}
+
+.loginPage-passwordToggle:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .loginPage-passwordToggleIcon {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+[data-theme="dark"] .loginPage-passwordToggle {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(24, 34, 46, 0.95);
+  color: var(--color-ink-muted);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .loginPage-passwordToggle:hover:not(:disabled),
+[data-theme="dark"] .loginPage-passwordToggle[aria-pressed="true"] {
+  color: var(--color-brand-teal);
+  border-color: rgba(61, 189, 180, 0.4);
+  background: rgba(61, 189, 180, 0.14);
+}
+
+.loginPage-passwordRulesPanel {
+  margin-top: 0.65rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(26, 158, 150, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.loginPage-passwordRulesTitle {
+  margin: 0 0 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted, #4a5568);
 }
 
 .loginPage-passwordRules {
-  margin: 0.45rem 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 0.28rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem 0.65rem;
 }
 
 .loginPage-passwordRuleMet,
 .loginPage-passwordRuleUnmet {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.76rem;
-  line-height: 1.35;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.55rem;
+  font-size: 0.74rem;
+  line-height: 1.3;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .loginPage-passwordRuleMet {
-  color: var(--color-sage, #6b8f71);
+  color: #2d6a4f;
+  background: rgba(26, 158, 150, 0.1);
+  border: 1px solid rgba(26, 158, 150, 0.22);
 }
 
 .loginPage-passwordRuleUnmet {
-  color: var(--color-ink-faint, #7a8494);
+  color: var(--color-ink-muted, #4a5568);
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(26, 35, 50, 0.08);
 }
 
-.loginPage-passwordRuleMarker {
-  width: 0.85rem;
+.loginPage-passwordRuleIcon {
+  display: inline-flex;
   flex-shrink: 0;
-  text-align: center;
-  font-size: 0.72rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.loginPage-passwordRuleIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.loginPage-passwordRuleIconMet {
+  color: var(--color-brand-teal, #1a9e96);
+}
+
+.loginPage-passwordRuleIconUnmet {
+  color: var(--color-ink-faint, #9aa3b0);
+}
+
+.loginPage-passwordRuleLabel {
+  min-width: 0;
+}
+
+[data-theme="dark"] .loginPage-passwordRulesPanel {
+  border-color: rgba(61, 189, 180, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .loginPage-passwordRuleMet {
+  color: #8fd4b8;
+  background: rgba(61, 189, 180, 0.14);
+  border-color: rgba(61, 189, 180, 0.28);
+}
+
+[data-theme="dark"] .loginPage-passwordRuleUnmet {
+  color: var(--color-ink-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 540px) {
+  .loginPage-passwordRules {
+    grid-template-columns: 1fr;
+  }
 }
 
 .loginPage-input::placeholder {
@@ -353,13 +547,29 @@ html[data-theme="dark"] .loginPage-brandBlock img {
 }
 
 .loginPage-input:hover:not(:disabled) {
-  border-color: var(--color-border-strong);
+  border-color: rgba(26, 35, 50, 0.28);
+  background: #ffffff;
+}
+
+[data-theme="dark"] .loginPage-input:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(20, 30, 42, 0.92);
 }
 
 .loginPage-input:focus {
   outline: none;
   border-color: var(--color-brand-teal);
-  box-shadow: 0 0 0 3px rgba(26, 158, 150, 0.14);
+  background: #ffffff;
+  box-shadow:
+    0 0 0 3px rgba(26, 158, 150, 0.18),
+    0 1px 2px rgba(26, 35, 50, 0.06);
+}
+
+[data-theme="dark"] .loginPage-input:focus {
+  background: rgba(20, 30, 42, 0.95);
+  box-shadow:
+    0 0 0 3px rgba(61, 189, 180, 0.22),
+    0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .loginPage-errorBanner {
@@ -398,14 +608,19 @@ html[data-theme="dark"] .loginPage-brandBlock img {
 .loginPage-trustNote {
   margin-top: 1.15rem;
   padding-top: 1.15rem;
-  border-top: 1px solid var(--color-chrome-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
   font-size: 0.78rem;
   line-height: 1.5;
   color: var(--color-ink-faint, #7a8494);
   text-align: center;
 }
 
+[data-theme="dark"] .loginPage-trustNote {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
 .loginPage-guestLink {
+  align-self: center;
   padding: 0.35rem 0.5rem;
   border: none;
   background: none;
@@ -418,7 +633,11 @@ html[data-theme="dark"] .loginPage-brandBlock img {
 }
 
 .loginPage-guestLink:hover {
-  color: var(--color-ink);
+  color: var(--color-ink, #1a2332);
+}
+
+[data-theme="dark"] .loginPage-guestLink {
+  color: rgba(232, 234, 237, 0.9);
 }
 
 .loginPage-verificationPanel {
@@ -438,13 +657,20 @@ html[data-theme="dark"] .loginPage-brandBlock img {
 .loginPage-secondaryButton {
   width: 100%;
   padding: 0.68rem 1rem;
-  border: 1px solid var(--color-chrome-border);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: var(--radius-sm);
-  background: var(--color-workspace-bg);
+  background: rgba(255, 255, 255, 0.3);
   color: var(--color-ink, #1a2332);
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+[data-theme="dark"] .loginPage-secondaryButton {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .loginPage-secondaryButton:hover:not(:disabled) {
@@ -469,9 +695,24 @@ html[data-theme="dark"] .loginPage-brandBlock img {
   color: var(--color-ink);
 }
 
+@media (max-width: 900px) {
+  .loginPage-layout {
+    padding: 2rem 1.25rem;
+  }
+
+  .loginPage-authColumn {
+    max-width: min(100%, 32rem);
+  }
+
+  .loginPage-guestLink {
+    color: var(--color-ink-muted, #4a5568);
+    text-shadow: none;
+  }
+}
+
 @media (max-width: 480px) {
-  .loginPage-center {
-    padding: 1rem 1rem 2rem;
+  .loginPage-layout {
+    padding: 1.5rem 1rem;
   }
 
   .loginPage-formCard {
@@ -485,4 +726,54 @@ html[data-theme="dark"] .loginPage-brandBlock img {
   .loginPage-brandBlock img {
     height: 3.35rem;
   }
+}
+
+.loginPage-verificationCompleteCard {
+  text-align: center;
+}
+
+.loginPage-verificationCompleteIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 1.25rem;
+  border-radius: 999px;
+  background: rgba(26, 158, 150, 0.12);
+  border: 1px solid rgba(26, 158, 150, 0.28);
+  color: var(--color-brand-teal, #1a9e96);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.loginPage-verificationCompleteHint {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--color-ink-muted, #4a5568);
+}
+
+.loginPage-passcodeInput {
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Login route: let the page background show edge-to-edge */
+html.login-route-active,
+html.login-route-active body {
+  width: 100%;
+  min-height: 100%;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+html.login-route-active body {
+  overflow: hidden;
 }

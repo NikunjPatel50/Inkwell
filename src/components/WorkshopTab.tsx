@@ -1,12 +1,14 @@
-import type { AnalysisStatus, CorrectionResult, LadderResult, SelfCorrectionPhase, Tone, WritingError } from "../types";
+import type { AnalysisStatus, AppTab, CorrectionResult, LadderResult, SelfCorrectionPhase, Tone, WritingError } from "../types";
 import { Editor } from "./Editor";
 import { FeedbackCard } from "./FeedbackCard";
 import { LadderPanel } from "./LadderPanel";
 import { RegisterMeter } from "./RegisterMeter";
 import { SelfCorrectionChallenge } from "./SelfCorrectionChallenge";
+import { TabBackBar } from "./TabBackBar";
 import styles from "./WorkshopTab.module.css";
 
 interface WorkshopTabProps {
+  onTabChange: (tab: AppTab) => void;
   text: string;
   wordCount: number;
   status: AnalysisStatus;
@@ -46,6 +48,7 @@ interface WorkshopTabProps {
 }
 
 export function WorkshopTab({
+  onTabChange,
   text,
   wordCount,
   status,
@@ -87,6 +90,7 @@ export function WorkshopTab({
     selfCorrectionPhase === "active" || selfCorrectionPhase === "completed";
   return (
     <section className={styles.workshop}>
+      <TabBackBar label="Dashboard" onBack={() => onTabChange("dashboard")} />
       <div className={styles.workspace}>
         <div className={styles.editorColumn}>
           <div className={styles.panelHeader}>

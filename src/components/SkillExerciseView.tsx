@@ -3,6 +3,7 @@ import {
   EXERCISE_TYPE_LABELS,
   getSkillById,
   randomVarietySeed,
+  TIER_INFO,
 } from "../constants/curriculum";
 import { getNextExerciseType, updatePracticedSkill } from "../lib/adaptiveEngine";
 import { ApiError } from "../lib/apiClient";
@@ -130,84 +131,146 @@ export function SkillExerciseView({
     );
   }
 
+  const tierInfo = TIER_INFO.find((tier) => tier.tier === skill.tier);
   const completedCount = localPracticed?.exercisesCompleted ?? 0;
+  const averageScore = localPracticed?.averageScore ?? 0;
+  const progressPct = Math.min(100, completedCount * 10);
 
   return (
     <div className={styles.view}>
-      <button type="button" className={styles.backLink} onClick={onBack}>
-        ← Back to curriculum
-      </button>
+      <div className={styles.mainColumn}>
+        <section className={styles.skillCard} aria-labelledby="skill-title">
+          <div className={styles.skillCardHeader}>
+            <p className={styles.skillEyebrow}>Curriculum skill</p>
+            <span className={`${styles.tierBadge} ${styles[`tier${skill.tier}`]}`}>
+              Tier {skill.tier}
+              {tierInfo ? ` · ${tierInfo.name}` : ""}
+            </span>
+          </div>
+          <h2 id="skill-title" className={styles.skillTitle}>
+            {skill.name}
+          </h2>
+          <p className={styles.introduction}>{skill.introduction}</p>
+        </section>
 
-      <header className={styles.header}>
-        <h2 className={styles.skillTitle}>{skill.name}</h2>
-        <span className={`${styles.tierBadge} ${styles[`tier${skill.tier}`]}`}>
-          Tier {skill.tier}
-        </span>
-      </header>
+        <section className={styles.exerciseCard} aria-labelledby="exercise-heading">
+          <header className={styles.exerciseCardHeader}>
+            <div className={styles.exerciseCardHeading}>
+              <p className={styles.exerciseEyebrow} id="exercise-heading">
+                {EXERCISE_TYPE_LABELS[exerciseType]}
+              </p>
+              <h3 className={styles.exerciseTitle}>Exercise {exerciseIndex + 1}</h3>
+            </div>
+            <span className={styles.exerciseBadge}>Adaptive practice</span>
+          </header>
 
-      <p className={styles.introduction}>{skill.introduction}</p>
+          <div className={styles.exerciseCardBody}>
+            {!isLearnAvailable() && (
+              <div className={styles.errorBanner} role="alert">
+                Connect InsForge or add NEXT_PUBLIC_GROQ_API_KEY to generate exercises.
+              </div>
+            )}
 
-      {!isLearnAvailable() && (
-        <p className={styles.error} role="alert">
-          Connect InsForge or add NEXT_PUBLIC_GROQ_API_KEY to generate exercises.
-        </p>
-      )}
+            {loading && (
+              <div className={styles.loadingRow} aria-live="polite">
+                <span className={styles.spinner} aria-hidden="true" />
+                <span>Generating your next exercise…</span>
+              </div>
+            )}
 
-      <p className={styles.exerciseEyebrow}>{EXERCISE_TYPE_LABELS[exerciseType]}</p>
+            {loadError && (
+              <div className={styles.retryBox}>
+                <p className={styles.error} role="alert">
+                  {loadError}
+                </p>
+                <button type="button" className={styles.retryButton} onClick={() => void loadExercise()}>
+                  Try again
+                </button>
+              </div>
+            )}
 
-      {loading && <p className={styles.loading}>Loading exercise…</p>}
+            {exercise && !loading && !loadError && (
+              <>
+                {exercise.type === "build-it" && (
+                  <BuildItExerciseView
+                    key={`build-${exerciseIndex}`}
+                    exercise={exercise.data}
+                    onComplete={handleExerciseComplete}
+                  />
+                )}
+                {exercise.type === "spot-error" && (
+                  <SpotTheErrorExerciseView
+                    key={`spot-${exerciseIndex}`}
+                    exercise={exercise.data}
+                    onComplete={handleExerciseComplete}
+                  />
+                )}
+                {exercise.type === "complete-it" && (
+                  <CompleteItExerciseView
+                    key={`complete-${exerciseIndex}`}
+                    exercise={exercise.data}
+                    skill={skill}
+                    onComplete={handleExerciseComplete}
+                  />
+                )}
+              </>
+            )}
+          </div>
 
-      {loadError && (
-        <div className={styles.retryBox}>
-          <p className={styles.error} role="alert">
-            {loadError}
+          {exerciseDone && (
+            <footer className={styles.exerciseCardFooter}>
+              <button type="button" className={styles.nextButton} onClick={handleNextExercise}>
+                Next exercise
+              </button>
+            </footer>
+          )}
+        </section>
+      </div>
+
+      <aside className={styles.sidebar} aria-label="Skill progress">
+        <section className={styles.statsCard}>
+          <h3 className={styles.statsTitle}>Your progress</h3>
+          <div className={styles.statGrid}>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{completedCount}</span>
+              <span className={styles.statLabel}>
+                Exercise{completedCount === 1 ? "" : "s"} done
+              </span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>
+                {completedCount > 0 ? `${Math.round(averageScore)}%` : "—"}
+              </span>
+              <span className={styles.statLabel}>Average score</span>
+            </div>
+          </div>
+          <div className={styles.progressBlock}>
+            <div className={styles.progressMeta}>
+              <span className={styles.progressLabel}>Skill mastery</span>
+              <span className={styles.progressPct}>{progressPct}%</span>
+            </div>
+            <div
+              className={styles.progressTrack}
+              role="progressbar"
+              aria-valuenow={progressPct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Skill mastery progress"
+            >
+              <div className={styles.progressFill} style={{ width: `${progressPct}%` }} />
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.actionsCard}>
+          <p className={styles.actionsHint}>
+            Switch skills anytime — your progress is saved for this skill.
           </p>
-          <button type="button" className={styles.retryButton} onClick={() => void loadExercise()}>
-            Try again
+          <button type="button" className={styles.changeSkillButton} onClick={onBack}>
+            Try a different skill
           </button>
-        </div>
-      )}
-
-      {exercise && !loading && !loadError && (
-        <>
-          {exercise.type === "build-it" && (
-            <BuildItExerciseView
-              key={`build-${exerciseIndex}`}
-              exercise={exercise.data}
-              onComplete={handleExerciseComplete}
-            />
-          )}
-          {exercise.type === "spot-error" && (
-            <SpotTheErrorExerciseView
-              key={`spot-${exerciseIndex}`}
-              exercise={exercise.data}
-              onComplete={handleExerciseComplete}
-            />
-          )}
-          {exercise.type === "complete-it" && (
-            <CompleteItExerciseView
-              key={`complete-${exerciseIndex}`}
-              exercise={exercise.data}
-              skill={skill}
-              onComplete={handleExerciseComplete}
-            />
-          )}
-        </>
-      )}
-
-      {exerciseDone && (
-        <button type="button" className={styles.nextButton} onClick={handleNextExercise}>
-          Next exercise
-        </button>
-      )}
-
-      <p className={styles.progressNote}>
-        {completedCount} exercise{completedCount === 1 ? "" : "s"} completed for this skill
-      </p>
-
-      <button type="button" className={styles.altLink} onClick={onBack}>
-        Try a different skill
-      </button>
+        </section>
+      </aside>
     </div>
   );
 }

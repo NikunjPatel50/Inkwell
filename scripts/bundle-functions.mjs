@@ -20,6 +20,7 @@ const bundles = [
   { name: "check-complete-it", shared: ["cors", "learn"] },
   { name: "get-practiced-skills", shared: ["cors", "auth"] },
   { name: "upsert-practiced-skill", shared: ["cors", "auth"] },
+  { name: "coach-evaluate", shared: ["cors", "coach"] },
 ];
 
 function stripImports(content) {

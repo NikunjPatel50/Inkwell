@@ -122,6 +122,8 @@ export function BuildItExerciseView({ exercise, onComplete }: BuildItExercisePro
         onDrop={handleDropOnPool}
         aria-label="Word pool"
       >
+        <p className={styles.poolLabel}>Word bank</p>
+        <div className={styles.chipRow}>
         {pool.map((word, index) => (
           <button
             key={`${word}-pool-${index}`}
@@ -136,6 +138,7 @@ export function BuildItExerciseView({ exercise, onComplete }: BuildItExercisePro
             {word}
           </button>
         ))}
+        </div>
       </div>
 
       {!submitted && (

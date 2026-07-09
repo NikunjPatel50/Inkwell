@@ -3,6 +3,12 @@ import type {
   DuelSentence,
   EmotionRewriteResult,
 } from "../types";
+import type {
+  CollocationEvaluateResult,
+  CombineParagraphResult,
+  EssayCoachResult,
+  StepFeedbackResult,
+} from "../types/coach";
 
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_MODEL = "llama-3.3-70b-versatile";
@@ -284,3 +290,52 @@ export {
   generateCompleteItExercise,
   checkCompleteIt,
 } from "./learnGroq";
+
+export async function evaluateCollocations(
+  anchor: string,
+  anchorType: "verb" | "noun",
+  answers: string[],
+): Promise<CollocationEvaluateResult> {
+  const systemPrompt = `You are an expert English collocation coach. Return ONLY JSON:
+{"results":[{"phrase":string,"correct":boolean,"explanation":string}],"correctCount":number,"totalCount":number,"missingCollocations":[string],"teachingSummary":string}
+Anchor ${anchorType}: "${anchor}". Evaluate each student phrase. List 5-8 missing common collocations.`;
+
+  const content = await callGroq(systemPrompt, JSON.stringify({ anchor, anchorType, answers }));
+  return JSON.parse(extractJsonPayload(content)) as CollocationEvaluateResult;
+}
+
+export async function evaluateCoachStep(
+  stepLabel: string,
+  question: string,
+  answer: string,
+  context?: string,
+): Promise<StepFeedbackResult> {
+  const systemPrompt = `Writing coach. Return ONLY JSON: {"feedback":string,"passed":boolean,"suggestion":string}`;
+
+  const content = await callGroq(
+    systemPrompt,
+    JSON.stringify({ stepLabel, question, answer, context }),
+  );
+  return JSON.parse(extractJsonPayload(content)) as StepFeedbackResult;
+}
+
+export async function combineCoachParagraph(
+  steps: Array<{ label: string; answer: string }>,
+): Promise<CombineParagraphResult> {
+  const systemPrompt = `Combine step answers into one academic paragraph. Return ONLY JSON: {"paragraph":string,"techniques":[string]}`;
+
+  const content = await callGroq(systemPrompt, JSON.stringify({ steps }));
+  return JSON.parse(extractJsonPayload(content)) as CombineParagraphResult;
+}
+
+export async function evaluateCoachEssay(
+  essay: string,
+  prompt?: string,
+): Promise<EssayCoachResult> {
+  const systemPrompt = `PTE/IELTS writing coach. Teach HOW to improve. Return ONLY JSON:
+{"criteria":[{"label":string,"score":number,"maxScore":10,"teaching":string,"goodExamples":[string],"improvements":[string]}],"overallSummary":string,"goodCollocations":[string],"weakCollocations":[string],"grammarMistakes":[string]}
+Criteria: Grammar, Vocabulary, Collocations, Idea Development, Cohesion, Linguistic Range, Content.`;
+
+  const content = await callGroq(systemPrompt, JSON.stringify({ essay, prompt }));
+  return JSON.parse(extractJsonPayload(content)) as EssayCoachResult;
+}

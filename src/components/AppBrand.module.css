@@ -46,20 +46,11 @@
   max-width: min(100%, 13.5rem);
 }
 
-.logoDark {
-  display: none;
-}
-
-:global(html[data-theme="dark"]) .logoLight {
-  display: none;
-}
-
-:global(html[data-theme="dark"]) .logoDark {
-  display: block;
-}
-
-:global(html[data-theme="dark"]) .logoHeader {
-  height: 2rem;
+:global(html[data-theme="dark"]) .root {
+  background: #ffffff;
+  border-radius: 0.55rem;
+  padding: 0.22rem 0.55rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
 }
 
 @media (max-width: 480px) {
@@ -71,9 +62,5 @@
   .logoHeader {
     height: 1.9rem;
     max-width: min(100%, 11rem);
-  }
-
-  :global(html[data-theme="dark"]) .logoHeader {
-    height: 1.75rem;
   }
 }

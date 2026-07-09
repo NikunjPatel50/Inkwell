@@ -26,6 +26,43 @@
 .toggleToolbar {
   width: 2.15rem;
   height: 2.15rem;
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+}
+
+.toggleToolbar.isLight,
+.toggleToolbar.isDark {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+}
+
+.toggleToolbar .icon {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.toggleToolbar:hover,
+.toggleToolbar.isLight:hover,
+.toggleToolbar.isDark:hover {
+  background: var(--color-chrome-bg);
+  border-color: var(--color-brand-teal);
+  color: var(--color-ink);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-brand-teal) 14%, transparent),
+    0 2px 8px rgba(15, 23, 42, 0.14);
+}
+
+:global(html[data-theme="dark"]) .toggleToolbar,
+:global(html[data-theme="dark"]) .toggleToolbar.isLight,
+:global(html[data-theme="dark"]) .toggleToolbar.isDark {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
 }
 
 .isLight,
