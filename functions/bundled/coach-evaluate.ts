@@ -165,14 +165,6 @@ goodExamples: collocations or phrases done well. improvements: specific better a
 }
 
 // handler
-import {
-  combineParagraph,
-  evaluateCollocations,
-  evaluateEssay,
-  evaluateStepFeedback,
-  GroqServiceError,
-} from "./_shared/coach.ts";
-
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return handleOptions();
 

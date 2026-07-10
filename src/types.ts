@@ -59,11 +59,21 @@ export const TONES: { value: Tone; label: string }[] = [
 
 export type AnalysisStatus = "idle" | "loading" | "success" | "error";
 
-export type AppTab = "dashboard" | "learn" | "write" | "coach" | "creative" | "history";
+export type AppTab =
+  | "dashboard"
+  | "learn"
+  | "grammar"
+  | "vocabulary"
+  | "write"
+  | "coach"
+  | "creative"
+  | "history";
 
 export const APP_TABS: { id: AppTab; label: string; description: string }[] = [
   { id: "dashboard", label: "Dashboard", description: "Practice overview and quick actions" },
   { id: "learn", label: "Learn", description: "Adaptive curriculum and skill exercises" },
+  { id: "grammar", label: "Grammar", description: "In-context grammar lessons and exercises" },
+  { id: "vocabulary", label: "Vocabulary", description: "Words learned through real sentences" },
   { id: "write", label: "Write", description: "Analyse drafts with grammar feedback and rewrites" },
   { id: "coach", label: "AI Writing Coach", description: "Learn how to write with guided coaching levels" },
   { id: "creative", label: "Creative", description: "Writing games and expressive rewrites" },
@@ -228,3 +238,59 @@ export function ladderFromAnalysis(result: AnalysisResult): LadderResult {
     toneDriftNote: result.toneDriftNote,
   };
 }
+
+// Grammar & Vocabulary learning
+
+export interface IdentifyItExercise {
+  sentence: string;
+  targetPhrase: string;
+  targetIndex: number;
+  confirmation: string;
+  hint: string;
+  explanation: string;
+}
+
+export interface FillBlankExercise {
+  stem: string;
+  hint: string;
+}
+
+export interface FillBlankResult {
+  correct: boolean;
+  feedback: string;
+  correctAnswer: string;
+  explanation: string;
+}
+
+export interface TransformItExercise {
+  originalSentence: string;
+  prompt: string;
+  modelAnswer: string;
+}
+
+export interface TransformItResult {
+  correct: boolean;
+  feedback: string;
+  modelAnswer: string;
+  explanation: string;
+}
+
+export interface UseItExercise {
+  context: string;
+  prompt: string;
+}
+
+export interface UseItResult {
+  correct: boolean;
+  feedback: string;
+  exampleSentence: string;
+  explanation: string;
+}
+
+export interface PickMeaningExercise {
+  sentence: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+

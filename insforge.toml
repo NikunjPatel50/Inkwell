@@ -1,8 +1,13 @@
 [auth]
 allowed_redirect_urls = [
+  "http://localhost:5173/api/auth/callback",
   "http://localhost:5173/login",
+  "https://www.wrytesmart.com/api/auth/callback",
   "https://www.wrytesmart.com/login",
+  "https://wrytesmart.com/api/auth/callback",
   "https://wrytesmart.com/login",
+  "https://rduvz84y.insforge.site/api/auth/callback",
+  "https://rduvz84y.insforge.site/login",
 ]
 require_email_verification = true
 verify_email_method = "code"

@@ -1,0 +1,58 @@
+.sentence {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--color-ink);
+}
+
+.highlightWrap {
+  position: relative;
+  display: inline;
+}
+
+.highlight {
+  padding: 0.1rem 0.25rem;
+  margin: 0 0.05rem;
+  border: none;
+  border-radius: 4px;
+  background: rgba(90, 138, 122, 0.22);
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: help;
+  text-decoration: underline dotted rgba(90, 138, 122, 0.6);
+  text-underline-offset: 3px;
+}
+
+.highlight:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.tooltip {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 0.45rem);
+  z-index: 4;
+  min-width: 12rem;
+  max-width: 18rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-ink);
+  color: var(--color-surface);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  box-shadow: var(--shadow-soft);
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .tooltip {
+    position: static;
+    display: block;
+    margin-top: 0.35rem;
+    pointer-events: auto;
+  }
+}

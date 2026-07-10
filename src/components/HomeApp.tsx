@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { AppTopBar } from "./AppTopBar";
 import { DashboardTab } from "./DashboardTab";
 import { LearnTab } from "./LearnTab";
+import { GrammarTab } from "./GrammarTab";
+import { VocabularyTab } from "./VocabularyTab";
 import { CreativeTab } from "./CreativeTab";
 import { CoachTab } from "./coach/CoachTab";
 import { HistoryTab } from "./HistoryTab";
@@ -25,6 +27,8 @@ import {
   isGuestSession,
   saveDraftForLogin,
 } from "../lib/sessionBridge";
+import { hasPersistedAuthSession } from "../lib/authPersistence";
+import { readWorkspaceRoute, writeWorkspaceRoute } from "../lib/workspaceRoute";
 import { countWords } from "../lib/textMetrics";
 import type {
   AnalysisResult,
@@ -78,7 +82,8 @@ const INITIAL_SELF_CORRECTION: SelfCorrectionState = {
 export function HomeApp() {
   const router = useRouter();
   const { user, loading: authLoading, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<AppTab>("dashboard");
+  const initialRoute = useMemo(() => readWorkspaceRoute(), []);
+  const [activeTab, setActiveTab] = useState<AppTab>(initialRoute.tab);
   const [pendingAnalyse, setPendingAnalyse] = useState(false);
   const [text, setText] = useState("");
   const [analysedText, setAnalysedText] = useState<string | null>(null);
@@ -126,8 +131,19 @@ export function HomeApp() {
   useEffect(() => {
     if (authLoading || user) return;
     if (isGuestSession()) return;
+    if (hasPersistedAuthSession()) return;
     router.replace("/login");
   }, [authLoading, user, router]);
+
+  const handleTabChange = useCallback((tab: AppTab) => {
+    setActiveTab(tab);
+    writeWorkspaceRoute({
+      tab,
+      grammarTopicId: tab === "grammar" ? undefined : null,
+      vocabularyWordId: tab === "vocabulary" ? undefined : null,
+      learnSkillId: tab === "learn" ? undefined : null,
+    });
+  }, []);
 
   useEffect(() => {
     if (sessionRestoredRef.current) return;
@@ -145,7 +161,7 @@ export function HomeApp() {
   const wordCount = countWords(text);
   const isLoading = status === "loading";
   const isAuthenticated = Boolean(user);
-  const allowWorkspace = isAuthenticated || isGuestSession();
+  const allowWorkspace = isAuthenticated || isGuestSession() || hasPersistedAuthSession();
   const canAnalyse = text.trim().length > 0 && isInsforgeConfigured();
   const analyseHint = !isInsforgeConfigured()
     ? "Backend is not configured. Add NEXT_PUBLIC_INSFORGE_URL and NEXT_PUBLIC_INSFORGE_ANON_KEY."
@@ -424,7 +440,7 @@ export function HomeApp() {
           activeTab={activeTab}
           user={user}
           theme={theme}
-          onNavigateHome={() => setActiveTab("dashboard")}
+          onNavigateHome={() => handleTabChange("dashboard")}
           onSignIn={() => openLogin()}
           onSignOut={handleSignOut}
           onPasswordChanged={handlePasswordChanged}
@@ -435,7 +451,7 @@ export function HomeApp() {
           <aside className={styles.sidebarColumn} aria-label="Application sidebar">
             <TabBar
               activeTab={activeTab}
-              onTabChange={setActiveTab}
+              onTabChange={handleTabChange}
               practiceCount={isAuthenticated ? practiceCount : 0}
             />
           </aside>
@@ -449,7 +465,7 @@ export function HomeApp() {
                   practiceCount={practiceCount}
                   skillPatterns={skillPatterns}
                   onSignIn={() => openLogin()}
-                  onTabChange={setActiveTab}
+                  onTabChange={handleTabChange}
                 />
               </div>
 
@@ -457,13 +473,28 @@ export function HomeApp() {
                 <LearnTab
                   isAuthenticated={isAuthenticated}
                   skillPatterns={skillPatterns}
-                  onTabChange={setActiveTab}
+                  onTabChange={handleTabChange}
+                  initialSkillId={initialRoute.learnSkillId}
+                />
+              </div>
+
+              <div className={styles.tabPanel} hidden={activeTab !== "grammar"} id="panel-grammar">
+                <GrammarTab
+                  onTabChange={handleTabChange}
+                  initialTopicId={initialRoute.grammarTopicId}
+                />
+              </div>
+
+              <div className={styles.tabPanel} hidden={activeTab !== "vocabulary"} id="panel-vocabulary">
+                <VocabularyTab
+                  onTabChange={handleTabChange}
+                  initialWordId={initialRoute.vocabularyWordId}
                 />
               </div>
 
               <div className={styles.tabPanel} hidden={activeTab !== "write"} id="panel-write">
                 <WorkshopTab
-                  onTabChange={setActiveTab}
+                  onTabChange={handleTabChange}
                   text={text}
                   wordCount={wordCount}
                   status={status}
@@ -504,11 +535,11 @@ export function HomeApp() {
               </div>
 
               <div className={styles.tabPanel} hidden={activeTab !== "coach"} id="panel-coach">
-                <CoachTab onTabChange={setActiveTab} />
+                <CoachTab onTabChange={handleTabChange} />
               </div>
 
               <div className={styles.tabPanel} hidden={activeTab !== "creative"} id="panel-creative">
-                <CreativeTab onTabChange={setActiveTab} />
+                <CreativeTab onTabChange={handleTabChange} />
               </div>
 
               <div className={styles.tabPanel} hidden={activeTab !== "history"} id="panel-history">
@@ -516,7 +547,7 @@ export function HomeApp() {
                   isAuthenticated={isAuthenticated}
                   refreshKey={historyRefreshKey}
                   onSignIn={() => openLogin()}
-                  onTabChange={setActiveTab}
+                  onTabChange={handleTabChange}
                 />
               </div>
             </main>

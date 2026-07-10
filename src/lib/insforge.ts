@@ -20,6 +20,9 @@ export const insforge = createClient({
   baseUrl: baseUrl ?? "",
   anonKey: anonKey ?? "",
   functionsUrl: resolveFunctionsUrl(baseUrl),
+  auth: {
+    detectOAuthCallback: false,
+  },
 });
 
 export function isInsforgeConfigured(): boolean {

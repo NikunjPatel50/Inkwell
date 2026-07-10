@@ -21,10 +21,14 @@ const bundles = [
   { name: "get-practiced-skills", shared: ["cors", "auth"] },
   { name: "upsert-practiced-skill", shared: ["cors", "auth"] },
   { name: "coach-evaluate", shared: ["cors", "coach"] },
+  { name: "grammar-learning", shared: ["cors", "grammarLearning"] },
+  { name: "vocabulary-learning", shared: ["cors", "vocabularyLearning"] },
 ];
 
 function stripImports(content) {
-  return content.replace(/^import\s+.*from\s+['"].*['"];?\s*$/gm, "").trim();
+  return content
+    .replace(/^import\s+(?:type\s+)?[\s\S]*?from\s+['"].*['"];?\s*/gm, "")
+    .trim();
 }
 
 const npmImports = `import { createClient } from "npm:@insforge/sdk@latest";\n\n`;

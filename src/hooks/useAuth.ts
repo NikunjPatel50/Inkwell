@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
+import {
+  captureAuthSessionFromClient,
+  clearPersistedAuthSession,
+  persistAuthSession,
+  readPersistedAuthSession,
+  restoreAuthSession,
+} from "../lib/authPersistence";
 import { getLoginRedirectUrl } from "../lib/authRedirect";
 import { insforge } from "../lib/insforge";
+import { clearGuestSession } from "../lib/sessionBridge";
 
 export interface AuthUser {
   id: string;
@@ -21,6 +29,7 @@ interface UseAuthResult {
   loading: boolean;
   verifyEmailMethod: VerifyEmailMethod;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signUp: (email: string, password: string, name?: string) => Promise<SignUpResult>;
   verifyEmail: (email: string, otp: string) => Promise<void>;
   resendVerificationEmail: (email: string) => Promise<void>;
@@ -35,28 +44,61 @@ function userDisplayName(user: {
   return user.profile?.name;
 }
 
+function mapAuthUser(user: {
+  id: string;
+  email?: string;
+  profile?: { name?: string } | null;
+}): AuthUser {
+  return {
+    id: user.id,
+    email: user.email ?? "",
+    name: userDisplayName({ email: user.email ?? "", profile: user.profile }),
+  };
+}
+
+function syncPersistedSession(): void {
+  const session = captureAuthSessionFromClient();
+  if (session) {
+    persistAuthSession(session);
+  }
+}
+
 export function useAuth(): UseAuthResult {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [verifyEmailMethod, setVerifyEmailMethod] = useState<VerifyEmailMethod>("code");
 
   const refreshUser = useCallback(async (): Promise<AuthUser | null> => {
+    restoreAuthSession();
+
     const { data, error } = await insforge.auth.getCurrentUser();
-    if (error || !data?.user) {
-      setUser(null);
-      return null;
+    if (!error && data?.user) {
+      const nextUser = mapAuthUser(data.user);
+      setUser(nextUser);
+      syncPersistedSession();
+      return nextUser;
     }
 
-    const nextUser = {
-      id: data.user.id,
-      email: data.user.email ?? "",
-      name: userDisplayName(data.user),
-    };
-    setUser(nextUser);
-    return nextUser;
+    const persisted = readPersistedAuthSession();
+    if (persisted?.refreshToken) {
+      const { data: refreshed, error: refreshError } = await insforge.auth.refreshSession({
+        refreshToken: persisted.refreshToken,
+      });
+      if (!refreshError && refreshed?.user) {
+        const nextUser = mapAuthUser(refreshed.user);
+        setUser(nextUser);
+        syncPersistedSession();
+        return nextUser;
+      }
+    }
+
+    setUser(null);
+    return null;
   }, []);
 
   useEffect(() => {
+    restoreAuthSession();
+
     let cancelled = false;
     const timeout = window.setTimeout(() => {
       if (!cancelled) setLoading(false);
@@ -88,15 +130,17 @@ export function useAuth(): UseAuthResult {
       throw new Error(error.message ?? "Sign in failed.");
     }
     if (data?.user) {
-      setUser({
-        id: data.user.id,
-        email: data.user.email ?? email,
-        name: userDisplayName(data.user),
-      });
+      clearGuestSession();
+      setUser(mapAuthUser(data.user));
+      syncPersistedSession();
     } else {
       await refreshUser();
     }
   }, [refreshUser]);
+
+  const signInWithGoogle = useCallback(async () => {
+    window.location.assign("/api/auth/google");
+  }, []);
 
   const signUp = useCallback(async (email: string, password: string, name?: string): Promise<SignUpResult> => {
     const { data, error } = await insforge.auth.signUp({
@@ -119,11 +163,8 @@ export function useAuth(): UseAuthResult {
     }
 
     if (data?.accessToken && data.user) {
-      setUser({
-        id: data.user.id,
-        email: data.user.email ?? email,
-        name: userDisplayName(data.user) ?? name,
-      });
+      setUser(mapAuthUser(data.user));
+      syncPersistedSession();
     } else {
       await refreshUser();
     }
@@ -141,11 +182,8 @@ export function useAuth(): UseAuthResult {
     }
 
     if (data?.user) {
-      setUser({
-        id: data.user.id,
-        email: data.user.email ?? email,
-        name: userDisplayName(data.user),
-      });
+      setUser(mapAuthUser(data.user));
+      syncPersistedSession();
     } else {
       await refreshUser();
     }
@@ -163,6 +201,7 @@ export function useAuth(): UseAuthResult {
 
   const signOut = useCallback(async () => {
     await insforge.auth.signOut();
+    clearPersistedAuthSession();
     setUser(null);
   }, []);
 
@@ -171,6 +210,7 @@ export function useAuth(): UseAuthResult {
     loading,
     verifyEmailMethod,
     signIn,
+    signInWithGoogle,
     signUp,
     verifyEmail,
     resendVerificationEmail,

@@ -4,30 +4,39 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoginPage } from "./LoginPage";
 import { useAuth } from "../hooks/useAuth";
-import {
-  clearPendingVerification,
-  readPendingVerification,
-  savePendingVerification,
-} from "../lib/pendingAuth";
-import { clearLoginSession, enableGuestSession } from "../lib/sessionBridge";
+import { clearPendingVerification, readPendingVerification, savePendingVerification } from "../lib/pendingAuth";
 
 export function LoginRoute() {
   const router = useRouter();
   const {
     user,
     signIn,
+    signInWithGoogle,
     signUp,
     verifyEmail,
     resendVerificationEmail,
   } = useAuth();
   const redirectingRef = useRef(false);
   const [awaitingVerificationEmail, setAwaitingVerificationEmail] = useState<string | null>(null);
+  const [oauthError, setOauthError] = useState<string | null>(null);
 
   useEffect(() => {
     const pendingEmail = readPendingVerification();
     if (pendingEmail) {
       setAwaitingVerificationEmail(pendingEmail);
     }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (!error) return;
+
+    setOauthError(decodeURIComponent(error));
+    const url = new URL(window.location.href);
+    url.searchParams.delete("error");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
   }, []);
 
   useEffect(() => {
@@ -75,12 +84,6 @@ export function LoginRoute() {
     [verifyEmail],
   );
 
-  const handleContinueAsGuest = useCallback(() => {
-    clearLoginSession();
-    enableGuestSession();
-    router.replace("/");
-  }, [router]);
-
   const handleDismissVerification = useCallback(() => {
     clearPendingVerification();
     setAwaitingVerificationEmail(null);
@@ -89,15 +92,16 @@ export function LoginRoute() {
   return (
     <LoginPage
       onSignIn={signIn}
+      onSignInWithGoogle={signInWithGoogle}
       onSignUp={handleSignUp}
       onVerifyEmail={handleVerifyEmail}
       onResendVerification={resendVerificationEmail}
       onSuccess={handleAuthSuccess}
-      onContinueAsGuest={handleContinueAsGuest}
       onDismissVerification={handleDismissVerification}
       initialVerificationEmail={awaitingVerificationEmail ?? undefined}
       initialVerificationStep={awaitingVerificationEmail ? "verify-code" : undefined}
       redirecting={Boolean(user)}
+      oauthError={oauthError}
       statusMessage={user ? "Signing you in…" : undefined}
     />
   );

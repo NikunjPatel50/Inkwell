@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import { getSkillById } from "../constants/curriculum";
 import { fetchPracticedSkills } from "../lib/learnClient";
+import { writeWorkspaceRoute } from "../lib/workspaceRoute";
 import type { AppTab, PracticedSkill, SkillPatternRow } from "../types";
 import { CurriculumOverview } from "./CurriculumOverview";
 import { SkillExerciseView } from "./SkillExerciseView";
@@ -9,11 +11,20 @@ interface LearnTabProps {
   isAuthenticated: boolean;
   skillPatterns: SkillPatternRow[];
   onTabChange: (tab: AppTab) => void;
+  initialSkillId?: string | null;
 }
 
-export function LearnTab({ isAuthenticated, skillPatterns, onTabChange }: LearnTabProps) {
-  const [view, setView] = useState<"overview" | "skill">("overview");
-  const [activeSkillId, setActiveSkillId] = useState<string | null>(null);
+export function LearnTab({
+  isAuthenticated,
+  skillPatterns,
+  onTabChange,
+  initialSkillId = null,
+}: LearnTabProps) {
+  const hasInitialSkill = Boolean(initialSkillId && getSkillById(initialSkillId));
+  const [view, setView] = useState<"overview" | "skill">(hasInitialSkill ? "skill" : "overview");
+  const [activeSkillId, setActiveSkillId] = useState<string | null>(
+    hasInitialSkill ? initialSkillId : null,
+  );
   const [practiced, setPracticed] = useState<PracticedSkill[]>([]);
 
   useEffect(() => {
@@ -32,11 +43,13 @@ export function LearnTab({ isAuthenticated, skillPatterns, onTabChange }: LearnT
   const handleStartSkill = useCallback((skillId: string) => {
     setActiveSkillId(skillId);
     setView("skill");
+    writeWorkspaceRoute({ learnSkillId: skillId });
   }, []);
 
   const handleBack = useCallback(() => {
     setView("overview");
     setActiveSkillId(null);
+    writeWorkspaceRoute({ learnSkillId: null });
   }, []);
 
   const handleBackToDashboard = useCallback(() => {

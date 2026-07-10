@@ -29,6 +29,25 @@ function TabIcon({ tab }: { tab: AppTab }) {
           <path d="M7 4v12M10.5 8h4M10.5 11h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
         </svg>
       );
+    case "grammar":
+      return (
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={styles.icon}>
+          <path d="M4 6h12M4 10h8M4 14h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          <circle cx="15.5" cy="14" r="2" stroke="currentColor" strokeWidth="1.4" />
+        </svg>
+      );
+    case "vocabulary":
+      return (
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={styles.icon}>
+          <path
+            d="M5 4.5h10v11H5z"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinejoin="round"
+          />
+          <path d="M7.5 8h5M7.5 11h3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+      );
     case "write":
       return (
         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={styles.icon}>

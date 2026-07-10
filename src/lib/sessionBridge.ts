@@ -36,15 +36,19 @@ export function clearLoginSession(): void {
 
 export function enableGuestSession(): void {
   try {
+    localStorage.setItem(GUEST_SESSION_KEY, "1");
     sessionStorage.setItem(GUEST_SESSION_KEY, "1");
   } catch {
-    // sessionStorage unavailable
+    // storage unavailable
   }
 }
 
 export function isGuestSession(): boolean {
   try {
-    return sessionStorage.getItem(GUEST_SESSION_KEY) === "1";
+    return (
+      localStorage.getItem(GUEST_SESSION_KEY) === "1" ||
+      sessionStorage.getItem(GUEST_SESSION_KEY) === "1"
+    );
   } catch {
     return false;
   }
@@ -52,8 +56,9 @@ export function isGuestSession(): boolean {
 
 export function clearGuestSession(): void {
   try {
+    localStorage.removeItem(GUEST_SESSION_KEY);
     sessionStorage.removeItem(GUEST_SESSION_KEY);
   } catch {
-    // sessionStorage unavailable
+    // storage unavailable
   }
 }

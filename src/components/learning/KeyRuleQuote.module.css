@@ -1,0 +1,28 @@
+.quote {
+  margin: 1.25rem 0 0;
+  padding: 0.85rem 0 0.85rem 1rem;
+  border: none;
+  border-left: 3px solid var(--color-gold);
+  background: var(--color-gold-soft);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.text {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--color-ink);
+}
