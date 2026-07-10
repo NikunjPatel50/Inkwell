@@ -1,7 +1,15 @@
 import type { CurriculumSkill } from "../constants/curriculum";
 import type { VocabularyWord } from "../constants/vocabularyTopics";
 import { VOCABULARY_CATEGORIES } from "../constants/vocabularyTopics";
-import type { PickMeaningExercise, UseItExercise, UseItResult } from "../types";
+import type {
+  CollectionQuizItem,
+  PickMeaningExercise,
+  UseItExercise,
+  UseItResult,
+  WordDetail,
+  WordPracticeExercise,
+  WordUsageResult,
+} from "../types";
 import { ApiError } from "./apiClient";
 import { insforge, isInsforgeConfigured } from "./insforge";
 import {
@@ -245,4 +253,72 @@ export async function checkReplaceIt(
   ).catch((err) => {
     throw toApiError(err);
   });
+}
+
+export async function generateWordDetail(word: string): Promise<WordDetail> {
+  return withVocabularyFallback(
+    { action: "generate-word-detail", word },
+    () => vocabularyGroq.generateWordDetail(word),
+    () => vocabularyGroq.generateWordDetail(word),
+  ).catch((err) => {
+    throw toApiError(err);
+  });
+}
+
+export async function generateWordPractice(
+  word: string,
+  definition: string,
+): Promise<WordPracticeExercise> {
+  return withVocabularyFallback(
+    { action: "generate-word-practice", word, definition },
+    () => vocabularyGroq.generateWordPractice(word, definition),
+    () => vocabularyGroq.generateWordPractice(word, definition),
+  ).catch((err) => {
+    throw toApiError(err);
+  });
+}
+
+export async function checkWordUsage(
+  word: string,
+  userSentence: string,
+): Promise<WordUsageResult> {
+  return withVocabularyFallback(
+    { action: "check-word-usage", word, userSentence },
+    () => vocabularyGroq.checkWordUsage(word, userSentence),
+    () => vocabularyGroq.checkWordUsage(word, userSentence),
+  ).catch((err) => {
+    throw toApiError(err);
+  });
+}
+
+export async function generateCollectionQuiz(words: string[]): Promise<CollectionQuizItem[]> {
+  return withVocabularyFallback(
+    { action: "generate-collection-quiz", words },
+    () => vocabularyGroq.generateCollectionQuiz(words),
+    () => vocabularyGroq.generateCollectionQuiz(words),
+  ).catch((err) => {
+    throw toApiError(err);
+  });
+}
+
+export async function saveLookedUpWord(
+  word: string,
+  definition: string,
+  sourceSentence: string,
+): Promise<void> {
+  if (!isInsforgeConfigured()) return;
+
+  try {
+    const { data, error } = await insforge.functions.invoke("save-vocabulary-word", {
+      body: { word, definition, sourceSentence },
+    });
+    if (error) {
+      const message = extractErrorMessage(error).toLowerCase();
+      if (message.includes("not found") || message.includes("404")) return;
+      throw new ApiError(extractErrorMessage(error));
+    }
+    assertNoPayloadError(data);
+  } catch {
+    // Non-blocking — vocabulary bank is a nice-to-have
+  }
 }

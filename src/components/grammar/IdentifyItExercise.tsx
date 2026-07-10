@@ -1,10 +1,10 @@
 import { useState } from "react";
-import type { IdentifyItExercise } from "../../types";
+import type { GrammarExerciseResult, IdentifyItExercise } from "../../types";
 import styles from "../exercises/ExerciseShared.module.css";
 
 interface IdentifyItExerciseViewProps {
   exercise: IdentifyItExercise;
-  onComplete: (score: number) => void;
+  onComplete: (result: GrammarExerciseResult) => void;
 }
 
 function phraseLength(phrase: string): number {
@@ -34,14 +34,22 @@ export function IdentifyItExerciseView({ exercise, onComplete }: IdentifyItExerc
     if (correct) {
       setWasCorrect(true);
       setResolved(true);
-      onComplete(nextAttempts === 1 ? 100 : 75);
+      onComplete({
+        label: "Identify it",
+        passed: true,
+        reviewNote: exercise.explanation,
+      });
       return;
     }
 
     if (nextAttempts >= 2) {
       setResolved(true);
       setWasCorrect(false);
-      onComplete(50);
+      onComplete({
+        label: "Identify it",
+        passed: false,
+        reviewNote: exercise.explanation,
+      });
       return;
     }
 

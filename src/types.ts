@@ -294,3 +294,87 @@ export interface PickMeaningExercise {
   explanation: string;
 }
 
+export interface WordForm {
+  form: string;
+  partOfSpeech: string;
+  example: string;
+}
+
+export interface SynonymAntonym {
+  word: string;
+  note: string;
+}
+
+export interface WordDetailLevel1 {
+  definition: string;
+  examples: string[];
+  mnemonic: string;
+}
+
+export interface WordDetailLevel2 {
+  wordForms: WordForm[];
+  synonyms: SynonymAntonym[];
+  antonyms: SynonymAntonym[];
+}
+
+export interface WordDetailLevel3 {
+  collocations: string[];
+  register: string;
+  commonMistake: string;
+  usageContext: string;
+}
+
+export interface WordDetailLevel4 {
+  etymology: string;
+  connotation: string;
+  nuanceComparison: string;
+  famousUsage: string;
+}
+
+export interface WordDetail {
+  word: string;
+  phonetic: string;
+  partOfSpeech: string;
+  level1: WordDetailLevel1;
+  level2: WordDetailLevel2;
+  level3: WordDetailLevel3;
+  level4: WordDetailLevel4;
+}
+
+export interface WordPracticeFillBlank {
+  sentence: string;
+  answer: string;
+}
+
+export interface WordPracticeUseIt {
+  prompt: string;
+  register: string;
+}
+
+export interface WordPracticeExercise {
+  fillBlank: WordPracticeFillBlank;
+  useItYourself: WordPracticeUseIt;
+}
+
+export interface WordUsageResult {
+  correct: boolean;
+  feedback: string;
+  exampleSentence: string;
+}
+
+export type CollectionQuizType = "identify" | "fill-blank" | "match";
+
+export interface CollectionQuizItem {
+  type: CollectionQuizType;
+  question: string;
+  answer: string;
+  explanation: string;
+  options?: string[];
+}
+
+export interface GrammarExerciseResult {
+  label: string;
+  passed: boolean;
+  reviewNote: string;
+}
+

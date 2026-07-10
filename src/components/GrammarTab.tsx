@@ -39,7 +39,7 @@ export function GrammarTab({ onTabChange, initialTopicId = null }: GrammarTabPro
         labelledBy="tab-grammar"
         backTo={{ label: "Grammar", onBack: handleBack }}
       >
-        <GrammarTopicDetail topicId={activeTopicId} />
+        <GrammarTopicDetail topicId={activeTopicId} onSelectTopic={handleSelectTopic} />
       </TabPageShell>
     );
   }

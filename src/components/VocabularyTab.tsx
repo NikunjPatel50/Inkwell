@@ -1,45 +1,83 @@
 import { useCallback, useState } from "react";
-import { getVocabularyWord } from "../constants/vocabularyTopics";
+import { normalizeWord } from "../lib/vocabularyLookup";
 import type { AppTab } from "../types";
 import { writeWorkspaceRoute } from "../lib/workspaceRoute";
 import { TabPageShell } from "./TabPageShell";
-import { VocabularyWordBrowser } from "./vocabulary/VocabularyWordBrowser";
-import { VocabularyWordDetail } from "./vocabulary/VocabularyWordDetail";
+import { CollectionView } from "./vocabulary/CollectionView";
+import { VocabHub } from "./vocabulary/VocabHub";
+import { WordDetailView } from "./vocabulary/WordDetail";
+
+type VocabularyView = "hub" | "word" | "collection";
 
 interface VocabularyTabProps {
   onTabChange: (tab: AppTab) => void;
   initialWordId?: string | null;
+  initialCollectionId?: string | null;
 }
 
-export function VocabularyTab({ onTabChange, initialWordId = null }: VocabularyTabProps) {
-  const initialWord = initialWordId && getVocabularyWord(initialWordId) ? initialWordId : null;
-  const [view, setView] = useState<"browser" | "detail">(initialWord ? "detail" : "browser");
-  const [activeWordId, setActiveWordId] = useState<string | null>(initialWord);
+export function VocabularyTab({
+  onTabChange,
+  initialWordId = null,
+  initialCollectionId = null,
+}: VocabularyTabProps) {
+  const initialWord = initialWordId ? normalizeWord(initialWordId) : null;
+  const [view, setView] = useState<VocabularyView>(
+    initialWord ? "word" : initialCollectionId ? "collection" : "hub",
+  );
+  const [activeWord, setActiveWord] = useState<string | null>(initialWord);
+  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(
+    initialCollectionId,
+  );
 
-  const handleSelectWord = useCallback((wordId: string) => {
-    setActiveWordId(wordId);
-    setView("detail");
-    writeWorkspaceRoute({ vocabularyWordId: wordId });
+  const handleSelectWord = useCallback((word: string) => {
+    const normalized = normalizeWord(word);
+    setActiveWord(normalized);
+    setActiveCollectionId(null);
+    setView("word");
+    writeWorkspaceRoute({ vocabularyWordId: normalized, vocabularyCollectionId: null });
   }, []);
 
-  const handleBack = useCallback(() => {
-    setView("browser");
-    setActiveWordId(null);
-    writeWorkspaceRoute({ vocabularyWordId: null });
+  const handleSelectCollection = useCallback((collectionId: string) => {
+    setActiveCollectionId(collectionId);
+    setActiveWord(null);
+    setView("collection");
+    writeWorkspaceRoute({ vocabularyWordId: null, vocabularyCollectionId: collectionId });
+  }, []);
+
+  const handleBackToHub = useCallback(() => {
+    setView("hub");
+    setActiveWord(null);
+    setActiveCollectionId(null);
+    writeWorkspaceRoute({ vocabularyWordId: null, vocabularyCollectionId: null });
   }, []);
 
   const handleBackToDashboard = useCallback(() => {
     onTabChange("dashboard");
   }, [onTabChange]);
 
-  if (view === "detail" && activeWordId) {
+  if (view === "word" && activeWord) {
     return (
       <TabPageShell
         id="panel-vocabulary"
         labelledBy="tab-vocabulary"
-        backTo={{ label: "Vocabulary", onBack: handleBack }}
+        backTo={{ label: "Vocabulary", onBack: handleBackToHub }}
       >
-        <VocabularyWordDetail wordId={activeWordId} />
+        <WordDetailView word={activeWord} />
+      </TabPageShell>
+    );
+  }
+
+  if (view === "collection" && activeCollectionId) {
+    return (
+      <TabPageShell
+        id="panel-vocabulary"
+        labelledBy="tab-vocabulary"
+        backTo={{ label: "Vocabulary", onBack: handleBackToHub }}
+      >
+        <CollectionView
+          collectionId={activeCollectionId}
+          onSelectWord={handleSelectWord}
+        />
       </TabPageShell>
     );
   }
@@ -50,7 +88,7 @@ export function VocabularyTab({ onTabChange, initialWordId = null }: VocabularyT
       labelledBy="tab-vocabulary"
       backTo={{ label: "Dashboard", onBack: handleBackToDashboard }}
     >
-      <VocabularyWordBrowser onSelectWord={handleSelectWord} />
+      <VocabHub onSelectWord={handleSelectWord} onSelectCollection={handleSelectCollection} />
     </TabPageShell>
   );
 }

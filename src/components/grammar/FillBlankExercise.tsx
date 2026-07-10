@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { GrammarTopic } from "../../constants/grammarTopics";
-import type { FillBlankExercise, FillBlankResult } from "../../types";
+import type { FillBlankExercise, FillBlankResult, GrammarExerciseResult } from "../../types";
 import { checkFillBlank } from "../../lib/grammarClient";
 import { ApiError } from "../../lib/apiClient";
 import styles from "../exercises/ExerciseShared.module.css";
@@ -8,7 +8,7 @@ import styles from "../exercises/ExerciseShared.module.css";
 interface FillBlankExerciseViewProps {
   exercise: FillBlankExercise;
   topic: GrammarTopic;
-  onComplete: (score: number) => void;
+  onComplete: (result: GrammarExerciseResult) => void;
 }
 
 export function FillBlankExerciseView({
@@ -33,7 +33,11 @@ export function FillBlankExerciseView({
       const check = await checkFillBlank(topic, exercise.stem, trimmed);
       setResult(check);
       setSubmitted(true);
-      onComplete(check.correct ? 100 : 40);
+      onComplete({
+        label: "Fill in the blank",
+        passed: check.correct,
+        reviewNote: check.explanation,
+      });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not check your answer.");
     } finally {

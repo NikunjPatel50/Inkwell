@@ -1,6 +1,10 @@
 import { useState } from "react";
 import type { GrammarTopic } from "../../constants/grammarTopics";
-import type { TransformItExercise, TransformItResult } from "../../types";
+import type {
+  GrammarExerciseResult,
+  TransformItExercise,
+  TransformItResult,
+} from "../../types";
 import { checkTransformIt } from "../../lib/grammarClient";
 import { ApiError } from "../../lib/apiClient";
 import styles from "../exercises/ExerciseShared.module.css";
@@ -8,7 +12,7 @@ import styles from "../exercises/ExerciseShared.module.css";
 interface TransformItExerciseViewProps {
   exercise: TransformItExercise;
   topic: GrammarTopic;
-  onComplete: (score: number) => void;
+  onComplete: (result: GrammarExerciseResult) => void;
 }
 
 export function TransformItExerciseView({
@@ -33,7 +37,11 @@ export function TransformItExerciseView({
       const check = await checkTransformIt(topic, exercise.originalSentence, trimmed);
       setResult(check);
       setSubmitted(true);
-      onComplete(check.correct ? 100 : 45);
+      onComplete({
+        label: "Transform it",
+        passed: check.correct,
+        reviewNote: check.explanation,
+      });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not check your rewrite.");
     } finally {

@@ -1,4 +1,9 @@
 import { CURRICULUM_SKILLS, getSkillById } from "../constants/curriculum";
+import { getGrammarTopic } from "../constants/grammarTopics";
+import {
+  getGrammarCurriculumSkillId,
+  getTopGrammarWeakness,
+} from "./grammarAdaptive";
 import type {
   AdaptiveRecommendation,
   ExerciseType,
@@ -51,6 +56,21 @@ export function getAdaptiveRecommendation(
   practiced: PracticedSkill[],
 ): AdaptiveRecommendation {
   const practicedMap = new Map(practiced.map((p) => [p.skillId, p]));
+
+  const grammarWeakness = getTopGrammarWeakness();
+  if (grammarWeakness) {
+    const topic = getGrammarTopic(grammarWeakness.topicId);
+    if (topic) {
+      const skillId = getGrammarCurriculumSkillId(topic);
+      const skill = getSkillById(skillId);
+      if (skill && !isSkillPracticed(practicedMap.get(skillId))) {
+        return {
+          skillId,
+          reason: `You missed several ${topic.name.toLowerCase()} exercises in Grammar — strengthen it here.`,
+        };
+      }
+    }
+  }
 
   if (skillPatterns.length > 0) {
     const sorted = [...skillPatterns].sort(

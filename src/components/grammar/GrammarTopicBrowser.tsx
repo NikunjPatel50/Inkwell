@@ -76,7 +76,11 @@ export function GrammarTopicBrowser({ onSelectTopic }: GrammarTopicBrowserProps)
                 aria-expanded={isOpen}
               >
                 <div>
-                  <p className={styles.categoryTitle}>{category.title}</p>
+                  <span
+                    className={`${styles.categoryPill} ${styles[`categoryPill${category.id === "parts-of-speech" ? "Parts" : category.id === "sentence-structure" ? "Structure" : category.id === "verb-tenses" ? "Tenses" : category.id === "punctuation" ? "Punctuation" : "Mistakes"}`]}`}
+                  >
+                    {category.title}
+                  </span>
                   <p className={styles.categoryMeta}>
                     {doneInCategory}/{category.topics.length} completed
                   </p>

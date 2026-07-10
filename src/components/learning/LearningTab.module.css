@@ -320,3 +320,325 @@
   background: rgba(200, 72, 72, 0.08);
   border-color: rgba(200, 72, 72, 0.25);
 }
+
+.summaryPanel {
+  margin-top: 1rem;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--enterprise-card-radius);
+  background: var(--color-workspace-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.summaryHeadline {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.reviewList {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--color-ink-muted);
+}
+
+.relatedList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.relatedLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  text-align: left;
+  cursor: pointer;
+}
+
+.relatedLink:hover {
+  border-color: rgba(26, 158, 150, 0.35);
+}
+
+.relatedName {
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.relatedTeaser {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  color: var(--color-ink-muted);
+}
+
+.categoryPill {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.categoryPillParts {
+  background: rgba(26, 158, 150, 0.12);
+  color: var(--color-brand-teal);
+}
+
+.categoryPillStructure {
+  background: rgba(90, 120, 180, 0.12);
+  color: #4a6a9a;
+}
+
+.categoryPillTenses {
+  background: rgba(180, 120, 60, 0.12);
+  color: #8a5a28;
+}
+
+.categoryPillPunctuation {
+  background: rgba(160, 90, 140, 0.12);
+  color: #7a3a68;
+}
+
+.categoryPillMistakes {
+  background: rgba(200, 72, 72, 0.1);
+  color: var(--color-terracotta);
+}
+
+/* Vocabulary hub */
+.searchWrap {
+  position: relative;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--enterprise-card-radius);
+  background: var(--color-surface);
+  font-size: 1rem;
+  color: var(--color-ink);
+}
+
+.searchInput:focus {
+  outline: 2px solid rgba(26, 158, 150, 0.45);
+  outline-offset: 2px;
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  z-index: 4;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+.suggestionItem {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.92rem;
+  color: var(--color-ink);
+}
+
+.suggestionItem:hover,
+.suggestionItem:focus-visible {
+  background: rgba(26, 158, 150, 0.08);
+}
+
+.wordOfDayCard {
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--enterprise-card-radius);
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.12), rgba(26, 158, 150, 0.06));
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  text-align: left;
+}
+
+.wordOfDayLabel {
+  margin: 0 0 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.wordOfDayWord {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.collectionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .collectionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.collectionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--enterprise-card-radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.collectionTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.collectionTeaser {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-ink-muted);
+}
+
+.collectionMeta {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
+}
+
+.recentChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.recentChip {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.recentChip:hover {
+  border-color: rgba(26, 158, 150, 0.35);
+}
+
+.levelBlock {
+  overflow: hidden;
+  transition: max-height 0.45s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .levelBlock {
+    transition: none;
+  }
+}
+
+.levelEyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-brand-teal);
+}
+
+.levelRule {
+  height: 1px;
+  background: var(--color-chrome-border);
+  margin: 1rem 0;
+}
+
+.goDeeperButton {
+  margin-top: 0.75rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-brand-teal);
+  cursor: pointer;
+}
+
+.goDeeperButton:hover {
+  border-color: rgba(26, 158, 150, 0.35);
+}
+
+.wordList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.wordListItem {
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.wordListHeader {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wordListExpanded {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--color-chrome-border);
+}
+
+.phonetic {
+  font-size: 0.9rem;
+  color: var(--color-ink-muted);
+  font-style: italic;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

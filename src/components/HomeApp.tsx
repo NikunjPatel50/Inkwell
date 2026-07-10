@@ -141,6 +141,7 @@ export function HomeApp() {
       tab,
       grammarTopicId: tab === "grammar" ? undefined : null,
       vocabularyWordId: tab === "vocabulary" ? undefined : null,
+      vocabularyCollectionId: tab === "vocabulary" ? undefined : null,
       learnSkillId: tab === "learn" ? undefined : null,
     });
   }, []);
@@ -489,6 +490,7 @@ export function HomeApp() {
                 <VocabularyTab
                   onTabChange={handleTabChange}
                   initialWordId={initialRoute.vocabularyWordId}
+                  initialCollectionId={initialRoute.vocabularyCollectionId}
                 />
               </div>
 

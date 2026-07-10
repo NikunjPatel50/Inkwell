@@ -4,6 +4,7 @@ import { APP_TABS } from "../types";
 const TAB_PARAM = "tab";
 const GRAMMAR_TOPIC_PARAM = "topic";
 const VOCABULARY_WORD_PARAM = "word";
+const VOCABULARY_COLLECTION_PARAM = "collection";
 const LEARN_SKILL_PARAM = "skill";
 
 const VALID_TABS = new Set<AppTab>(APP_TABS.map((tab) => tab.id));
@@ -16,6 +17,7 @@ export function readWorkspaceRoute(): {
   tab: AppTab;
   grammarTopicId: string | null;
   vocabularyWordId: string | null;
+  vocabularyCollectionId: string | null;
   learnSkillId: string | null;
 } {
   if (typeof window === "undefined") {
@@ -23,6 +25,7 @@ export function readWorkspaceRoute(): {
       tab: "dashboard",
       grammarTopicId: null,
       vocabularyWordId: null,
+      vocabularyCollectionId: null,
       learnSkillId: null,
     };
   }
@@ -35,6 +38,7 @@ export function readWorkspaceRoute(): {
     tab,
     grammarTopicId: params.get(GRAMMAR_TOPIC_PARAM),
     vocabularyWordId: params.get(VOCABULARY_WORD_PARAM),
+    vocabularyCollectionId: params.get(VOCABULARY_COLLECTION_PARAM),
     learnSkillId: params.get(LEARN_SKILL_PARAM),
   };
 }
@@ -43,6 +47,7 @@ export function writeWorkspaceRoute(options: {
   tab?: AppTab;
   grammarTopicId?: string | null;
   vocabularyWordId?: string | null;
+  vocabularyCollectionId?: string | null;
   learnSkillId?: string | null;
 }): void {
   if (typeof window === "undefined") return;
@@ -62,6 +67,14 @@ export function writeWorkspaceRoute(options: {
   if (options.vocabularyWordId !== undefined) {
     if (options.vocabularyWordId) params.set(VOCABULARY_WORD_PARAM, options.vocabularyWordId);
     else params.delete(VOCABULARY_WORD_PARAM);
+  }
+
+  if (options.vocabularyCollectionId !== undefined) {
+    if (options.vocabularyCollectionId) {
+      params.set(VOCABULARY_COLLECTION_PARAM, options.vocabularyCollectionId);
+    } else {
+      params.delete(VOCABULARY_COLLECTION_PARAM);
+    }
   }
 
   if (options.learnSkillId !== undefined) {
