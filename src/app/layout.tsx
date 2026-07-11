@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Source_Serif_4 } from "next/font/google";
+import { ClarityAnalytics } from "@/components/ClarityAnalytics";
 import "./globals.css";
 import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 
@@ -62,6 +63,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className={`${inter.variable} ${sourceSerif.variable}`}>
+        <ClarityAnalytics />
         {children}
       </body>
     </html>
