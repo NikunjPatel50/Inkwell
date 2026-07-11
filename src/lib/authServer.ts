@@ -66,7 +66,7 @@ export function buildOAuthCompleteHtml(session: PersistedAuthSession, storageKey
   <script>
     try {
       localStorage.setItem(${JSON.stringify(storageKey)}, ${JSON.stringify(serialized)});
-      window.location.replace("/");
+      window.location.replace("/app");
     } catch (error) {
       window.location.replace("/login?error=oauth_storage");
     }

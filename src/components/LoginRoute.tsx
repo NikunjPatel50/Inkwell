@@ -53,7 +53,7 @@ export function LoginRoute() {
     if (!user || redirectingRef.current) return;
     redirectingRef.current = true;
     clearPendingVerification();
-    router.replace("/");
+    router.replace("/app");
   }, [user, router]);
 
   const handleAuthSuccess = useCallback(() => {

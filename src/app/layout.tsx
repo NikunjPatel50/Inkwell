@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
+import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,12 +15,27 @@ const sourceSerif = Source_Serif_4({
   display: "swap",
 });
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "Wrytesmart — Writing Practice",
-  description:
-    "Wrytesmart — practice your writing with grammar feedback, adaptive lessons, and creative exercises.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${SITE_NAME} — Writing Practice`,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   icons: {
     icon: "/wrytesmart-mark.png",
+    apple: "/wrytesmart-mark.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: SITE_NAME,
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 

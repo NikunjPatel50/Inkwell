@@ -83,7 +83,7 @@ export function AdminPanel() {
     }
 
     if (!isAdmin) {
-      router.replace("/");
+      router.replace("/app");
       return;
     }
 
@@ -108,7 +108,7 @@ export function AdminPanel() {
         activeTab="dashboard"
         user={user}
         theme={theme}
-        onNavigateHome={() => router.push("/")}
+        onNavigateHome={() => router.push("/app")}
         onSignIn={() => router.push("/login")}
         onSignOut={() => void handleSignOut()}
         onToggleTheme={toggleTheme}
@@ -134,7 +134,7 @@ export function AdminPanel() {
               >
                 {isLoadingUsers ? "Refreshing…" : "Refresh"}
               </button>
-              <Link href="/" className={styles.backLink}>
+              <Link href="/app" className={styles.backLink}>
                 Back to workspace
               </Link>
             </div>

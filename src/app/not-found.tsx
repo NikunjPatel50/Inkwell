@@ -18,7 +18,10 @@ export default function NotFound() {
       <p style={{ margin: 0, color: "var(--color-ink-muted)" }}>
         The page you requested does not exist.
       </p>
-      <Link href="/">Back to workspace</Link>
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center" }}>
+        <Link href="/">Home</Link>
+        <Link href="/app">Workspace</Link>
+      </div>
     </main>
   );
 }
