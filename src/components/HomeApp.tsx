@@ -129,6 +129,13 @@ export function HomeApp() {
   }, [router, signOut]);
 
   useEffect(() => {
+    document.body.classList.add("app-shell");
+    return () => {
+      document.body.classList.remove("app-shell");
+    };
+  }, []);
+
+  useEffect(() => {
     if (authLoading || user) return;
     if (isGuestSession()) return;
     if (hasPersistedAuthSession()) return;

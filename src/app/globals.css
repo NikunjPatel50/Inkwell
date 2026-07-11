@@ -113,8 +113,8 @@
 
 html {
   scroll-behavior: smooth;
-  height: 100%;
   color-scheme: light;
+  overflow-x: clip;
 }
 
 html[data-theme="dark"] {
@@ -123,8 +123,9 @@ html[data-theme="dark"] {
 
 body {
   margin: 0;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+  overflow-x: clip;
+  overflow-y: auto;
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   font-size: 16px;
   line-height: 1.6;
@@ -136,10 +137,13 @@ body {
     color var(--transition-medium);
 }
 
-@media (max-width: 860px) {
-  body {
-    overflow: auto;
-  }
+body.app-shell {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body.marketing-page {
+  background-color: #ffffff;
 }
 
 h1,

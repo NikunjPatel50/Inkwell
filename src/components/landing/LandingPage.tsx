@@ -1,194 +1,415 @@
 import Link from "next/link";
 import { AppBrand } from "../AppBrand";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "../../lib/site";
+import { MarketingBodyClass } from "./MarketingBodyClass";
 import styles from "./LandingPage.module.css";
 
-const FEATURES = [
+const NAV_TOOLS = [
+  { label: "Learn", href: "/app?tab=learn" },
+  { label: "Grammar", href: "/app?tab=grammar" },
+  { label: "Vocabulary", href: "/app?tab=vocabulary" },
+  { label: "Write", href: "/app?tab=write" },
+  { label: "Coach", href: "/app?tab=coach" },
+  { label: "Creative", href: "/app?tab=creative" },
+];
+
+const QUICK_ACTIONS = [
+  { label: "Grammar check", href: "/app?tab=write" },
+  { label: "Vocabulary", href: "/app?tab=vocabulary" },
+  { label: "Adaptive learn", href: "/app?tab=learn" },
+  { label: "Essay coach", href: "/app?tab=coach" },
+];
+
+const SHOWCASES = [
   {
-    icon: "L",
-    title: "Learn",
-    text: "Adaptive curriculum with build-it, spot-the-error, and complete-it exercises that target your weak spots.",
+    id: "learn",
+    eyebrow: "Learn",
+    title: "Practice skills that stick, inside real sentences",
+    lead: "Adaptive exercises target your weak spots with build-it, spot-the-error, and complete-it drills — never disconnected worksheets.",
+    cta: "Start learning",
+    href: "/app?tab=learn",
+    bullets: ["Personalised skill feed", "Instant teaching notes", "Progress you can track"],
+    visual: "learn" as const,
   },
   {
-    icon: "G",
-    title: "Grammar",
-    text: "Forty topics across parts of speech, tenses, punctuation, and common mistakes — taught through real sentences.",
+    id: "write",
+    eyebrow: "Write",
+    title: "Write like you mean it, then sharpen every draft",
+    lead: "Paste any paragraph and get register scoring, clear error explanations, and rewrites at three levels of sophistication.",
+    cta: "Open writing workspace",
+    href: "/app?tab=write",
+    bullets: ["Tone and register analysis", "Grammar teaching in context", "Simple to advanced rewrites"],
+    visual: "write" as const,
   },
   {
-    icon: "V",
-    title: "Vocabulary",
-    text: "Search any word, explore curated collections, and unlock four depth levels from definition to etymology.",
-  },
-  {
-    icon: "W",
-    title: "Write",
-    text: "Paste your draft and get register scoring, error teaching notes, and simple-to-advanced rewrites.",
-  },
-  {
-    icon: "C",
-    title: "Coach",
-    text: "Structured essay coaching with step-by-step feedback for academic and exam-style writing.",
-  },
-  {
-    icon: "+",
-    title: "Creative",
-    text: "Word duels, emotion rewrites, and playful drills that keep practice engaging.",
+    id: "coach",
+    eyebrow: "Coach",
+    title: "Get essay coaching that explains the why",
+    lead: "Structured coaching walks you through academic and exam-style writing with step-by-step feedback you can apply immediately.",
+    cta: "Try the coach",
+    href: "/app?tab=coach",
+    bullets: ["Exam-ready structure", "Actionable next steps", "Built for students and pros"],
+    visual: "coach" as const,
   },
 ];
+
+const TOOL_GROUPS = [
+  {
+    title: "Writing",
+    tools: [
+      { name: "Write workspace", desc: "Analyse drafts with feedback", href: "/app?tab=write" },
+      { name: "AI Writing Coach", desc: "Guided essay coaching", href: "/app?tab=coach" },
+      { name: "Creative drills", desc: "Playful rewrites and games", href: "/app?tab=creative" },
+    ],
+  },
+  {
+    title: "Learning",
+    tools: [
+      { name: "Adaptive Learn", desc: "Exercises for your weak spots", href: "/app?tab=learn" },
+      { name: "Grammar topics", desc: "40 topics through real sentences", href: "/app?tab=grammar" },
+      { name: "Vocabulary hub", desc: "Words, collections, and depth", href: "/app?tab=vocabulary" },
+    ],
+  },
+  {
+    title: "Progress",
+    tools: [
+      { name: "Dashboard", desc: "Overview and quick actions", href: "/app?tab=dashboard" },
+      { name: "Session history", desc: "Review past work and growth", href: "/app?tab=history" },
+      { name: "Sign in sync", desc: "Progress saved across devices", href: "/login" },
+    ],
+  },
+];
+
+const STATS = [
+  { value: "40+", label: "Grammar topics" },
+  { value: "4", label: "Vocabulary depth levels" },
+  { value: "3", label: "Rewrite sophistication levels" },
+  { value: "Free", label: "To start practicing" },
+];
+
+const AUDIENCES = [
+  {
+    title: "Students",
+    text: "Prepare for exams, essays, and presentations with lessons that show rules inside sentences you can fix right away.",
+  },
+  {
+    title: "Professionals",
+    text: "Polish emails, reports, and pitches with register-aware feedback that keeps your voice while improving clarity.",
+  },
+  {
+    title: "Exam prep",
+    text: "Build confidence for PTE, IELTS, and academic writing with coaching structured for high-stakes tasks.",
+  },
+  {
+    title: "Self-learners",
+    text: "Explore grammar, vocabulary, and creative drills at your own pace in one calm browser workspace.",
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    quote:
+      "Finally an app that explains grammar inside the sentence I'm editing — not in a random quiz afterward.",
+    author: "Priya M.",
+    role: "University student",
+  },
+  {
+    quote:
+      "The rewrite levels help me see how to sound more professional without losing what I actually meant to say.",
+    author: "James L.",
+    role: "Marketing manager",
+  },
+  {
+    quote:
+      "Vocabulary depth and grammar topics connect to the same writing workspace, so practice actually sticks.",
+    author: "Anika R.",
+    role: "IELTS candidate",
+  },
+];
+
+function ShowcaseVisual({ type }: { type: "learn" | "write" | "coach" }) {
+  if (type === "learn") {
+    return (
+      <div className={styles.showcaseCard}>
+        <p className={styles.showcaseCardLabel}>Adaptive exercise</p>
+        <p className={styles.showcaseCardPrompt}>
+          Fix the error: She <span className={styles.showcaseHighlight}>don&apos;t</span> agree with
+          the proposal.
+        </p>
+        <div className={styles.showcaseCardAnswer}>doesn&apos;t</div>
+        <p className={styles.showcaseCardNote}>
+          Third-person singular verbs take <em>does</em> in the present tense.
+        </p>
+      </div>
+    );
+  }
+
+  if (type === "write") {
+    return (
+      <div className={styles.showcaseCard}>
+        <p className={styles.showcaseCardLabel}>Writing workspace</p>
+        <p className={styles.showcaseCardPrompt}>
+          The committee <span className={styles.showcaseHighlight}>have</span> approved the revised
+          draft.
+        </p>
+        <div className={styles.showcaseRewrite}>
+          <span className={styles.showcaseRewriteTag}>Simple</span>
+          The committee has approved the revised draft.
+        </div>
+        <div className={styles.showcaseRewrite}>
+          <span className={styles.showcaseRewriteTag}>Advanced</span>
+          The committee has endorsed the amended draft.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.showcaseCard}>
+      <p className={styles.showcaseCardLabel}>Essay coach</p>
+      <ol className={styles.showcaseSteps}>
+        <li>Clarify your thesis in one sentence</li>
+        <li>Strengthen your topic sentence</li>
+        <li>Add evidence that supports the claim</li>
+      </ol>
+      <p className={styles.showcaseCardNote}>
+        Step-by-step guidance for academic and exam-style essays.
+      </p>
+    </div>
+  );
+}
 
 export function LandingPage() {
   return (
     <div className={styles.page}>
+      <MarketingBodyClass />
       <header className={styles.header}>
         <AppBrand size="header" href="/" />
-        <nav className={styles.nav} aria-label="Primary">
-          <a href="#features" className={styles.navLink}>
-            Features
-          </a>
-          <a href="#how-it-works" className={styles.navLink}>
-            How it works
-          </a>
+        <nav className={styles.nav} aria-label="Tools">
+          {NAV_TOOLS.map((item) => (
+            <Link key={item.label} href={item.href} className={styles.navLink}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className={styles.headerActions}>
           <Link href="/login" className={styles.navLink}>
             Sign in
           </Link>
           <Link href="/login" className={styles.primaryBtn}>
             Get started free
           </Link>
-        </nav>
+        </div>
       </header>
 
-      <main>
+      <main className={styles.main}>
         <section className={styles.hero} aria-labelledby="hero-heading">
-          <div>
-            <p className={styles.eyebrow}>In-context English learning</p>
-            <h1 id="hero-heading" className={styles.heroTitle}>
-              Write better English — one real sentence at a time
-            </h1>
-            <p className={styles.heroLead}>
-              {SITE_NAME} is a writing workspace for school students, exam prep, and
-              professionals. Grammar rules, vocabulary, and feedback all happen inside
-              sentences you read, edit, and practice — never in isolation.
-            </p>
-            <div className={styles.heroActions}>
-              <Link href="/login" className={styles.primaryBtn}>
-                Start practicing free
-              </Link>
-              <Link href="/app" className={styles.secondaryBtn}>
+          <p className={styles.heroEyebrow}>In-context English learning</p>
+          <h1 id="hero-heading" className={styles.heroTitle}>
+            Create stronger writing today
+          </h1>
+          <p className={styles.heroLead}>
+            {SITE_TAGLINE}. Grammar, vocabulary, coaching, and feedback — all inside sentences you
+            read, edit, and practice.
+          </p>
+
+          <div className={styles.heroWorkspace}>
+            <div className={styles.heroInputRow}>
+              <p className={styles.heroInputPlaceholder}>
+                Write, paste, or open your workspace to start practicing
+              </p>
+              <Link href="/app?tab=write" className={styles.heroCreateBtn}>
                 Open workspace
               </Link>
             </div>
-            <p className={styles.heroNote}>
-              Free to start · Works in your browser · Progress saved when you sign in
-            </p>
+            <div className={styles.quickActions} aria-label="Quick actions">
+              {QUICK_ACTIONS.map((action) => (
+                <Link key={action.label} href={action.href} className={styles.quickAction}>
+                  {action.label}
+                </Link>
+              ))}
+            </div>
           </div>
 
-          <aside className={styles.heroPanel} aria-label="Example feedback">
-            <p className={styles.sampleLabel}>See it in action</p>
-            <p className={styles.sampleSentence}>
-              The committee{" "}
-              <span className={styles.highlight}>have</span> approved the revised draft.
-            </p>
-            <p className={styles.sampleFeedback}>
-              <strong>Subject–verb agreement:</strong> &ldquo;Committee&rdquo; acts as a
-              single unit here — use <em>has</em>, not <em>have</em>. Every rule is shown
-              inside a sentence you can fix immediately.
-            </p>
-          </aside>
+          <p className={styles.heroNote}>
+            Free to start · Works in your browser · Progress saved when you sign in
+          </p>
         </section>
 
-        <section id="features" className={styles.section} aria-labelledby="features-heading">
-          <div className={styles.sectionHeader}>
-            <h2 id="features-heading" className={styles.sectionTitle}>
-              Everything you need to grow as a writer
+        <section className={styles.valueBand} aria-labelledby="value-heading">
+          <div className={styles.valueInner}>
+            <h2 id="value-heading" className={styles.valueTitle}>
+              The only English workspace you need to improve
+            </h2>
+            <p className={styles.valueLead}>
+              Bring your writing to life with tools that teach with you — lessons, drills, analysis,
+              and coaching in one place.
+            </p>
+            <div className={styles.valueCards}>
+              {SHOWCASES.map((item) => (
+                <article key={item.id} className={styles.valueCard}>
+                  <p className={styles.valueCardEyebrow}>{item.eyebrow}</p>
+                  <h3 className={styles.valueCardTitle}>{item.title.split(",")[0]}</h3>
+                  <p className={styles.valueCardText}>{item.lead.split(".")[0]}.</p>
+                  <Link href={item.href} className={styles.valueCardLink}>
+                    {item.cta}
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {SHOWCASES.map((item, index) => (
+          <section
+            key={item.id}
+            id={index === 0 ? "features" : item.id}
+            className={`${styles.showcase} ${index % 2 === 1 ? styles.showcaseReversed : ""}`}
+            aria-labelledby={`${item.id}-heading`}
+          >
+            <div className={styles.showcaseCopy}>
+              <p className={styles.showcaseEyebrow}>{item.eyebrow}</p>
+              <h2 id={`${item.id}-heading`} className={styles.showcaseTitle}>
+                {item.title}
+              </h2>
+              <p className={styles.showcaseLead}>{item.lead}</p>
+              <ul className={styles.showcaseBullets}>
+                {item.bullets.map((bullet) => (
+                  <li key={bullet}>{bullet}</li>
+                ))}
+              </ul>
+              <Link href={item.href} className={styles.primaryBtn}>
+                {item.cta}
+              </Link>
+            </div>
+            <ShowcaseVisual type={item.visual} />
+          </section>
+        ))}
+
+        <section id="tools" className={styles.toolsSection} aria-labelledby="tools-heading">
+          <div className={styles.sectionIntro}>
+            <h2 id="tools-heading" className={styles.sectionTitle}>
+              {SITE_NAME}&apos;s suite of tools
             </h2>
             <p className={styles.sectionLead}>
-              {SITE_TAGLINE}. One calm workspace for lessons, drills, analysis, and long-term
-              progress tracking.
+              Discover everything you need to go from draft to confident — lessons, analysis, and
+              practice in one workspace.
             </p>
           </div>
-          <div className={styles.featureGrid}>
-            {FEATURES.map((feature) => (
-              <article key={feature.title} className={styles.featureCard}>
-                <span className={styles.featureIcon} aria-hidden="true">
-                  {feature.icon}
-                </span>
-                <h3 className={styles.featureTitle}>{feature.title}</h3>
-                <p className={styles.featureText}>{feature.text}</p>
+          <div className={styles.toolGroups}>
+            {TOOL_GROUPS.map((group) => (
+              <div key={group.title} className={styles.toolGroup}>
+                <h3 className={styles.toolGroupTitle}>{group.title}</h3>
+                <ul className={styles.toolList}>
+                  {group.tools.map((tool) => (
+                    <li key={tool.name}>
+                      <Link href={tool.href} className={styles.toolLink}>
+                        <span className={styles.toolName}>{tool.name}</span>
+                        <span className={styles.toolDesc}>{tool.desc}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.statsSection} aria-label="Platform highlights">
+          <div className={styles.statsGrid}>
+            {STATS.map((stat) => (
+              <div key={stat.label} className={styles.stat}>
+                <p className={styles.statValue}>{stat.value}</p>
+                <p className={styles.statLabel}>{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="how-it-works" className={styles.audienceSection} aria-labelledby="audience-heading">
+          <div className={styles.sectionIntro}>
+            <h2 id="audience-heading" className={styles.sectionTitle}>
+              For those who want to write with confidence
+            </h2>
+            <p className={styles.sectionLead}>
+              Sound like you. Learn the rules. Practice in context. {SITE_NAME} fits how you actually
+              improve.
+            </p>
+          </div>
+          <div className={styles.audienceGrid}>
+            {AUDIENCES.map((audience) => (
+              <article key={audience.title} className={styles.audienceCard}>
+                <h3 className={styles.audienceTitle}>{audience.title}</h3>
+                <p className={styles.audienceText}>{audience.text}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <section
-          id="how-it-works"
-          className={styles.section}
-          aria-labelledby="how-heading"
-        >
-          <div className={styles.sectionHeader}>
-            <h2 id="how-heading" className={styles.sectionTitle}>
-              How it works
-            </h2>
-            <p className={styles.sectionLead}>
-              A simple loop: write, learn from feedback, drill weak skills, and return
-              stronger.
-            </p>
+        <section className={styles.testimonialsSection} aria-labelledby="testimonials-heading">
+          <h2 id="testimonials-heading" className={styles.sectionTitle}>
+            Why learners choose {SITE_NAME}
+          </h2>
+          <div className={styles.testimonialsGrid}>
+            {TESTIMONIALS.map((item) => (
+              <blockquote key={item.author} className={styles.testimonial}>
+                <p className={styles.testimonialQuote}>&ldquo;{item.quote}&rdquo;</p>
+                <footer className={styles.testimonialAuthor}>
+                  <strong>{item.author}</strong>
+                  <span>{item.role}</span>
+                </footer>
+              </blockquote>
+            ))}
           </div>
-          <ol className={styles.steps}>
-            <li className={styles.step}>
-              <span className={styles.stepNum}>STEP 1</span>
-              <h3 className={styles.stepTitle}>Write or paste your text</h3>
-              <p className={styles.stepText}>
-                Analyse tone, catch errors, and see clearer rewrites at three levels of
-                sophistication.
-              </p>
-            </li>
-            <li className={styles.step}>
-              <span className={styles.stepNum}>STEP 2</span>
-              <h3 className={styles.stepTitle}>Learn what to fix</h3>
-              <p className={styles.stepText}>
-                Teaching notes explain the principle behind each issue — not just what is
-                wrong.
-              </p>
-            </li>
-            <li className={styles.step}>
-              <span className={styles.stepNum}>STEP 3</span>
-              <h3 className={styles.stepTitle}>Practice in context</h3>
-              <p className={styles.stepText}>
-                Grammar topics, vocabulary depth, and adaptive exercises reinforce the same
-                skills in fresh sentences.
-              </p>
-            </li>
-          </ol>
         </section>
 
         <section className={styles.ctaBand} aria-labelledby="cta-heading">
           <h2 id="cta-heading" className={styles.ctaTitle}>
-            Ready to write with confidence?
+            Create anything with confidence
           </h2>
           <p className={styles.ctaLead}>{SITE_DESCRIPTION}</p>
-          <Link href="/login" className={styles.primaryBtn}>
-            Create your free account
+          <Link href="/login" className={styles.ctaBtn}>
+            Sign up now. It&apos;s free!
           </Link>
         </section>
       </main>
 
       <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <p className={styles.footerText}>
-            © {new Date().getFullYear()} {SITE_NAME}. Built for learners at every level.
-          </p>
-          <div className={styles.footerLinks}>
-            <Link href="/app" className={styles.footerLink}>
-              Workspace
-            </Link>
-            <Link href="/login" className={styles.footerLink}>
-              Sign in
-            </Link>
-            <a href="#features" className={styles.footerLink}>
-              Features
-            </a>
+        <div className={styles.footerGrid}>
+          <div className={styles.footerBrand}>
+            <AppBrand size="header" href="/" />
+            <p className={styles.footerText}>
+              English writing practice that teaches in context.
+            </p>
+          </div>
+          <div>
+            <p className={styles.footerHeading}>Tools</p>
+            <div className={styles.footerLinks}>
+              {NAV_TOOLS.map((item) => (
+                <Link key={item.label} href={item.href} className={styles.footerLink}>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className={styles.footerHeading}>Account</p>
+            <div className={styles.footerLinks}>
+              <Link href="/login" className={styles.footerLink}>
+                Sign in
+              </Link>
+              <Link href="/login" className={styles.footerLink}>
+                Get started free
+              </Link>
+              <Link href="/app" className={styles.footerLink}>
+                Open workspace
+              </Link>
+            </div>
           </div>
         </div>
+        <p className={styles.footerCopy}>
+          © {new Date().getFullYear()} {SITE_NAME}. Built for learners at every level.
+        </p>
       </footer>
     </div>
   );
