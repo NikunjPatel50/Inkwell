@@ -2,6 +2,8 @@ import Link from "next/link";
 import { AppBrand } from "../AppBrand";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "../../lib/site";
 import { MarketingBodyClass } from "./MarketingBodyClass";
+import { AuthAppLink, LandingHeaderNav } from "./AuthAppLink";
+import { HeroWorkspace } from "./HeroWorkspace";
 import styles from "./LandingPage.module.css";
 
 const NAV_TOOLS = [
@@ -11,13 +13,6 @@ const NAV_TOOLS = [
   { label: "Write", href: "/app?tab=write" },
   { label: "Coach", href: "/app?tab=coach" },
   { label: "Creative", href: "/app?tab=creative" },
-];
-
-const QUICK_ACTIONS = [
-  { label: "Grammar check", href: "/app?tab=write" },
-  { label: "Vocabulary", href: "/app?tab=vocabulary" },
-  { label: "Adaptive learn", href: "/app?tab=learn" },
-  { label: "Essay coach", href: "/app?tab=coach" },
 ];
 
 const SHOWCASES = [
@@ -185,13 +180,7 @@ export function LandingPage() {
       <MarketingBodyClass />
       <header className={styles.header}>
         <AppBrand size="header" href="/" />
-        <nav className={styles.nav} aria-label="Tools">
-          {NAV_TOOLS.map((item) => (
-            <Link key={item.label} href={item.href} className={styles.navLink}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <LandingHeaderNav items={NAV_TOOLS} />
         <div className={styles.headerActions}>
           <Link href="/login" className={styles.navLink}>
             Sign in
@@ -213,23 +202,7 @@ export function LandingPage() {
             read, edit, and practice.
           </p>
 
-          <div className={styles.heroWorkspace}>
-            <div className={styles.heroInputRow}>
-              <p className={styles.heroInputPlaceholder}>
-                Write, paste, or open your workspace to start practicing
-              </p>
-              <Link href="/app?tab=write" className={styles.heroCreateBtn}>
-                Open workspace
-              </Link>
-            </div>
-            <div className={styles.quickActions} aria-label="Quick actions">
-              {QUICK_ACTIONS.map((action) => (
-                <Link key={action.label} href={action.href} className={styles.quickAction}>
-                  {action.label}
-                </Link>
-              ))}
-            </div>
-          </div>
+          <HeroWorkspace />
 
           <p className={styles.heroNote}>
             Free to start · Works in your browser · Progress saved when you sign in
@@ -303,10 +276,10 @@ export function LandingPage() {
                 <ul className={styles.toolList}>
                   {group.tools.map((tool) => (
                     <li key={tool.name}>
-                      <Link href={tool.href} className={styles.toolLink}>
+                      <AuthAppLink href={tool.href} className={styles.toolLink}>
                         <span className={styles.toolName}>{tool.name}</span>
                         <span className={styles.toolDesc}>{tool.desc}</span>
-                      </Link>
+                      </AuthAppLink>
                     </li>
                   ))}
                 </ul>
@@ -386,9 +359,9 @@ export function LandingPage() {
             <p className={styles.footerHeading}>Tools</p>
             <div className={styles.footerLinks}>
               {NAV_TOOLS.map((item) => (
-                <Link key={item.label} href={item.href} className={styles.footerLink}>
+                <AuthAppLink key={item.label} href={item.href} className={styles.footerLink}>
                   {item.label}
-                </Link>
+                </AuthAppLink>
               ))}
             </div>
           </div>
@@ -401,9 +374,9 @@ export function LandingPage() {
               <Link href="/login" className={styles.footerLink}>
                 Get started free
               </Link>
-              <Link href="/app" className={styles.footerLink}>
+              <AuthAppLink href="/app?tab=dashboard" className={styles.footerLink}>
                 Open workspace
-              </Link>
+              </AuthAppLink>
             </div>
           </div>
         </div>
