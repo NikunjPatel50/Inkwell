@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LandingPage } from "@/components/landing/LandingPage";
 import {
+  getGoogleSiteVerification,
   getSiteUrl,
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/site";
 
 const siteUrl = getSiteUrl();
+const googleVerification = getGoogleSiteVerification();
 
 export const metadata: Metadata = {
   title: `${SITE_NAME} — ${SITE_TAGLINE}`,
@@ -49,10 +51,10 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+  ...(googleVerification
     ? {
         verification: {
-          google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+          google: googleVerification,
         },
       }
     : {}),

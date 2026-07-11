@@ -22,3 +22,18 @@ export function getSiteUrl(): string {
   if (fromEnv) return fromEnv.replace(/\/$/, "");
   return "https://www.wrytesmart.com";
 }
+
+/** Google Search Console token only — strips prefix/quotes if pasted from the meta tag. */
+export function getGoogleSiteVerification(): string | null {
+  const raw = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
+  if (!raw) return null;
+
+  let token = raw.replace(/^["']|["']$/g, "");
+  const prefix = "google-site-verification=";
+  if (token.startsWith(prefix)) {
+    token = token.slice(prefix.length);
+  }
+  token = token.replace(/^["']|["']$/g, "").trim();
+
+  return token || null;
+}
