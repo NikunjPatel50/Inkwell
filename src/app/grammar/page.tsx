@@ -30,17 +30,19 @@ export default function GrammarOverviewPage() {
           faqPageJsonLd(GRAMMAR_HUB_FAQS),
         ]}
       />
-      <article className={styles.articleWide}>
-        <p className={styles.eyebrow}>Grammar</p>
-        <h1 className={styles.h1}>Grammar you can see inside real sentences</h1>
-        <p className={styles.lead}>
-          Most grammar apps quiz isolated rules. Wrytesmart teaches forty topics through sentences
-          you actually write — with highlights, teaching notes, and exercises that connect back to
-          your drafts. Browse every topic below; each page includes an explanation, key rule, and
-          worked examples you can read without an account.
-        </p>
+      <article className={`${styles.article} ${styles.featurePage}`}>
+        <div className={styles.featureIntro}>
+          <p className={styles.eyebrow}>Grammar</p>
+          <h1 className={styles.h1}>Grammar you can see inside real sentences</h1>
+          <p className={styles.lead}>
+            Most grammar apps quiz isolated rules. Wrytesmart teaches forty topics through sentences
+            you actually write — with highlights, teaching notes, and exercises that connect back to
+            your drafts. Browse every topic below; each page includes an explanation, key rule, and
+            worked examples you can read without an account.
+          </p>
+        </div>
 
-        <div className={styles.previewCard}>
+        <div className={`${styles.previewCard} ${styles.featureAside}`}>
           <p className={styles.previewLabel}>Example in action</p>
           <p className={styles.previewSentence}>
             The committee <span className={styles.highlight}>have</span> approved the revised draft.
@@ -52,6 +54,7 @@ export default function GrammarOverviewPage() {
           </p>
         </div>
 
+        <div className={styles.featureBelow}>
         <div className={styles.prose}>
           <p>
             Topics are grouped into five areas: parts of speech, sentence structure, verb tenses,
@@ -88,6 +91,7 @@ export default function GrammarOverviewPage() {
           title="Practice grammar inside your own writing"
           lead="Sign up free to open interactive exercises for every topic and track the skills you improve over time."
         />
+        </div>
       </article>
     </MarketingShell>
   );

@@ -36,16 +36,18 @@ export default function CoachFeaturePage() {
           faqPageJsonLd(COACH_HUB_FAQS),
         ]}
       />
-      <article className={styles.article}>
-        <p className={styles.eyebrow}>Coach</p>
-        <h1 className={styles.h1}>Essay coaching that explains the why</h1>
-        <p className={styles.lead}>
-          The AI Writing Coach walks you through academic and exam-style essays step by step. Instead
-          of dumping a corrected essay on you, it highlights what to fix next and why that move
-          strengthens your argument.
-        </p>
+      <article className={`${styles.article} ${styles.featurePage}`}>
+        <div className={styles.featureIntro}>
+          <p className={styles.eyebrow}>Coach</p>
+          <h1 className={styles.h1}>Essay coaching that explains the why</h1>
+          <p className={styles.lead}>
+            The AI Writing Coach walks you through academic and exam-style essays step by step. Instead
+            of dumping a corrected essay on you, it highlights what to fix next and why that move
+            strengthens your argument.
+          </p>
+        </div>
 
-        <div className={styles.previewCard}>
+        <div className={`${styles.previewCard} ${styles.featureAside}`}>
           <p className={styles.previewLabel}>Sample coaching path</p>
           <ol className={styles.list}>
             {COACH_STEPS.map((step) => (
@@ -58,34 +60,36 @@ export default function CoachFeaturePage() {
           </p>
         </div>
 
-        <div className={styles.prose}>
-          <p>
-            Coach is built for tasks with structure: school essays, IELTS and PTE writing tasks,
-            university assignments, and professional reports that need a clear line of reasoning. You
-            bring a draft or outline; the coach meets you at your level and escalates detail as your
-            writing improves.
-          </p>
-          <p>
-            Because Coach lives beside Write, Grammar, and Learn, you can fix a structural issue in
-            coaching, drill a recurring grammar error in exercises, and polish phrasing in the rewrite
-            workspace — without switching tools.
-          </p>
+        <div className={styles.featureBelow}>
+          <div className={styles.prose}>
+            <p>
+              Coach is built for tasks with structure: school essays, IELTS and PTE writing tasks,
+              university assignments, and professional reports that need a clear line of reasoning. You
+              bring a draft or outline; the coach meets you at your level and escalates detail as your
+              writing improves.
+            </p>
+            <p>
+              Because Coach lives beside Write, Grammar, and Learn, you can fix a structural issue in
+              coaching, drill a recurring grammar error in exercises, and polish phrasing in the rewrite
+              workspace — without switching tools.
+            </p>
+          </div>
+
+          <h2 className={styles.h2}>Best for</h2>
+          <ul className={styles.list}>
+            <li>Students learning essay structure for the first time</li>
+            <li>Exam candidates who need checklist-style feedback under time pressure</li>
+            <li>Professionals drafting proposals, memos, or long-form reports</li>
+          </ul>
+
+          <HubFaqSection faqs={COACH_HUB_FAQS} />
+
+          <MarketingCta
+            title="Open the essay coach"
+            lead="Sign up free to run full coaching sessions and save your work."
+            primaryLabel="Try Coach free"
+          />
         </div>
-
-        <h2 className={styles.h2}>Best for</h2>
-        <ul className={styles.list}>
-          <li>Students learning essay structure for the first time</li>
-          <li>Exam candidates who need checklist-style feedback under time pressure</li>
-          <li>Professionals drafting proposals, memos, or long-form reports</li>
-        </ul>
-
-        <HubFaqSection faqs={COACH_HUB_FAQS} />
-
-        <MarketingCta
-          title="Open the essay coach"
-          lead="Sign up free to run full coaching sessions and save your work."
-          primaryLabel="Try Coach free"
-        />
       </article>
     </MarketingShell>
   );

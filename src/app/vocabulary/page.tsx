@@ -55,7 +55,7 @@ export default function VocabularyOverviewPage() {
           faqPageJsonLd(VOCABULARY_HUB_FAQS),
         ]}
       />
-      <article className={styles.articleWide}>
+      <article className={styles.article}>
         <p className={styles.eyebrow}>Vocabulary</p>
         <h1 className={styles.h1}>Vocabulary depth, not flashcard stacks</h1>
         <p className={styles.lead}>

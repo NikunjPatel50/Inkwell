@@ -28,16 +28,18 @@ export default function LearnFeaturePage() {
           faqPageJsonLd(LEARN_HUB_FAQS),
         ]}
       />
-      <article className={styles.article}>
-        <p className={styles.eyebrow}>Learn</p>
-        <h1 className={styles.h1}>Adaptive practice that targets what you miss</h1>
-        <p className={styles.lead}>
-          The Learn tab builds a personalised feed of exercises based on the grammar and vocabulary
-          skills you struggle with most. Every drill uses real sentences — not disconnected quiz
-          cards — so what you practice transfers directly to your writing.
-        </p>
+      <article className={`${styles.article} ${styles.featurePage}`}>
+        <div className={styles.featureIntro}>
+          <p className={styles.eyebrow}>Learn</p>
+          <h1 className={styles.h1}>Adaptive practice that targets what you miss</h1>
+          <p className={styles.lead}>
+            The Learn tab builds a personalised feed of exercises based on the grammar and vocabulary
+            skills you struggle with most. Every drill uses real sentences — not disconnected quiz
+            cards — so what you practice transfers directly to your writing.
+          </p>
+        </div>
 
-        <div className={styles.previewCard}>
+        <div className={`${styles.previewCard} ${styles.featureAside}`}>
           <p className={styles.previewLabel}>Adaptive exercise</p>
           <p className={styles.previewSentence}>
             Fix the error: She <span className={styles.highlight}>don&apos;t</span> agree with the
@@ -49,6 +51,7 @@ export default function LearnFeaturePage() {
           </p>
         </div>
 
+        <div className={styles.featureBelow}>
         <div className={styles.prose}>
           <p>
             Three exercise types keep practice varied. <strong>Build-it</strong> asks you to construct
@@ -79,6 +82,7 @@ export default function LearnFeaturePage() {
           title="Start your adaptive skill feed"
           lead="Sign up free to unlock the full Learn tab and track progress across sessions."
         />
+        </div>
       </article>
     </MarketingShell>
   );

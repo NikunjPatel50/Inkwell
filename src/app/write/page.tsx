@@ -28,16 +28,18 @@ export default function WriteFeaturePage() {
           faqPageJsonLd(WRITE_HUB_FAQS),
         ]}
       />
-      <article className={styles.article}>
-        <p className={styles.eyebrow}>Write</p>
-        <h1 className={styles.h1}>Analyse your draft where you actually write</h1>
-        <p className={styles.lead}>
-          Paste an email, essay paragraph, or report into the Write workspace and get register
-          scoring, grammar teaching notes, and rewrites at three levels of sophistication — all
-          without leaving the sentence you care about.
-        </p>
+      <article className={`${styles.article} ${styles.featurePage}`}>
+        <div className={styles.featureIntro}>
+          <p className={styles.eyebrow}>Write</p>
+          <h1 className={styles.h1}>Analyse your draft where you actually write</h1>
+          <p className={styles.lead}>
+            Paste an email, essay paragraph, or report into the Write workspace and get register
+            scoring, grammar teaching notes, and rewrites at three levels of sophistication — all
+            without leaving the sentence you care about.
+          </p>
+        </div>
 
-        <div className={styles.previewCard}>
+        <div className={`${styles.previewCard} ${styles.featureAside}`}>
           <p className={styles.previewLabel}>Original</p>
           <p className={styles.previewSentence}>
             The committee <span className={styles.highlight}>have</span> approved the revised draft.
@@ -56,36 +58,38 @@ export default function WriteFeaturePage() {
           </div>
         </div>
 
-        <div className={styles.prose}>
-          <p>
-            Register scoring shows whether your tone fits the audience — too casual for academic
-            writing, or too stiff for a friendly update. Error notes explain the principle behind each
-            issue so you learn while you edit. Rewrite suggestions give you a simple fix, a polished
-            version, and a more advanced alternative, helping you see how word choice changes impact
-            without losing your meaning.
-          </p>
-          <p>
-            Write connects to Grammar and Learn: mistakes you make repeatedly can feed adaptive
-            exercises, and vocabulary you look up can be saved for later depth study. That loop turns
-            one-off proofreading into long-term improvement.
-          </p>
+        <div className={styles.featureBelow}>
+          <div className={styles.prose}>
+            <p>
+              Register scoring shows whether your tone fits the audience — too casual for academic
+              writing, or too stiff for a friendly update. Error notes explain the principle behind each
+              issue so you learn while you edit. Rewrite suggestions give you a simple fix, a polished
+              version, and a more advanced alternative, helping you see how word choice changes impact
+              without losing your meaning.
+            </p>
+            <p>
+              Write connects to Grammar and Learn: mistakes you make repeatedly can feed adaptive
+              exercises, and vocabulary you look up can be saved for later depth study. That loop turns
+              one-off proofreading into long-term improvement.
+            </p>
+          </div>
+
+          <h2 className={styles.h2}>What you get</h2>
+          <ul className={styles.list}>
+            <li>Register and tone analysis for audience fit</li>
+            <li>Grammar errors with teaching notes, not just red underlines</li>
+            <li>Three rewrite levels: simple, polished, and advanced</li>
+            <li>Session history when you sign in to track growth over time</li>
+          </ul>
+
+          <HubFaqSection faqs={WRITE_HUB_FAQS} />
+
+          <MarketingCta
+            title="Paste your first paragraph free"
+            lead="Create an account to analyse unlimited drafts and save your writing history."
+            primaryLabel="Try Write free"
+          />
         </div>
-
-        <h2 className={styles.h2}>What you get</h2>
-        <ul className={styles.list}>
-          <li>Register and tone analysis for audience fit</li>
-          <li>Grammar errors with teaching notes, not just red underlines</li>
-          <li>Three rewrite levels: simple, polished, and advanced</li>
-          <li>Session history when you sign in to track growth over time</li>
-        </ul>
-
-        <HubFaqSection faqs={WRITE_HUB_FAQS} />
-
-        <MarketingCta
-          title="Paste your first paragraph free"
-          lead="Create an account to analyse unlimited drafts and save your writing history."
-          primaryLabel="Try Write free"
-        />
       </article>
     </MarketingShell>
   );
