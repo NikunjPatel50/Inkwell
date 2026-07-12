@@ -1475,20 +1475,20 @@ export const GRAMMAR_TOPIC_SEO_CONTENT: Record<string, GrammarTopicSeoContent> =
     ],
     edgeCases: [
       {
-        sentence: "Neither the manager nor the analysts have signed off yet.",
-        note: "With neither/nor, the verb agrees with the nearer subject — analysts is plural, so use have.",
+        sentence: "The team is ready to present, but the team are arguing among themselves.",
+        note: "Collective nouns: use is when the group acts as one unit; are when you mean the individuals inside it.",
       },
       {
-        sentence: "The data show a clear trend, but the dataset is incomplete.",
-        note: "Data is plural in scientific writing (data show); dataset is singular (dataset is).",
+        sentence: "Everyone is responsible for proofreading their own section.",
+        note: "Indefinite pronouns like everyone, each, and nobody are singular — use is, not are.",
       },
       {
-        sentence: "A number of students are waiting; the number of applicants is rising.",
-        note: "A number of takes a plural verb; the number of takes a singular verb.",
+        sentence: "Neither the manager nor the employees are available this afternoon.",
+        note: "With neither/nor, the verb agrees with the nearer subject — employees is plural, so use are.",
       },
       {
-        sentence: "Politics is complicated, but the politics of this issue are local.",
-        note: "Some -ics nouns are singular when meaning a field (politics is) but plural when meaning specific factors (politics are).",
+        sentence: "The box of tools is on the shelf beside the workbench.",
+        note: "Subject is box (singular), not tools — ignore the interrupting prepositional phrase of tools.",
       },
     ],
     quickCheck: {
