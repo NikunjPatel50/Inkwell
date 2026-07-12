@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLdScript } from "@/components/marketing/JsonLdScript";
+import { HubFaqSection } from "@/components/marketing/HubFaqSection";
 import { MarketingCta } from "@/components/marketing/MarketingCta";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import styles from "@/components/marketing/MarketingPage.module.css";
 import { GRAMMAR_CATEGORIES } from "@/constants/grammarTopics";
-import { breadcrumbJsonLd } from "@/lib/seo/jsonLd";
+import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
+import { GRAMMAR_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -20,10 +22,13 @@ export default function GrammarOverviewPage() {
   return (
     <MarketingShell breadcrumbs={[{ label: "Home", href: "/" }, { label: "Grammar", href: "/grammar" }]}>
       <JsonLdScript
-        data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Grammar", path: "/grammar" },
-        ])}
+        data={[
+          breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Grammar", path: "/grammar" },
+          ]),
+          faqPageJsonLd(GRAMMAR_HUB_FAQS),
+        ]}
       />
       <article className={styles.articleWide}>
         <p className={styles.eyebrow}>Grammar</p>
@@ -76,6 +81,8 @@ export default function GrammarOverviewPage() {
             </div>
           </section>
         ))}
+
+        <HubFaqSection faqs={GRAMMAR_HUB_FAQS} />
 
         <MarketingCta
           title="Practice grammar inside your own writing"

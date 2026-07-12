@@ -92,10 +92,22 @@ export function learningResourceJsonLd(options: {
   };
 }
 
+export function aggregateRatingJsonLd(reviewCount: number) {
+  return {
+    "@type": "AggregateRating",
+    ratingValue: "5",
+    bestRating: "5",
+    worstRating: "1",
+    ratingCount: String(reviewCount),
+    reviewCount: String(reviewCount),
+  };
+}
+
 export function homepageGraphJsonLd(
   reviews: { quote: string; author: string; role: string }[],
 ) {
   const siteUrl = getSiteUrl();
+  const app = softwareApplicationJsonLd();
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -107,7 +119,10 @@ export function homepageGraphJsonLd(
         description: SITE_DESCRIPTION,
         inLanguage: "en",
       },
-      softwareApplicationJsonLd(),
+      {
+        ...app,
+        aggregateRating: aggregateRatingJsonLd(reviews.length),
+      },
       {
         "@type": "Organization",
         "@id": `${siteUrl}/#organization`,

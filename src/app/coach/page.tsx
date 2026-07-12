@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { JsonLdScript } from "@/components/marketing/JsonLdScript";
+import { HubFaqSection } from "@/components/marketing/HubFaqSection";
 import { MarketingCta } from "@/components/marketing/MarketingCta";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import styles from "@/components/marketing/MarketingPage.module.css";
-import { breadcrumbJsonLd } from "@/lib/seo/jsonLd";
+import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
+import { COACH_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -26,10 +28,13 @@ export default function CoachFeaturePage() {
   return (
     <MarketingShell breadcrumbs={[{ label: "Home", href: "/" }, { label: "Coach", href: "/coach" }]}>
       <JsonLdScript
-        data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Coach", path: "/coach" },
-        ])}
+        data={[
+          breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Coach", path: "/coach" },
+          ]),
+          faqPageJsonLd(COACH_HUB_FAQS),
+        ]}
       />
       <article className={styles.article}>
         <p className={styles.eyebrow}>Coach</p>
@@ -73,6 +78,8 @@ export default function CoachFeaturePage() {
           <li>Exam candidates who need checklist-style feedback under time pressure</li>
           <li>Professionals drafting proposals, memos, or long-form reports</li>
         </ul>
+
+        <HubFaqSection faqs={COACH_HUB_FAQS} />
 
         <MarketingCta
           title="Open the essay coach"

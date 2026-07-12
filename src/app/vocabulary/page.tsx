@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLdScript } from "@/components/marketing/JsonLdScript";
+import { HubFaqSection } from "@/components/marketing/HubFaqSection";
 import { MarketingCta } from "@/components/marketing/MarketingCta";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import styles from "@/components/marketing/MarketingPage.module.css";
 import { WORD_COLLECTIONS } from "@/constants/wordCollections";
-import { breadcrumbJsonLd } from "@/lib/seo/jsonLd";
+import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
+import { VOCABULARY_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 const DEPTH_LEVELS = [
@@ -45,10 +47,13 @@ export default function VocabularyOverviewPage() {
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Vocabulary", href: "/vocabulary" }]}
     >
       <JsonLdScript
-        data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Vocabulary", path: "/vocabulary" },
-        ])}
+        data={[
+          breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Vocabulary", path: "/vocabulary" },
+          ]),
+          faqPageJsonLd(VOCABULARY_HUB_FAQS),
+        ]}
       />
       <article className={styles.articleWide}>
         <p className={styles.eyebrow}>Vocabulary</p>
@@ -94,6 +99,8 @@ export default function VocabularyOverviewPage() {
             </Link>
           ))}
         </div>
+
+        <HubFaqSection faqs={VOCABULARY_HUB_FAQS} />
 
         <MarketingCta
           title="Search any word and practice in context"

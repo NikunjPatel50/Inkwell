@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { JsonLdScript } from "@/components/marketing/JsonLdScript";
+import { HubFaqSection } from "@/components/marketing/HubFaqSection";
 import { MarketingCta } from "@/components/marketing/MarketingCta";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import styles from "@/components/marketing/MarketingPage.module.css";
-import { breadcrumbJsonLd } from "@/lib/seo/jsonLd";
+import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
+import { CREATIVE_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -20,10 +22,13 @@ export default function CreativeFeaturePage() {
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Creative", href: "/creative" }]}
     >
       <JsonLdScript
-        data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Creative", path: "/creative" },
-        ])}
+        data={[
+          breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Creative", path: "/creative" },
+          ]),
+          faqPageJsonLd(CREATIVE_HUB_FAQS),
+        ]}
       />
       <article className={styles.article}>
         <p className={styles.eyebrow}>Creative</p>
@@ -62,6 +67,31 @@ export default function CreativeFeaturePage() {
             you are signed in — so play does not mean wasted time.
           </p>
         </div>
+
+        <h2 className={styles.h2}>Drill types you can try</h2>
+        <ul className={styles.list}>
+          <li>
+            <strong>Emotion rewrites</strong> — say the same fact with a different feeling (elated,
+            restrained, ironic) to practise nuance
+          </li>
+          <li>
+            <strong>Word duels</strong> — choose the stronger or more precise word under light time
+            pressure
+          </li>
+          <li>
+            <strong>Expressive stretches</strong> — expand a plain sentence without adding fluff,
+            building fluency for essays and reports
+          </li>
+        </ul>
+
+        <h2 className={styles.h2}>Who it helps</h2>
+        <ul className={styles.list}>
+          <li>Students who need variety to stay engaged between exam drills</li>
+          <li>Writers building voice after mastering formal grammar rules</li>
+          <li>Anyone recycling vocabulary from collections in a low-stakes setting</li>
+        </ul>
+
+        <HubFaqSection faqs={CREATIVE_HUB_FAQS} />
 
         <MarketingCta
           title="Try creative drills free"
