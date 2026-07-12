@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { LandingPage } from "@/components/landing/LandingPage";
+import { homepageGraphJsonLd } from "@/lib/seo/jsonLd";
+import { MARKETING_TESTIMONIALS } from "@/lib/seo/testimonials";
 import {
   getGoogleSiteVerification,
   getSiteUrl,
@@ -60,49 +62,14 @@ export const metadata: Metadata = {
     : {}),
 };
 
-function buildJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebSite",
-        "@id": `${siteUrl}/#website`,
-        url: siteUrl,
-        name: SITE_NAME,
-        description: SITE_DESCRIPTION,
-        inLanguage: "en",
-      },
-      {
-        "@type": "SoftwareApplication",
-        "@id": `${siteUrl}/#app`,
-        name: SITE_NAME,
-        applicationCategory: "EducationalApplication",
-        operatingSystem: "Web",
-        offers: {
-          "@type": "Offer",
-          price: "0",
-          priceCurrency: "USD",
-        },
-        description: SITE_DESCRIPTION,
-        url: `${siteUrl}/app`,
-      },
-      {
-        "@type": "Organization",
-        "@id": `${siteUrl}/#organization`,
-        name: SITE_NAME,
-        url: siteUrl,
-        logo: `${siteUrl}/wrytesmart-logo.png`,
-      },
-    ],
-  };
-}
-
 export default function HomePage() {
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd()) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(homepageGraphJsonLd([...MARKETING_TESTIMONIALS])),
+        }}
       />
       <LandingPage />
     </>

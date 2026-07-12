@@ -1,19 +1,13 @@
 import Link from "next/link";
 import { AppBrand } from "../AppBrand";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "../../lib/site";
+import { MARKETING_NAV } from "../../lib/seo/publicRoutes";
+import { MARKETING_TESTIMONIALS } from "../../lib/seo/testimonials";
 import { MarketingBodyClass } from "./MarketingBodyClass";
-import { AuthAppLink, LandingHeaderNav } from "./AuthAppLink";
 import { HeroWorkspace } from "./HeroWorkspace";
 import styles from "./LandingPage.module.css";
 
-const NAV_TOOLS = [
-  { label: "Learn", href: "/app?tab=learn" },
-  { label: "Grammar", href: "/app?tab=grammar" },
-  { label: "Vocabulary", href: "/app?tab=vocabulary" },
-  { label: "Write", href: "/app?tab=write" },
-  { label: "Coach", href: "/app?tab=coach" },
-  { label: "Creative", href: "/app?tab=creative" },
-];
+const NAV_TOOLS = [...MARKETING_NAV];
 
 const SHOWCASES = [
   {
@@ -22,7 +16,7 @@ const SHOWCASES = [
     title: "Practice skills that stick, inside real sentences",
     lead: "Adaptive exercises target your weak spots with build-it, spot-the-error, and complete-it drills — never disconnected worksheets.",
     cta: "Start learning",
-    href: "/app?tab=learn",
+    href: "/learn",
     bullets: ["Personalised skill feed", "Instant teaching notes", "Progress you can track"],
     visual: "learn" as const,
   },
@@ -32,7 +26,7 @@ const SHOWCASES = [
     title: "Write like you mean it, then sharpen every draft",
     lead: "Paste any paragraph and get register scoring, clear error explanations, and rewrites at three levels of sophistication.",
     cta: "Open writing workspace",
-    href: "/app?tab=write",
+    href: "/write",
     bullets: ["Tone and register analysis", "Grammar teaching in context", "Simple to advanced rewrites"],
     visual: "write" as const,
   },
@@ -42,7 +36,7 @@ const SHOWCASES = [
     title: "Get essay coaching that explains the why",
     lead: "Structured coaching walks you through academic and exam-style writing with step-by-step feedback you can apply immediately.",
     cta: "Try the coach",
-    href: "/app?tab=coach",
+    href: "/coach",
     bullets: ["Exam-ready structure", "Actionable next steps", "Built for students and pros"],
     visual: "coach" as const,
   },
@@ -52,25 +46,25 @@ const TOOL_GROUPS = [
   {
     title: "Writing",
     tools: [
-      { name: "Write workspace", desc: "Analyse drafts with feedback", href: "/app?tab=write" },
-      { name: "AI Writing Coach", desc: "Guided essay coaching", href: "/app?tab=coach" },
-      { name: "Creative drills", desc: "Playful rewrites and games", href: "/app?tab=creative" },
+      { name: "Write workspace", desc: "Analyse drafts with feedback", href: "/write" },
+      { name: "AI Writing Coach", desc: "Guided essay coaching", href: "/coach" },
+      { name: "Creative drills", desc: "Playful rewrites and games", href: "/creative" },
     ],
   },
   {
     title: "Learning",
     tools: [
-      { name: "Adaptive Learn", desc: "Exercises for your weak spots", href: "/app?tab=learn" },
-      { name: "Grammar topics", desc: "40 topics through real sentences", href: "/app?tab=grammar" },
-      { name: "Vocabulary hub", desc: "Words, collections, and depth", href: "/app?tab=vocabulary" },
+      { name: "Adaptive Learn", desc: "Exercises for your weak spots", href: "/learn" },
+      { name: "Grammar topics", desc: "40 topics through real sentences", href: "/grammar" },
+      { name: "Vocabulary hub", desc: "Words, collections, and depth", href: "/vocabulary" },
     ],
   },
   {
-    title: "Progress",
+    title: "Exam prep",
     tools: [
-      { name: "Dashboard", desc: "Overview and quick actions", href: "/app?tab=dashboard" },
-      { name: "Session history", desc: "Review past work and growth", href: "/app?tab=history" },
-      { name: "Sign in sync", desc: "Progress saved across devices", href: "/login" },
+      { name: "IELTS writing practice", desc: "Essays, grammar, and coaching", href: "/ielts-writing-practice" },
+      { name: "PTE writing practice", desc: "Summaries, essays, and feedback", href: "/pte-writing-practice" },
+      { name: "Sign in to save progress", desc: "Free account, works in browser", href: "/login" },
     ],
   },
 ];
@@ -101,26 +95,7 @@ const AUDIENCES = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote:
-      "Finally an app that explains grammar inside the sentence I'm editing — not in a random quiz afterward.",
-    author: "Priya M.",
-    role: "University student",
-  },
-  {
-    quote:
-      "The rewrite levels help me see how to sound more professional without losing what I actually meant to say.",
-    author: "James L.",
-    role: "Marketing manager",
-  },
-  {
-    quote:
-      "Vocabulary depth and grammar topics connect to the same writing workspace, so practice actually sticks.",
-    author: "Anika R.",
-    role: "IELTS candidate",
-  },
-];
+const TESTIMONIALS = [...MARKETING_TESTIMONIALS];
 
 function ShowcaseVisual({ type }: { type: "learn" | "write" | "coach" }) {
   if (type === "learn") {
@@ -180,7 +155,13 @@ export function LandingPage() {
       <MarketingBodyClass />
       <header className={styles.header}>
         <AppBrand size="header" href="/" />
-        <LandingHeaderNav items={NAV_TOOLS} />
+        <nav className={styles.nav} aria-label="Tools">
+          {NAV_TOOLS.map((item) => (
+            <Link key={item.label} href={item.href} className={styles.navLink}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
         <div className={styles.headerActions}>
           <Link href="/login" className={styles.navLink}>
             Sign in
@@ -276,10 +257,10 @@ export function LandingPage() {
                 <ul className={styles.toolList}>
                   {group.tools.map((tool) => (
                     <li key={tool.name}>
-                      <AuthAppLink href={tool.href} className={styles.toolLink}>
+                      <Link href={tool.href} className={styles.toolLink}>
                         <span className={styles.toolName}>{tool.name}</span>
                         <span className={styles.toolDesc}>{tool.desc}</span>
-                      </AuthAppLink>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -359,10 +340,24 @@ export function LandingPage() {
             <p className={styles.footerHeading}>Tools</p>
             <div className={styles.footerLinks}>
               {NAV_TOOLS.map((item) => (
-                <AuthAppLink key={item.label} href={item.href} className={styles.footerLink}>
+                <Link key={item.label} href={item.href} className={styles.footerLink}>
                   {item.label}
-                </AuthAppLink>
+                </Link>
               ))}
+            </div>
+          </div>
+          <div>
+            <p className={styles.footerHeading}>Exam prep</p>
+            <div className={styles.footerLinks}>
+              <Link href="/ielts-writing-practice" className={styles.footerLink}>
+                IELTS writing
+              </Link>
+              <Link href="/pte-writing-practice" className={styles.footerLink}>
+                PTE writing
+              </Link>
+              <Link href="/login" className={styles.footerLink}>
+                Get started free
+              </Link>
             </div>
           </div>
           <div>
@@ -372,11 +367,8 @@ export function LandingPage() {
                 Sign in
               </Link>
               <Link href="/login" className={styles.footerLink}>
-                Get started free
+                Create account
               </Link>
-              <AuthAppLink href="/app?tab=dashboard" className={styles.footerLink}>
-                Open workspace
-              </AuthAppLink>
             </div>
           </div>
         </div>

@@ -1,17 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { resolveAuthDestination } from "../../lib/authNavigation";
 import { saveDraftForLogin } from "../../lib/sessionBridge";
-import { AuthAppLink } from "./AuthAppLink";
 import styles from "./LandingPage.module.css";
 
 const QUICK_ACTIONS = [
-  { label: "Grammar check", href: "/app?tab=write" },
-  { label: "Vocabulary", href: "/app?tab=vocabulary" },
-  { label: "Adaptive learn", href: "/app?tab=learn" },
-  { label: "Essay coach", href: "/app?tab=coach" },
+  { label: "Grammar check", href: "/grammar" },
+  { label: "Vocabulary", href: "/vocabulary" },
+  { label: "Adaptive learn", href: "/learn" },
+  { label: "Essay coach", href: "/coach" },
 ];
 
 export function HeroWorkspace() {
@@ -42,9 +42,9 @@ export function HeroWorkspace() {
       </div>
       <div className={styles.quickActions} aria-label="Quick actions">
         {QUICK_ACTIONS.map((action) => (
-          <AuthAppLink key={action.label} href={action.href} className={styles.quickAction}>
+          <Link key={action.label} href={action.href} className={styles.quickAction}>
             {action.label}
-          </AuthAppLink>
+          </Link>
         ))}
       </div>
     </div>
