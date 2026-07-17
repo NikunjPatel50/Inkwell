@@ -1,0 +1,83 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.dialog {
+  width: min(100%, 26rem);
+  padding: 1.35rem 1.25rem 1.2rem;
+  border-radius: var(--landing-radius, 16px);
+  border: 1px solid var(--color-chrome-border);
+  background: var(--color-surface, #fff);
+  box-shadow: var(--shadow-soft);
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-brand-teal);
+}
+
+.title {
+  margin: 0 0 0.65rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.body {
+  margin: 0 0 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-ink-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primaryAction {
+  background: var(--color-brand-teal);
+  color: var(--color-on-accent);
+  border: 1px solid transparent;
+}
+
+.secondaryAction {
+  background: transparent;
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-chrome-border);
+}
+
+.primaryAction:hover {
+  filter: brightness(1.05);
+}
+
+.secondaryAction:hover {
+  border-color: color-mix(in srgb, var(--color-brand-teal) 35%, var(--color-chrome-border));
+  color: var(--color-ink);
+}

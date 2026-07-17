@@ -5,37 +5,56 @@ import { pickRandomNoun } from "../../../constants/coachLevels";
 import { ApiError } from "../../../lib/apiClient";
 import {
   evaluateNounFamilies,
-  isCoachAvailable,
+  generateCollocationTopicExamples,
   recordLevelSession,
 } from "../../../lib/coachClient";
-import type { CollocationEvaluateResult } from "../../../types/coach";
+import type { CollocationEvaluateResult, CollocationTopicExamples } from "../../../types/coach";
 import { CoachCollocationResults } from "../CoachCollocationResults";
+import { CoachCollocationTopicExamples } from "../CoachCollocationTopicExamples";
 import shared from "../CoachShared.module.css";
 
 interface NounFamiliesLevelProps {
   onProgressUpdate: () => void;
 }
 
+function parseCollocations(input: string): string[] {
+  return input
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 export function NounFamiliesLevel({ onProgressUpdate }: NounFamiliesLevelProps) {
   const [noun, setNoun] = useState(pickRandomNoun);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [examplesLoading, setExamplesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CollocationEvaluateResult | null>(null);
+  const [topicExamples, setTopicExamples] = useState<CollocationTopicExamples[] | null>(null);
+
+  const answers = parseCollocations(input);
+
+  const loadTopicExamples = useCallback(
+    async (collocations: string[]) => {
+      setExamplesLoading(true);
+      setError(null);
+
+      try {
+        const examples = await generateCollocationTopicExamples(noun, "noun", collocations);
+        setTopicExamples(examples);
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : "Could not load essay examples.");
+      } finally {
+        setExamplesLoading(false);
+      }
+    },
+    [noun],
+  );
 
   const handleEvaluate = useCallback(async () => {
-    const answers = input
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-
     if (answers.length === 0) {
       setError("Enter at least one verb collocation — one per line.");
-      return;
-    }
-
-    if (!isCoachAvailable()) {
-      setError("AI coach is not configured. Connect InsForge or set GROQ API key.");
       return;
     }
 
@@ -45,6 +64,7 @@ export function NounFamiliesLevel({ onProgressUpdate }: NounFamiliesLevelProps) 
     try {
       const evaluation = await evaluateNounFamilies(noun, answers);
       setResult(evaluation);
+      setTopicExamples(evaluation.topicExamples ?? null);
       const accuracy = evaluation.totalCount
         ? Math.round((evaluation.correctCount / evaluation.totalCount) * 100)
         : 0;
@@ -58,12 +78,22 @@ export function NounFamiliesLevel({ onProgressUpdate }: NounFamiliesLevelProps) 
     } finally {
       setLoading(false);
     }
-  }, [input, noun, onProgressUpdate]);
+  }, [answers, noun, onProgressUpdate]);
+
+  const handleShowExamples = useCallback(async () => {
+    if (answers.length === 0) {
+      setError("Enter at least one verb collocation — one per line.");
+      return;
+    }
+
+    await loadTopicExamples(answers);
+  }, [answers, loadTopicExamples]);
 
   const handleNewNoun = useCallback(() => {
     setNoun(pickRandomNoun());
     setInput("");
     setResult(null);
+    setTopicExamples(null);
     setError(null);
   }, []);
 
@@ -71,7 +101,8 @@ export function NounFamiliesLevel({ onProgressUpdate }: NounFamiliesLevelProps) 
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--enterprise-section-gap)" }}>
       <div className={shared.card}>
         <p className={shared.sectionHint}>
-          Write every verb collocation you know for this noun — one per line.
+          Write verb collocations for this noun — one per line. Then check them or view essay-topic
+          example sentences.
         </p>
         <p className={shared.anchorWord}>{noun}</p>
         <label className={shared.label} htmlFor="noun-family-input">
@@ -83,7 +114,7 @@ export function NounFamiliesLevel({ onProgressUpdate }: NounFamiliesLevelProps) 
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={`improve ${noun.toLowerCase()}\nincrease ${noun.toLowerCase()}\nboost ${noun.toLowerCase()}`}
-          disabled={loading}
+          disabled={loading || examplesLoading}
           rows={6}
         />
         {error && (
@@ -96,22 +127,36 @@ export function NounFamiliesLevel({ onProgressUpdate }: NounFamiliesLevelProps) 
             type="button"
             className={shared.primaryButton}
             onClick={() => void handleEvaluate()}
-            disabled={loading}
+            disabled={loading || examplesLoading}
           >
             {loading ? "Evaluating…" : "Check answers"}
           </button>
-          <button type="button" className={shared.secondaryButton} onClick={handleNewNoun} disabled={loading}>
+          <button
+            type="button"
+            className={shared.secondaryButton}
+            onClick={() => void handleShowExamples()}
+            disabled={loading || examplesLoading}
+          >
+            {examplesLoading ? "Loading examples…" : "Essay examples"}
+          </button>
+          <button
+            type="button"
+            className={shared.secondaryButton}
+            onClick={handleNewNoun}
+            disabled={loading || examplesLoading}
+          >
             New noun
           </button>
         </div>
-        {loading && (
+        {(loading || examplesLoading) && (
           <div className={shared.loadingRow} aria-live="polite">
             <span className={shared.spinner} aria-hidden="true" />
-            AI is scoring your noun family…
+            {loading ? "AI is scoring your noun family…" : "AI is building essay-topic sentences…"}
           </div>
         )}
       </div>
 
+      {topicExamples && <CoachCollocationTopicExamples topicExamples={topicExamples} />}
       {result && <CoachCollocationResults result={result} />}
     </div>
   );

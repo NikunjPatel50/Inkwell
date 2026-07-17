@@ -1,0 +1,164 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.modeLabel {
+  margin: 0.25rem 0 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-brand-teal);
+}
+
+.totalScore {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-sm);
+  background: rgba(26, 158, 150, 0.1);
+  border: 1px solid rgba(26, 158, 150, 0.2);
+}
+
+.totalValue {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-brand-teal);
+  font-variant-numeric: tabular-nums;
+}
+
+.totalMax {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+}
+
+.cascadeNote {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(200, 72, 72, 0.22);
+  background: rgba(200, 72, 72, 0.08);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #a33;
+}
+
+.traitGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.traitCard {
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+  border-left-width: 4px;
+}
+
+.traitStrong {
+  border-left-color: var(--color-sage, #5a8a7a);
+}
+
+.traitMid {
+  border-left-color: #d4a853;
+}
+
+.traitWeak {
+  border-left-color: var(--color-terracotta, #c84848);
+}
+
+.traitHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.traitName {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.35;
+}
+
+.traitScore {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-brand-teal);
+  font-variant-numeric: tabular-nums;
+}
+
+.traitFeedback {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+.fixesSection {
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.fixesTitle {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.fixesList {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.fixItem {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+.improveSection {
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}

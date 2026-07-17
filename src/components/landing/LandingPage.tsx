@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { AppBrand } from "../AppBrand";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "../../lib/site";
-import { MARKETING_NAV } from "../../lib/seo/publicRoutes";
+import { MARKETING_NAV, PRICING_NAV } from "../../lib/seo/publicRoutes";
 import { MARKETING_TESTIMONIALS } from "../../lib/seo/testimonials";
+import { PricingSection } from "../marketing/PricingSection";
 import { MarketingBodyClass } from "./MarketingBodyClass";
 import { HeroWorkspace } from "./HeroWorkspace";
 import styles from "./LandingPage.module.css";
@@ -161,6 +162,9 @@ export function LandingPage() {
               {item.label}
             </Link>
           ))}
+          <Link href="#pricing" className={styles.navLink}>
+            {PRICING_NAV.label}
+          </Link>
         </nav>
         <div className={styles.headerActions}>
           <Link href="/login" className={styles.navLink}>
@@ -280,6 +284,8 @@ export function LandingPage() {
           </div>
         </section>
 
+        <PricingSection id="pricing" variant="landing" showFaq />
+
         <section id="how-it-works" className={styles.audienceSection} aria-labelledby="audience-heading">
           <div className={styles.sectionIntro}>
             <h2 id="audience-heading" className={styles.sectionTitle}>
@@ -344,6 +350,9 @@ export function LandingPage() {
                   {item.label}
                 </Link>
               ))}
+              <Link href="#pricing" className={styles.footerLink}>
+                {PRICING_NAV.label}
+              </Link>
             </div>
           </div>
           <div>

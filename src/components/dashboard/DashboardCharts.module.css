@@ -188,3 +188,72 @@
   color: var(--color-ink-muted);
   text-align: center;
 }
+
+.targetBand65 {
+  fill: rgba(212, 168, 83, 0.12);
+}
+
+.targetBand79 {
+  fill: rgba(26, 158, 150, 0.1);
+}
+
+.traitBars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.traitBarRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.traitBarLabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.traitBarLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.traitBarScore {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-brand-teal);
+  font-variant-numeric: tabular-nums;
+}
+
+.traitBarTrack {
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--color-workspace-bg);
+  border: 1px solid var(--color-chrome-border);
+  overflow: hidden;
+}
+
+.traitBarFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 400ms ease;
+}
+
+.traitBarStrong {
+  background: var(--color-sage, #5a8a7a);
+}
+
+.traitBarMid {
+  background: #d4a853;
+}
+
+.traitBarWeak {
+  background: var(--color-terracotta, #c84848);
+}

@@ -66,7 +66,6 @@ export type AppTab =
   | "vocabulary"
   | "write"
   | "coach"
-  | "creative"
   | "history";
 
 export const APP_TABS: { id: AppTab; label: string; description: string }[] = [
@@ -76,7 +75,6 @@ export const APP_TABS: { id: AppTab; label: string; description: string }[] = [
   { id: "vocabulary", label: "Vocabulary", description: "Words learned through real sentences" },
   { id: "write", label: "Write", description: "Analyse drafts with grammar feedback and rewrites" },
   { id: "coach", label: "AI Writing Coach", description: "Learn how to write with guided coaching levels" },
-  { id: "creative", label: "Creative", description: "Writing games and expressive rewrites" },
   { id: "history", label: "History", description: "Session history and progress tracking" },
 ];
 

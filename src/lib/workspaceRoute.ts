@@ -1,7 +1,9 @@
 import type { AppTab } from "../types";
 import { APP_TABS } from "../types";
+import { isWritingMode, type WritingMode } from "../types/writingMode";
 
 const TAB_PARAM = "tab";
+const WRITE_MODE_PARAM = "writeMode";
 const GRAMMAR_TOPIC_PARAM = "topic";
 const VOCABULARY_WORD_PARAM = "word";
 const VOCABULARY_COLLECTION_PARAM = "collection";
@@ -19,6 +21,7 @@ export function readWorkspaceRoute(): {
   vocabularyWordId: string | null;
   vocabularyCollectionId: string | null;
   learnSkillId: string | null;
+  writeMode: WritingMode;
 } {
   if (typeof window === "undefined") {
     return {
@@ -27,12 +30,14 @@ export function readWorkspaceRoute(): {
       vocabularyWordId: null,
       vocabularyCollectionId: null,
       learnSkillId: null,
+      writeMode: "general",
     };
   }
 
   const params = new URLSearchParams(window.location.search);
   const tabParam = params.get(TAB_PARAM);
   const tab = isAppTab(tabParam) ? tabParam : "dashboard";
+  const writeModeParam = params.get(WRITE_MODE_PARAM);
 
   return {
     tab,
@@ -40,6 +45,7 @@ export function readWorkspaceRoute(): {
     vocabularyWordId: params.get(VOCABULARY_WORD_PARAM),
     vocabularyCollectionId: params.get(VOCABULARY_COLLECTION_PARAM),
     learnSkillId: params.get(LEARN_SKILL_PARAM),
+    writeMode: isWritingMode(writeModeParam) ? writeModeParam : "general",
   };
 }
 
@@ -49,6 +55,7 @@ export function writeWorkspaceRoute(options: {
   vocabularyWordId?: string | null;
   vocabularyCollectionId?: string | null;
   learnSkillId?: string | null;
+  writeMode?: WritingMode;
 }): void {
   if (typeof window === "undefined") return;
 
@@ -80,6 +87,11 @@ export function writeWorkspaceRoute(options: {
   if (options.learnSkillId !== undefined) {
     if (options.learnSkillId) params.set(LEARN_SKILL_PARAM, options.learnSkillId);
     else params.delete(LEARN_SKILL_PARAM);
+  }
+
+  if (options.writeMode !== undefined) {
+    if (options.writeMode === "general") params.delete(WRITE_MODE_PARAM);
+    else params.set(WRITE_MODE_PARAM, options.writeMode);
   }
 
   const next = `${url.pathname}${params.toString() ? `?${params.toString()}` : ""}`;

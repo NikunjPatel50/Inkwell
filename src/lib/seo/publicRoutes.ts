@@ -10,6 +10,10 @@ export const MARKETING_NAV = [
   { label: "Creative", href: "/creative" },
 ] as const;
 
+export const PRICING_NAV = { label: "Pricing", href: "/pricing" } as const;
+
+export const MARKETING_HEADER_NAV = [...MARKETING_NAV, PRICING_NAV] as const;
+
 export const STATIC_MARKETING_PATHS = [
   "/",
   "/learn",
@@ -18,6 +22,7 @@ export const STATIC_MARKETING_PATHS = [
   "/write",
   "/coach",
   "/creative",
+  "/pricing",
   "/ielts-writing-practice",
   "/pte-writing-practice",
 ] as const;

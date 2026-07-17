@@ -16,6 +16,16 @@ import {
   generateSpotTheErrorExercise,
 } from "./learnClient";
 import * as grammarGroq from "./grammarGroq";
+import {
+  buildLocalFillBlankExercise,
+  buildLocalIdentifyItExercise,
+  buildLocalTransformItExercise,
+  checkFillBlankLocally,
+  checkTransformItLocally,
+  isValidFillBlankExercise,
+  isValidIdentifyItExercise,
+  isValidTransformItExercise,
+} from "./grammarExercises";
 import { GroqApiError, isGroqConfigured } from "./groqClient";
 
 function extractErrorMessage(error: unknown): string {
@@ -102,16 +112,50 @@ function completeCheckToTransform(result: {
   };
 }
 
+function isDedicatedResponseValid(
+  action: string | undefined,
+  data: unknown,
+): boolean {
+  switch (action) {
+    case "generate-identify-it":
+      return isValidIdentifyItExercise(data);
+    case "generate-fill-blank":
+      return isValidFillBlankExercise(data);
+    case "generate-transform-it":
+      return isValidTransformItExercise(data);
+    default:
+      return data != null;
+  }
+}
+
 async function tryDedicatedGrammar<T>(body: Record<string, unknown>): Promise<T | null> {
   if (!isInsforgeConfigured()) return null;
 
   const { data, error } = await insforge.functions.invoke("grammar-learning", { body });
   if (error) {
     const message = extractErrorMessage(error).toLowerCase();
-    if (message.includes("not found") || message.includes("404")) return null;
-    throw new ApiError(extractErrorMessage(error));
+    if (
+      message.includes("not found") ||
+      message.includes("404") ||
+      message.includes("unknown action") ||
+      message.includes("action and topic are required")
+    ) {
+      return null;
+    }
+    return null;
   }
-  assertNoPayloadError(data);
+  if (data == null) return null;
+
+  try {
+    assertNoPayloadError(data);
+  } catch {
+    return null;
+  }
+
+  if (!isDedicatedResponseValid(body.action as string | undefined, data)) {
+    return null;
+  }
+
   return data as T;
 }
 
@@ -119,9 +163,10 @@ async function withGrammarFallback<T>(
   dedicatedBody: Record<string, unknown>,
   viaLearn: () => Promise<T>,
   viaGroq: () => Promise<T>,
+  viaLocal: () => T,
 ): Promise<T> {
   const dedicated = await tryDedicatedGrammar<T>(dedicatedBody);
-  if (dedicated !== null) return dedicated;
+  if (dedicated != null) return dedicated;
 
   if (isInsforgeConfigured()) {
     try {
@@ -131,18 +176,26 @@ async function withGrammarFallback<T>(
         try {
           return await viaGroq();
         } catch {
-          throw err;
+          return viaLocal();
         }
       }
-      throw err;
+      return viaLocal();
     }
   }
 
-  return viaGroq();
+  if (isGroqConfigured()) {
+    try {
+      return await viaGroq();
+    } catch {
+      return viaLocal();
+    }
+  }
+
+  return viaLocal();
 }
 
 export function isGrammarLearningAvailable(): boolean {
-  return isInsforgeConfigured() || isGroqConfigured();
+  return true;
 }
 
 export async function generateIdentifyItExercise(
@@ -159,9 +212,14 @@ export async function generateIdentifyItExercise(
         ),
         seed,
       );
-      return spotToIdentify(spot, topic);
+      const exercise = spotToIdentify(spot, topic);
+      if (!isValidIdentifyItExercise(exercise)) {
+        throw new ApiError("Invalid exercise data.");
+      }
+      return exercise;
     },
     () => grammarGroq.generateIdentifyItExercise(topic, seed),
+    () => buildLocalIdentifyItExercise(topic, seed),
   ).catch((err) => {
     throw toApiError(err);
   });
@@ -173,12 +231,18 @@ export async function generateFillBlankExercise(
 ): Promise<FillBlankExercise> {
   return withGrammarFallback(
     { action: "generate-fill-blank", topic: topicInput(topic), seed },
-    () =>
-      generateCompleteItExercise(
+    async () => {
+      const exercise = await generateCompleteItExercise(
         topicAsSkill(topic, `Fill-in-the-blank exercise for ${topic.name}.`),
         seed,
-      ),
+      );
+      if (!isValidFillBlankExercise(exercise)) {
+        throw new ApiError("Invalid exercise data.");
+      }
+      return exercise;
+    },
     () => grammarGroq.generateFillBlankExercise(topic, seed),
+    () => buildLocalFillBlankExercise(topic, seed),
   ).catch((err) => {
     throw toApiError(err);
   });
@@ -196,6 +260,7 @@ export async function checkFillBlank(
       return completeCheckToFillBlank(result);
     },
     () => grammarGroq.checkFillBlank(topic, stem, answer),
+    () => checkFillBlankLocally(topic, stem, answer),
   ).catch((err) => {
     throw toApiError(err);
   });
@@ -215,13 +280,18 @@ export async function generateTransformItExercise(
         ),
         seed,
       );
-      return {
+      const exercise = {
         originalSentence: spot.sentence,
         prompt: `Rewrite this sentence correctly, applying: ${topic.keyRule}`,
         modelAnswer: spot.correction,
       };
+      if (!isValidTransformItExercise(exercise)) {
+        throw new ApiError("Invalid exercise data.");
+      }
+      return exercise;
     },
     () => grammarGroq.generateTransformItExercise(topic, seed),
+    () => buildLocalTransformItExercise(topic, seed),
   ).catch((err) => {
     throw toApiError(err);
   });
@@ -248,6 +318,7 @@ export async function checkTransformIt(
       return completeCheckToTransform(result);
     },
     () => grammarGroq.checkTransformIt(topic, originalSentence, userRewrite),
+    () => checkTransformItLocally(topic, originalSentence, userRewrite),
   ).catch((err) => {
     throw toApiError(err);
   });

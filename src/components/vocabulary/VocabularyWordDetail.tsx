@@ -13,7 +13,7 @@ import {
 import { ApiError } from "../../lib/apiClient";
 import { markVocabularyWordComplete } from "../../lib/learningProgress";
 import type { PickMeaningExercise, UseItExercise } from "../../types";
-import { HighlightedSentence } from "../learning/HighlightedSentence";
+import { HighlightedSentence, exampleHasRenderableHighlights } from "../learning/HighlightedSentence";
 import { KeyRuleQuote } from "../learning/KeyRuleQuote";
 import styles from "../learning/LearningTab.module.css";
 import exerciseStyles from "../exercises/ExerciseShared.module.css";
@@ -171,7 +171,7 @@ export function VocabularyWordDetail({ wordId }: VocabularyWordDetailProps) {
       <section className={styles.section}>
         <h3 className={styles.sectionHeading}>See it in action</h3>
         <div className={styles.exampleList}>
-          {word.examples.map((example, i) => (
+          {word.examples.filter(exampleHasRenderableHighlights).map((example, i) => (
             <HighlightedSentence key={i} example={example} />
           ))}
         </div>

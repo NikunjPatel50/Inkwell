@@ -10,9 +10,20 @@ export type CoachLevelId =
 export type CoachEvaluateMode =
   | "collocation-builder"
   | "noun-families"
+  | "collocation-topic-examples"
   | "step-feedback"
   | "combine-paragraph"
   | "essay-coach";
+
+export interface CollocationTopicSentence {
+  collocation: string;
+  sentence: string;
+}
+
+export interface CollocationTopicExamples {
+  topic: string;
+  sentences: CollocationTopicSentence[];
+}
 
 export interface CollocationAnswerResult {
   phrase: string;
@@ -26,6 +37,7 @@ export interface CollocationEvaluateResult {
   totalCount: number;
   missingCollocations: string[];
   teachingSummary: string;
+  topicExamples?: CollocationTopicExamples[];
 }
 
 export interface StepFeedbackResult {

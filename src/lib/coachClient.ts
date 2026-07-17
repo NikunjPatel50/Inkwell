@@ -3,12 +3,24 @@ import type {
   CoachLevelId,
   CoachProgressState,
   CollocationEvaluateResult,
+  CollocationTopicExamples,
   CombineParagraphResult,
   EssayCoachResult,
   StepFeedbackResult,
 } from "../types/coach";
 import { ApiError } from "./apiClient";
+import {
+  recordCoachCollocationErrors,
+  recordCoachEssayErrors,
+  recordCoachStepFeedbackError,
+} from "./coachErrorTracking";
 import * as groqClient from "./groqClient";
+import {
+  buildCollocationTopicExamplesLocally,
+  evaluateCollocationsLocally,
+  isValidCollocationResult,
+  isValidCollocationTopicExamples,
+} from "./localCoach";
 import { insforge, isInsforgeConfigured } from "./insforge";
 
 const STORAGE_KEY = "wrytesmart_coach_progress";
@@ -31,17 +43,44 @@ function assertNoPayloadError(data: unknown): void {
   }
 }
 
-async function invokeCoach<T>(body: Record<string, unknown>): Promise<T> {
+async function tryInvokeCoach<T>(body: Record<string, unknown>): Promise<T | null> {
+  if (!isInsforgeConfigured()) return null;
+
   const { data, error } = await insforge.functions.invoke("coach-evaluate", { body });
-  if (error) {
-    const message = extractErrorMessage(error);
-    if (message.toLowerCase().includes("not found") && groqClient.isGroqConfigured()) {
-      throw new ApiError("COACH_FALLBACK");
-    }
-    throw new ApiError(message);
+  if (error) return null;
+  if (data == null) return null;
+
+  try {
+    assertNoPayloadError(data);
+  } catch {
+    return null;
   }
-  assertNoPayloadError(data);
+
   return data as T;
+}
+
+async function withCoachFallback<T>(
+  body: Record<string, unknown>,
+  fallback: () => Promise<T>,
+  local?: () => T,
+  validate?: (value: unknown) => value is T,
+): Promise<T> {
+  const dedicated = await tryInvokeCoach<T>(body);
+  if (dedicated != null && (!validate || validate(dedicated))) {
+    return dedicated;
+  }
+
+  if (groqClient.isGroqConfigured()) {
+    try {
+      return await fallback();
+    } catch {
+      if (local) return local();
+      throw new ApiError("Coach evaluation failed. Try again.");
+    }
+  }
+
+  if (local) return local();
+  throw new ApiError("Coach evaluation is not configured. Connect InsForge or set GROQ API key.");
 }
 
 function emptyProgress(): CoachProgressState {
@@ -137,51 +176,89 @@ export function saveLevelDraft(
 }
 
 export function isCoachAvailable(): boolean {
-  return isInsforgeConfigured() || groqClient.isGroqConfigured();
-}
-
-async function withCoachFallback<T>(
-  body: Record<string, unknown>,
-  fallback: () => Promise<T>,
-): Promise<T> {
-  if (isInsforgeConfigured()) {
-    try {
-      return await invokeCoach<T>(body);
-    } catch (err) {
-      if (err instanceof ApiError && err.message === "COACH_FALLBACK") {
-        return fallback();
-      }
-      if (groqClient.isGroqConfigured()) {
-        try {
-          return await fallback();
-        } catch {
-          throw err;
-        }
-      }
-      throw err;
-    }
-  }
-  return fallback();
+  return true;
 }
 
 export async function evaluateCollocationBuilder(
   verb: string,
   answers: string[],
 ): Promise<CollocationEvaluateResult> {
-  return withCoachFallback<CollocationEvaluateResult>(
+  const evaluation = await withCoachFallback<CollocationEvaluateResult>(
     { mode: "collocation-builder", anchor: verb, answers },
     () => groqClient.evaluateCollocations(verb, "verb", answers),
+    () => evaluateCollocationsLocally(verb, "verb", answers),
+    isValidCollocationResult,
   );
+
+  void recordCoachCollocationErrors(evaluation);
+
+  return ensureTopicExamples(evaluation, verb, "verb", answers);
 }
 
 export async function evaluateNounFamilies(
   noun: string,
   answers: string[],
 ): Promise<CollocationEvaluateResult> {
-  return withCoachFallback<CollocationEvaluateResult>(
+  const evaluation = await withCoachFallback<CollocationEvaluateResult>(
     { mode: "noun-families", anchor: noun, answers },
     () => groqClient.evaluateCollocations(noun, "noun", answers),
+    () => evaluateCollocationsLocally(noun, "noun", answers),
+    isValidCollocationResult,
   );
+
+  void recordCoachCollocationErrors(evaluation);
+
+  return ensureTopicExamples(evaluation, noun, "noun", answers);
+}
+
+async function ensureTopicExamples(
+  evaluation: CollocationEvaluateResult,
+  anchor: string,
+  anchorType: "verb" | "noun",
+  answers: string[],
+): Promise<CollocationEvaluateResult> {
+  if (evaluation.topicExamples?.length) return evaluation;
+
+  const collocations = [...answers, ...evaluation.missingCollocations];
+  const generated = await generateCollocationTopicExamples(anchor, anchorType, collocations);
+  return { ...evaluation, topicExamples: generated };
+}
+
+export async function generateCollocationTopicExamples(
+  anchor: string,
+  anchorType: "verb" | "noun",
+  collocations: string[],
+): Promise<CollocationTopicExamples[]> {
+  const trimmed = collocations.map((entry) => entry.trim()).filter(Boolean);
+  if (trimmed.length === 0) return [];
+
+  const dedicated = await tryInvokeCoach<{ topicExamples?: CollocationTopicExamples[] }>({
+    mode: "collocation-topic-examples",
+    anchor,
+    anchorType,
+    collocations: trimmed,
+  });
+
+  if (dedicated?.topicExamples && isValidCollocationTopicExamples(dedicated.topicExamples)) {
+    return dedicated.topicExamples;
+  }
+
+  if (groqClient.isGroqConfigured()) {
+    try {
+      const examples = await groqClient.generateCollocationTopicExamples(
+        anchor,
+        anchorType,
+        trimmed,
+      );
+      if (isValidCollocationTopicExamples(examples) && examples.length > 0) {
+        return examples;
+      }
+    } catch {
+      // Fall through to local templates.
+    }
+  }
+
+  return buildCollocationTopicExamplesLocally(trimmed);
 }
 
 export async function getStepFeedback(
@@ -190,10 +267,13 @@ export async function getStepFeedback(
   answer: string,
   context?: string,
 ): Promise<StepFeedbackResult> {
-  return withCoachFallback<StepFeedbackResult>(
+  const result = await withCoachFallback<StepFeedbackResult>(
     { mode: "step-feedback", stepLabel, question, answer, context },
     () => groqClient.evaluateCoachStep(stepLabel, question, answer, context),
   );
+
+  void recordCoachStepFeedbackError(stepLabel, question, answer, result);
+  return result;
 }
 
 export async function combineCoachParagraph(
@@ -209,8 +289,11 @@ export async function evaluateCoachEssay(
   essay: string,
   prompt?: string,
 ): Promise<EssayCoachResult> {
-  return withCoachFallback<EssayCoachResult>(
+  const result = await withCoachFallback<EssayCoachResult>(
     { mode: "essay-coach", essay, prompt },
     () => groqClient.evaluateCoachEssay(essay, prompt),
   );
+
+  void recordCoachEssayErrors(result, essay);
+  return result;
 }

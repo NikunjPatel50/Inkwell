@@ -20,8 +20,30 @@ export function searchWordSuggestions(query: string, limit = 4): string[] {
   return [...startsWith, ...contains].slice(0, limit);
 }
 
-export function isKnownWord(word: string): boolean {
-  return UNIQUE_WORDS.includes(normalizeWord(word));
+export function mergeWordSuggestions(
+  local: string[],
+  ai: string[],
+  limit = 6,
+): string[] {
+  const seen = new Set<string>();
+  const merged: string[] = [];
+
+  for (const entry of [...local, ...ai]) {
+    const trimmed = entry.trim();
+    if (!trimmed) continue;
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(trimmed);
+    if (merged.length >= limit) break;
+  }
+
+  return merged;
+}
+
+export function isSearchableQuery(query: string): boolean {
+  const trimmed = query.trim();
+  return trimmed.length >= 2 && /[\p{L}]/u.test(trimmed);
 }
 
 function normalizeWord(word: string): string {

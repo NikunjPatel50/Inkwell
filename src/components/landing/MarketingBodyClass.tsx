@@ -12,7 +12,6 @@ const APP_ROUTES = [
   "/app?tab=vocabulary",
   "/app?tab=write",
   "/app?tab=coach",
-  "/app?tab=creative",
 ];
 
 export function MarketingBodyClass() {

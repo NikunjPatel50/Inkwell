@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { AppBrand } from "@/components/AppBrand";
 import { MarketingBodyClass } from "@/components/landing/MarketingBodyClass";
-import { MARKETING_NAV } from "@/lib/seo/publicRoutes";
+import { MARKETING_HEADER_NAV } from "@/lib/seo/publicRoutes";
 import styles from "./MarketingPage.module.css";
 
 interface MarketingShellProps {
@@ -17,7 +17,7 @@ export function MarketingShell({ children, breadcrumbs }: MarketingShellProps) {
       <header className={styles.header}>
         <AppBrand size="header" href="/" />
         <nav className={styles.nav} aria-label="Features">
-          {MARKETING_NAV.map((item) => (
+          {MARKETING_HEADER_NAV.map((item) => (
             <Link key={item.href} href={item.href} className={styles.navLink}>
               {item.label}
             </Link>
@@ -61,7 +61,7 @@ export function MarketingShell({ children, breadcrumbs }: MarketingShellProps) {
           <div>
             <p className={styles.footerHeading}>Features</p>
             <div className={styles.footerLinks}>
-              {MARKETING_NAV.map((item) => (
+              {MARKETING_HEADER_NAV.map((item) => (
                 <Link key={item.href} href={item.href} className={styles.footerLink}>
                   {item.label}
                 </Link>

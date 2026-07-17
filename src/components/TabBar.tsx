@@ -72,17 +72,6 @@ function TabIcon({ tab }: { tab: AppTab }) {
           <path d="M8 11.5h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
         </svg>
       );
-    case "creative":
-      return (
-        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={styles.icon}>
-          <path
-            d="M10 3.5 11.4 8.6 16.5 10 11.4 11.4 10 16.5 8.6 11.4 3.5 10 8.6 8.6 10 3.5Z"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
     case "history":
       return (
         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className={styles.icon}>

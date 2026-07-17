@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { WORD_COLLECTIONS } from "../../constants/wordCollections";
 import { getWordOfTheDay } from "../../constants/wordOfTheDay";
 import { addRecentWord, readRecentWords } from "../../lib/vocabularyLookup";
-import { searchWordSuggestions } from "../../lib/vocabularySearch";
+import { searchWordSuggestionsAsync } from "../../lib/vocabularyClient";
+import { isSearchableQuery, searchWordSuggestions } from "../../lib/vocabularySearch";
 import styles from "../learning/LearningTab.module.css";
 
 interface VocabHubProps {
@@ -16,19 +17,63 @@ export function VocabHub({ onSelectWord, onSelectCollection }: VocabHubProps) {
   const wordOfDay = useMemo(() => getWordOfTheDay(), []);
   const [query, setQuery] = useState("");
   const [recent, setRecent] = useState<string[]>([]);
-  const suggestions = useMemo(() => searchWordSuggestions(query), [query]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+
+  const trimmedQuery = query.trim();
+  const showSuggestions = isSearchableQuery(query);
+  const localSuggestions = useMemo(
+    () => (showSuggestions ? searchWordSuggestions(trimmedQuery) : []),
+    [showSuggestions, trimmedQuery],
+  );
 
   useEffect(() => {
     setRecent(readRecentWords());
   }, []);
 
+  useEffect(() => {
+    if (!showSuggestions) {
+      setSuggestions([]);
+      setSuggestionsLoading(false);
+      return;
+    }
+
+    setSuggestions(localSuggestions);
+
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      setSuggestionsLoading(true);
+
+      void searchWordSuggestionsAsync(trimmedQuery)
+        .then((results) => {
+          if (!cancelled) setSuggestions(results);
+        })
+        .catch(() => {
+          if (!cancelled) setSuggestions(localSuggestions);
+        })
+        .finally(() => {
+          if (!cancelled) setSuggestionsLoading(false);
+        });
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [showSuggestions, trimmedQuery, localSuggestions]);
+
   const submitWord = (word: string) => {
-    const trimmed = word.trim();
-    if (!trimmed) return;
+    const next = word.trim();
+    if (!next) return;
     setQuery("");
-    setRecent(addRecentWord(trimmed));
-    onSelectWord(trimmed);
+    setSuggestions([]);
+    setRecent(addRecentWord(next));
+    onSelectWord(next);
   };
+
+  const dropdownSuggestions = suggestions.filter(
+    (word) => word.toLowerCase() !== trimmedQuery.toLowerCase(),
+  );
 
   return (
     <div className={styles.overview}>
@@ -49,14 +94,26 @@ export function VocabHub({ onSelectWord, onSelectCollection }: VocabHubProps) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Enter") submitWord(query);
+            if (event.key === "Enter" && trimmedQuery) submitWord(trimmedQuery);
           }}
-          placeholder="Search any English word…"
+          placeholder="Search any word — AI-powered lookup"
           autoComplete="off"
+          spellCheck={false}
         />
-        {query.trim() && suggestions.length > 0 && (
+        {showSuggestions && (
           <div className={styles.suggestions} role="listbox" aria-label="Word suggestions">
-            {suggestions.map((word) => (
+            <button
+              type="button"
+              className={`${styles.suggestionItem} ${styles.suggestionPrimary}`}
+              role="option"
+              onClick={() => submitWord(trimmedQuery)}
+            >
+              Look up &ldquo;{trimmedQuery}&rdquo;
+            </button>
+            {suggestionsLoading && dropdownSuggestions.length === 0 && (
+              <p className={styles.suggestionLoading}>Finding words…</p>
+            )}
+            {dropdownSuggestions.map((word) => (
               <button
                 key={word}
                 type="button"
@@ -97,7 +154,7 @@ export function VocabHub({ onSelectWord, onSelectCollection }: VocabHubProps) {
               <p className={styles.collectionMeta}>{collection.words.length} words</p>
               <button
                 type="button"
-                className={styles.optionButton}
+                className={styles.collectionExplore}
                 onClick={() => onSelectCollection(collection.id)}
               >
                 Explore

@@ -1,5 +1,13 @@
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+const COLLOCATION_ESSAY_TOPICS = [
+  "Education",
+  "Technology",
+  "Environment",
+  "Health",
+  "Working From Home",
+  "Social Media",
+];
 
 export class GroqServiceError extends Error {
   constructor(message: string) {
@@ -53,6 +61,24 @@ async function callGroq(systemPrompt: string, userContent: string): Promise<stri
   return content;
 }
 
+export async function generateCollocationTopicExamples(
+  anchor: string,
+  anchorType: "verb" | "noun",
+  collocations: string[],
+): Promise<Record<string, unknown>> {
+  const systemPrompt = `You are an expert PTE/IELTS writing coach.
+Anchor ${anchorType}: "${anchor}".
+For each essay topic, write 2 academic sentences that naturally use different collocations from the list.
+Topics: ${COLLOCATION_ESSAY_TOPICS.join(", ")}.
+Return ONLY valid JSON:
+{"topicExamples":[{"topic":string,"sentences":[{"collocation":string,"sentence":string}]}]}
+Each sentence must contain the collocation phrase exactly. Use formal PTE/IELTS essay style.`;
+
+  const userContent = JSON.stringify({ anchor, anchorType, collocations });
+  const raw = await callGroq(systemPrompt, userContent);
+  return JSON.parse(extractJsonPayload(raw)) as Record<string, unknown>;
+}
+
 export async function evaluateCollocations(
   anchor: string,
   anchorType: "verb" | "noun",
@@ -65,14 +91,16 @@ Evaluate student collocation attempts. Return ONLY valid JSON:
   "correctCount": number,
   "totalCount": number,
   "missingCollocations": [string],
-  "teachingSummary": string
+  "teachingSummary": string,
+  "topicExamples": [{ "topic": string, "sentences": [{ "collocation": string, "sentence": string }] }]
 }
 Rules:
 - ${anchorType === "verb" ? `Anchor VERB: "${anchor}". Accept natural verb+noun collocations like "${anchor} productivity".` : `Anchor NOUN: "${anchor}". Accept natural verb+noun collocations like "improve ${anchor.toLowerCase()}".`}
 - Mark correct only if the collocation is natural in academic English.
 - For incorrect answers, explain WHY it sounds unnatural in one short sentence.
 - missingCollocations: list 5-8 common collocations the student did NOT mention.
-- teachingSummary: 1-2 encouraging sentences about patterns learned.`;
+- teachingSummary: 1-2 encouraging sentences about patterns learned.
+- topicExamples: for topics ${COLLOCATION_ESSAY_TOPICS.join(", ")}, write 2 essay sentences each using collocations from the student's answers plus missingCollocations.`;
 
   const userContent = JSON.stringify({ anchor, anchorType, answers });
   const raw = await callGroq(systemPrompt, userContent);

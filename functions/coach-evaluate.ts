@@ -4,6 +4,7 @@ import {
   evaluateCollocations,
   evaluateEssay,
   evaluateStepFeedback,
+  generateCollocationTopicExamples,
   GroqServiceError,
 } from "./_shared/coach.ts";
 
@@ -44,6 +45,18 @@ export default async function handler(req: Request): Promise<Response> {
         }
         const anchorType = mode === "collocation-builder" ? "verb" : "noun";
         const result = await evaluateCollocations(anchor, anchorType, answers);
+        return jsonResponse(result);
+      }
+      case "collocation-topic-examples": {
+        const anchor = body.anchor?.trim() ?? "";
+        const collocations = Array.isArray(body.collocations)
+          ? body.collocations.map((entry) => String(entry).trim()).filter(Boolean)
+          : [];
+        const anchorType = body.anchorType === "noun" ? "noun" : "verb";
+        if (!anchor || collocations.length === 0) {
+          return jsonResponse({ error: "Anchor and collocations are required." }, 400);
+        }
+        const result = await generateCollocationTopicExamples(anchor, anchorType, collocations);
         return jsonResponse(result);
       }
       case "step-feedback": {

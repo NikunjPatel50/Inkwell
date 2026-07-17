@@ -5,7 +5,6 @@ import {
   checkWordUsage,
   generateWordDetail,
   generateWordPractice,
-  isVocabularyLearningAvailable,
   saveLookedUpWord,
 } from "../../lib/vocabularyClient";
 import { addRecentWord } from "../../lib/vocabularyLookup";
@@ -58,12 +57,14 @@ export function WordDetailView({ word }: WordDetailViewProps) {
     if (!detail) return;
     setPracticeLoading(true);
     setShowPractice(true);
+    setError(null);
     try {
       const exercises = await generateWordPractice(detail.word, detail.level1.definition);
       setPractice(exercises);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not load practice exercises.");
       setShowPractice(false);
+      setPractice(null);
     } finally {
       setPracticeLoading(false);
     }
@@ -86,7 +87,18 @@ export function WordDetailView({ word }: WordDetailViewProps) {
     );
   }
 
-  if (!detail) return null;
+  if (!detail?.level1?.definition) {
+    return (
+      <div className={styles.exerciseBlock}>
+        <p className={styles.error} role="alert">
+          Could not load details for &ldquo;{word}&rdquo;.
+        </p>
+        <button type="button" className={styles.optionButton} onClick={() => void loadDetail()}>
+          Try again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <article className={styles.detail}>
@@ -243,31 +255,35 @@ export function WordDetailView({ word }: WordDetailViewProps) {
         </section>
       )}
 
-      {isVocabularyLearningAvailable() && (
-        <div className={styles.exerciseBlock}>
+      <div className={styles.exerciseBlock}>
+        {!showPractice && (
           <button
             type="button"
             className={styles.optionButton}
             onClick={() => void handlePractice()}
             disabled={practiceLoading}
           >
-            {practiceLoading ? "Preparing practice…" : "Practice this word"}
+            Practice this word
           </button>
-        </div>
-      )}
+        )}
+        {showPractice && practiceLoading && (
+          <p className={styles.loading}>Preparing practice…</p>
+        )}
+        {error && (
+          <p className={styles.error} role="alert">
+            {error}
+          </p>
+        )}
+      </div>
 
       {showPractice && practice && (
         <WordPractice
           word={detail.word}
           exercise={practice}
-          onCheckUsage={(sentence) => checkWordUsage(detail.word, sentence)}
+          onCheckUsage={(sentence) =>
+            checkWordUsage(detail.word, sentence, detail.level1.definition)
+          }
         />
-      )}
-
-      {error && detail && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
       )}
     </article>
   );

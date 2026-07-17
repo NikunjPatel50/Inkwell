@@ -13,6 +13,7 @@ interface TabPageShellProps {
   children?: ReactNode;
   className?: string;
   contentClassName?: string;
+  bodyClassName?: string;
   fullBleed?: boolean;
   backTo?: {
     label: string;
@@ -30,6 +31,7 @@ export function TabPageShell({
   children,
   className,
   contentClassName,
+  bodyClassName,
   fullBleed = false,
   backTo,
 }: TabPageShellProps) {
@@ -48,7 +50,7 @@ export function TabPageShell({
       >
         {backTo && <TabBackBar label={backTo.label} onBack={backTo.onBack} />}
         {useBackLayout ? (
-          <div className={backStyles.subPageBody}>
+          <div className={`${backStyles.subPageBody} ${bodyClassName ?? ""}`}>
             {hasHeader && (
               <header className={styles.header}>
                 <div className={styles.headerText}>

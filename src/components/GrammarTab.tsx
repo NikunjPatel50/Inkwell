@@ -5,6 +5,7 @@ import { writeWorkspaceRoute } from "../lib/workspaceRoute";
 import { TabPageShell } from "./TabPageShell";
 import { GrammarTopicBrowser } from "./grammar/GrammarTopicBrowser";
 import { GrammarTopicDetail } from "./grammar/GrammarTopicDetail";
+import styles from "./learning/LearningTab.module.css";
 
 interface GrammarTabProps {
   onTabChange: (tab: AppTab) => void;
@@ -38,8 +39,9 @@ export function GrammarTab({ onTabChange, initialTopicId = null }: GrammarTabPro
         id="panel-grammar"
         labelledBy="tab-grammar"
         backTo={{ label: "Grammar", onBack: handleBack }}
+        bodyClassName={styles.grammarDetailBody}
       >
-        <GrammarTopicDetail topicId={activeTopicId} onSelectTopic={handleSelectTopic} />
+        <GrammarTopicDetail topicId={activeTopicId} />
       </TabPageShell>
     );
   }

@@ -7,7 +7,7 @@ const bundledDir = join(root, "functions", "bundled");
 mkdirSync(bundledDir, { recursive: true });
 
 const bundles = [
-  { name: "analyze-text", shared: ["cors", "auth", "categories", "groq"] },
+  { name: "analyze-text", shared: ["cors", "auth", "categories", "groq", "premium", "errorClassification", "errorEvents"] },
   { name: "check-correction", shared: ["cors", "auth", "groq"] },
   { name: "get-history", shared: ["cors", "auth"] },
   { name: "get-vocabulary", shared: ["cors", "auth"] },
@@ -21,6 +21,8 @@ const bundles = [
   { name: "get-practiced-skills", shared: ["cors", "auth"] },
   { name: "upsert-practiced-skill", shared: ["cors", "auth"] },
   { name: "coach-evaluate", shared: ["cors", "coach"] },
+  { name: "get-error-patterns", shared: ["cors", "auth", "premium", "errorClassification"] },
+  { name: "record-error-events", shared: ["cors", "auth", "premium", "errorClassification", "errorEvents"] },
   { name: "grammar-learning", shared: ["cors", "grammarLearning"] },
   { name: "vocabulary-learning", shared: ["cors", "vocabularyLearning"] },
 ];

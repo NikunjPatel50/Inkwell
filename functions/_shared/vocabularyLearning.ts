@@ -166,6 +166,118 @@ weakSentence uses a vague or weak word that should be replaced with the target w
   return data;
 }
 
+export interface WordDetailPayload {
+  word: string;
+  phonetic: string;
+  partOfSpeech: string;
+  level1: {
+    definition: string;
+    examples: string[];
+    mnemonic: string;
+  };
+  level2: {
+    wordForms: Array<{ form: string; partOfSpeech: string; example: string }>;
+    synonyms: Array<{ word: string; note: string }>;
+    antonyms: Array<{ word: string; note: string }>;
+  };
+  level3: {
+    collocations: string[];
+    register: string;
+    commonMistake: string;
+    usageContext: string;
+  };
+  level4: {
+    etymology: string;
+    connotation: string;
+    nuanceComparison: string;
+    famousUsage: string;
+  };
+}
+
+export async function suggestWords(query: string): Promise<string[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const systemPrompt = `You help users find English vocabulary. Given a partial or full search query, return JSON only:
+{ "suggestions": string[] }
+
+Return up to 5 real English words or phrases (1-3 words) that match or relate to the query.
+Include the exact word if the query is already a valid English word.
+Prefer common, learnable vocabulary. Lowercase single words unless a proper noun. JSON only.`;
+
+  const data = parseJson<{ suggestions: string[] }>(
+    await callGroq(systemPrompt, `Query: ${trimmed}`),
+  );
+
+  if (!Array.isArray(data.suggestions)) {
+    throw new GroqServiceError("The suggestion response was invalid. Try again.");
+  }
+
+  return data.suggestions
+    .filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+    .map((entry) => entry.trim())
+    .slice(0, 5);
+}
+
+export async function generateWordDetail(word: string): Promise<WordDetailPayload> {
+  const systemPrompt = `You are an English vocabulary teacher. Return JSON only for the word requested.
+{
+  "word": string,
+  "phonetic": string,
+  "partOfSpeech": string,
+  "level1": { "definition": string, "examples": string[2], "mnemonic": string },
+  "level2": {
+    "wordForms": [{ "form": string, "partOfSpeech": string, "example": string }],
+    "synonyms": [{ "word": string, "note": string }],
+    "antonyms": [{ "word": string, "note": string }]
+  },
+  "level3": {
+    "collocations": string[3],
+    "register": string,
+    "commonMistake": string,
+    "usageContext": string
+  },
+  "level4": {
+    "etymology": string,
+    "connotation": string,
+    "nuanceComparison": string,
+    "famousUsage": string
+  }
+}
+
+Plain English. Examples must use the word naturally. Omit empty word forms in level2.wordForms. JSON only.`;
+
+  const data = parseJson<WordDetailPayload>(
+    await callGroq(systemPrompt, `Word: ${word.trim()}`),
+  );
+
+  if (!data.word || !data.level1?.definition || !data.level1.examples?.length) {
+    throw new GroqServiceError("The word detail response was invalid. Try again.");
+  }
+
+  return {
+    ...data,
+    word: data.word || word,
+    level2: {
+      wordForms: data.level2?.wordForms?.filter((entry) => entry.form && entry.example) ?? [],
+      synonyms: data.level2?.synonyms?.filter((entry) => entry.word) ?? [],
+      antonyms: data.level2?.antonyms?.filter((entry) => entry.word) ?? [],
+    },
+    level3: {
+      collocations: data.level3?.collocations ?? [],
+      register: data.level3?.register ?? "",
+      commonMistake: data.level3?.commonMistake ?? "",
+      usageContext: data.level3?.usageContext ?? "",
+    },
+    level4: {
+      etymology: data.level4?.etymology ?? "",
+      connotation: data.level4?.connotation ?? "",
+      nuanceComparison: data.level4?.nuanceComparison ?? "",
+      famousUsage: data.level4?.famousUsage ?? "",
+    },
+  };
+}
+
 export async function checkReplaceIt(
   word: VocabularyWordInput,
   weakSentence: string,

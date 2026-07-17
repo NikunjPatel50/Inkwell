@@ -13,6 +13,17 @@ import type {
 import { ApiError } from "./apiClient";
 import { insforge, isInsforgeConfigured } from "./insforge";
 import {
+  buildLocalWordDetail,
+  buildLocalWordPractice,
+  buildGenericWordDetail,
+  checkWordUsageLocally,
+  normalizeWord,
+} from "./vocabularyLookup";
+import {
+  mergeWordSuggestions,
+  searchWordSuggestions,
+} from "./vocabularySearch";
+import {
   checkCompleteIt,
   generateCompleteItExercise,
   generateSpotTheErrorExercise,
@@ -116,7 +127,14 @@ async function tryDedicatedVocabulary<T>(body: Record<string, unknown>): Promise
   const { data, error } = await insforge.functions.invoke("vocabulary-learning", { body });
   if (error) {
     const message = extractErrorMessage(error).toLowerCase();
-    if (message.includes("not found") || message.includes("404")) return null;
+    if (
+      message.includes("not found") ||
+      message.includes("404") ||
+      message.includes("unknown action") ||
+      message.includes("action and word are required")
+    ) {
+      return null;
+    }
     throw new ApiError(extractErrorMessage(error));
   }
   assertNoPayloadError(data);
@@ -256,39 +274,99 @@ export async function checkReplaceIt(
 }
 
 export async function generateWordDetail(word: string): Promise<WordDetail> {
-  return withVocabularyFallback(
-    { action: "generate-word-detail", word },
-    () => vocabularyGroq.generateWordDetail(word),
-    () => vocabularyGroq.generateWordDetail(word),
-  ).catch((err) => {
-    throw toApiError(err);
+  const normalized = normalizeWord(word);
+  const local = buildLocalWordDetail(normalized);
+  if (local) return local;
+
+  const dedicated = await tryDedicatedVocabulary<WordDetail>({
+    action: "generate-word-detail",
+    word: normalized,
   });
+  if (dedicated !== null) return dedicated;
+
+  if (isGroqConfigured()) {
+    try {
+      return await vocabularyGroq.generateWordDetail(normalized);
+    } catch (err) {
+      if (!isInsforgeConfigured()) {
+        throw toApiError(err);
+      }
+    }
+  }
+
+  if (isInsforgeConfigured() || isGroqConfigured()) {
+    throw new ApiError("Could not look up that word right now. Try again in a moment.");
+  }
+
+  return buildGenericWordDetail(normalized);
+}
+
+export async function searchWordSuggestionsAsync(query: string): Promise<string[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const local = searchWordSuggestions(trimmed, 4);
+
+  const dedicated = await tryDedicatedVocabulary<{ suggestions: string[] }>({
+    action: "suggest-words",
+    query: trimmed,
+  });
+  if (dedicated?.suggestions?.length) {
+    return mergeWordSuggestions(local, dedicated.suggestions);
+  }
+
+  if (isGroqConfigured()) {
+    try {
+      const ai = await vocabularyGroq.suggestWords(trimmed);
+      return mergeWordSuggestions(local, ai);
+    } catch {
+      return local;
+    }
+  }
+
+  return local;
 }
 
 export async function generateWordPractice(
   word: string,
   definition: string,
 ): Promise<WordPracticeExercise> {
-  return withVocabularyFallback(
-    { action: "generate-word-practice", word, definition },
-    () => vocabularyGroq.generateWordPractice(word, definition),
-    () => vocabularyGroq.generateWordPractice(word, definition),
-  ).catch((err) => {
-    throw toApiError(err);
-  });
+  const localDetail = buildLocalWordDetail(normalizeWord(word));
+  const local = buildLocalWordPractice(
+    word,
+    definition,
+    localDetail?.level1.examples ?? [],
+  );
+
+  if (isGroqConfigured()) {
+    try {
+      return await vocabularyGroq.generateWordPractice(word, definition);
+    } catch {
+      return local;
+    }
+  }
+
+  return local;
 }
 
 export async function checkWordUsage(
   word: string,
   userSentence: string,
+  definition?: string,
 ): Promise<WordUsageResult> {
-  return withVocabularyFallback(
-    { action: "check-word-usage", word, userSentence },
-    () => vocabularyGroq.checkWordUsage(word, userSentence),
-    () => vocabularyGroq.checkWordUsage(word, userSentence),
-  ).catch((err) => {
-    throw toApiError(err);
-  });
+  const localDetail = buildLocalWordDetail(normalizeWord(word));
+  const resolvedDefinition =
+    definition ?? localDetail?.level1.definition ?? "the target meaning";
+
+  if (isGroqConfigured()) {
+    try {
+      return await vocabularyGroq.checkWordUsage(word, userSentence);
+    } catch {
+      return checkWordUsageLocally(word, userSentence, resolvedDefinition);
+    }
+  }
+
+  return checkWordUsageLocally(word, userSentence, resolvedDefinition);
 }
 
 export async function generateCollectionQuiz(words: string[]): Promise<CollectionQuizItem[]> {

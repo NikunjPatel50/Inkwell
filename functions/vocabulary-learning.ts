@@ -5,16 +5,20 @@ import {
   generatePickMeaningExercise,
   generateReplaceItExercise,
   generateUseItExercise,
+  generateWordDetail,
   GroqServiceError,
+  suggestWords,
   type VocabularyWordInput,
 } from "./_shared/vocabularyLearning.ts";
 
-type VocabularyAction =
+type WordAction =
   | "generate-use-it"
   | "check-use-it"
   | "generate-pick-meaning"
   | "generate-replace-it"
   | "check-replace-it";
+
+type VocabularyAction = WordAction | "generate-word-detail" | "suggest-words";
 
 function parseWord(body: Record<string, unknown>): VocabularyWordInput | null {
   const word = body.word as VocabularyWordInput | undefined;
@@ -29,9 +33,28 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     const body = (await req.json()) as Record<string, unknown>;
     const action = body.action as VocabularyAction | undefined;
-    const word = parseWord(body);
 
-    if (!action || !word) {
+    if (!action) {
+      return jsonResponse({ error: "Action is required." }, 400);
+    }
+
+    if (action === "suggest-words") {
+      if (typeof body.query !== "string" || !body.query.trim()) {
+        return jsonResponse({ error: "query is required." }, 400);
+      }
+      const suggestions = await suggestWords(body.query);
+      return jsonResponse({ suggestions });
+    }
+
+    if (action === "generate-word-detail") {
+      if (typeof body.word !== "string" || !body.word.trim()) {
+        return jsonResponse({ error: "word is required." }, 400);
+      }
+      return jsonResponse(await generateWordDetail(body.word));
+    }
+
+    const word = parseWord(body);
+    if (!word) {
       return jsonResponse({ error: "Action and word are required." }, 400);
     }
 

@@ -7,7 +7,6 @@ import { DashboardTab } from "./DashboardTab";
 import { LearnTab } from "./LearnTab";
 import { GrammarTab } from "./GrammarTab";
 import { VocabularyTab } from "./VocabularyTab";
-import { CreativeTab } from "./CreativeTab";
 import { CoachTab } from "./coach/CoachTab";
 import { HistoryTab } from "./HistoryTab";
 import { TabBar } from "./TabBar";
@@ -15,11 +14,12 @@ import { WorkshopTab } from "./WorkshopTab";
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
 import {
-  analyzeWriting,
   ApiError,
-  checkCorrection,
   fetchHistory,
 } from "../lib/apiClient";
+import { analyzeGeneral } from "../lib/analyzeGeneral";
+import { analyzePTEEssay } from "../lib/analyzePTEEssay";
+import { setErrorTrackingUser } from "../lib/coachErrorTracking";
 import { isInsforgeConfigured } from "../lib/insforge";
 import {
   clearGuestSession,
@@ -34,13 +34,12 @@ import type {
   AnalysisResult,
   AnalysisStatus,
   AppTab,
-  CorrectionResult,
   LadderResult,
-  SelfCorrectionPhase,
   SkillPatternRow,
   Tone,
   ToneCache,
 } from "../types";
+import type { PTEEssayScoreResult, WritingMode } from "../types/writingMode";
 import { ladderFromAnalysis } from "../types";
 import styles from "./HomeApp.module.css";
 
@@ -59,25 +58,13 @@ const TONE_LOADING_MESSAGES = [
   "Refining the advanced version…",
 ];
 
-interface SelfCorrectionState {
-  phase: SelfCorrectionPhase;
-  attempt: string;
-  result: CorrectionResult | null;
-  isChecking: boolean;
-  checkError: string | null;
-  collapsed: boolean;
-  feedbackRevealed: boolean;
-}
-
-const INITIAL_SELF_CORRECTION: SelfCorrectionState = {
-  phase: "hidden",
-  attempt: "",
-  result: null,
-  isChecking: false,
-  checkError: null,
-  collapsed: false,
-  feedbackRevealed: true,
-};
+const PTE_LOADING_MESSAGES = [
+  "Scoring Content…",
+  "Checking Form and word count…",
+  "Reviewing structure and coherence…",
+  "Assessing grammar and vocabulary…",
+  "Applying PTE cascading rules…",
+];
 
 export function HomeApp() {
   const router = useRouter();
@@ -102,8 +89,10 @@ export function HomeApp() {
   const [toneCache, setToneCache] = useState<ToneCache>({});
   const [toneLoading, setToneLoading] = useState(false);
   const [toneError, setToneError] = useState<string | null>(null);
+  const [writingMode, setWritingMode] = useState<WritingMode>(initialRoute.writeMode);
+  const [pteResult, setPteResult] = useState<PTEEssayScoreResult | null>(null);
+  const [hasCompletedPteScore, setHasCompletedPteScore] = useState(false);
   const [hasCompletedAnalysis, setHasCompletedAnalysis] = useState(false);
-  const [selfCorrection, setSelfCorrection] = useState<SelfCorrectionState>(INITIAL_SELF_CORRECTION);
   const { theme, toggleTheme } = useTheme();
   const analyseAfterAuthRef = useRef(false);
   const sessionRestoredRef = useRef(false);
@@ -134,6 +123,10 @@ export function HomeApp() {
       document.body.classList.remove("app-shell");
     };
   }, []);
+
+  useEffect(() => {
+    setErrorTrackingUser(user);
+  }, [user]);
 
   useEffect(() => {
     if (authLoading || user) return;
@@ -176,7 +169,7 @@ export function HomeApp() {
     : !text.trim()
       ? "Write or paste some text to analyse."
       : !isAuthenticated
-        ? "Sign in when you analyse — your history will be saved."
+        ? "Sign in to save analysis history. You can still analyse without an account."
         : undefined;
 
   const displayLadder = useMemo((): LadderResult | null => {
@@ -204,6 +197,9 @@ export function HomeApp() {
       });
   }, [user]);
 
+  const loadingMessages =
+    writingMode === "pte-essay" ? PTE_LOADING_MESSAGES : LOADING_MESSAGES;
+
   useEffect(() => {
     if (!isLoading) {
       setLoadingMessageIndex(0);
@@ -211,11 +207,11 @@ export function HomeApp() {
     }
 
     const interval = window.setInterval(() => {
-      setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+      setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
     }, 2200);
 
     return () => window.clearInterval(interval);
-  }, [isLoading]);
+  }, [isLoading, loadingMessages.length]);
 
   useEffect(() => {
     if (!toneLoading) {
@@ -247,14 +243,44 @@ export function HomeApp() {
     setStatus("loading");
     setErrorMessage("");
     setActiveErrorIndex(null);
+
+    if (writingMode === "pte-essay") {
+      setPteResult(null);
+      setHasCompletedPteScore(false);
+
+      try {
+        const score = await analyzePTEEssay(trimmed, { authenticated: Boolean(user) });
+        setAnalysedText(trimmed);
+        setPteResult(score);
+        setStatus("success");
+        setHasCompletedPteScore(true);
+        setHistoryRefreshKey((key) => key + 1);
+      } catch (err) {
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : "An unexpected error occurred. Please try again.";
+
+        if (message.toLowerCase().includes("unauthorized") || message.toLowerCase().includes("sign in")) {
+          openLogin({ pendingAnalyse: true });
+          setPendingAnalyse(true);
+        }
+
+        setErrorMessage(message);
+        setStatus("error");
+      }
+      return;
+    }
+
     setSelectedTone("neutral");
     setToneCache({});
     setToneError(null);
     setToneLoading(false);
-    setSelfCorrection(INITIAL_SELF_CORRECTION);
 
     try {
-      const analysis = await analyzeWriting(trimmed);
+      const analysis = await analyzeGeneral(trimmed, { authenticated: Boolean(user), user });
       setAnalysedText(trimmed);
       setResult(analysis);
       setStatus("success");
@@ -266,23 +292,6 @@ export function HomeApp() {
       fetchHistory()
         .then((history) => setSkillPatterns(history.skillPatterns))
         .catch(() => {});
-
-      if (analysis.errors.length > 0) {
-        setSelfCorrection({
-          phase: "active",
-          attempt: trimmed,
-          result: null,
-          isChecking: false,
-          checkError: null,
-          collapsed: false,
-          feedbackRevealed: false,
-        });
-      } else {
-        setSelfCorrection({
-          ...INITIAL_SELF_CORRECTION,
-          feedbackRevealed: true,
-        });
-      }
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -299,7 +308,7 @@ export function HomeApp() {
       setErrorMessage(message);
       setStatus("error");
     }
-  }, [text, openLogin]);
+  }, [text, openLogin, user, writingMode]);
 
   useEffect(() => {
     if (!user || !pendingAnalyse || authLoading) return;
@@ -316,19 +325,29 @@ export function HomeApp() {
 
   const handleAnalyse = useCallback(() => {
     if (!text.trim()) return;
-
-    if (!user) {
-      openLogin({ pendingAnalyse: true });
-      setPendingAnalyse(true);
-      return;
-    }
-
     void executeAnalyse();
-  }, [executeAnalyse, openLogin, text, user]);
+  }, [executeAnalyse, text]);
 
   const handleTextChange = useCallback((nextText: string) => {
     setText(nextText);
     setActiveErrorIndex(null);
+  }, []);
+
+  const handleWritingModeChange = useCallback((mode: WritingMode) => {
+    setWritingMode(mode);
+    writeWorkspaceRoute({ writeMode: mode });
+    setStatus("idle");
+    setErrorMessage("");
+    setActiveErrorIndex(null);
+    setSelectedTone("neutral");
+    setToneCache({});
+    setToneError(null);
+    setToneLoading(false);
+    setResult(null);
+    setPteResult(null);
+    setHasCompletedAnalysis(false);
+    setHasCompletedPteScore(false);
+    setAnalysedText(null);
   }, []);
 
   const handleToneChange = useCallback(
@@ -343,15 +362,10 @@ export function HomeApp() {
         return;
       }
 
-      if (!user) {
-        openLogin();
-        return;
-      }
-
       setToneLoading(true);
 
       try {
-        const toneResult = await analyzeWriting(analysedText, { tone });
+        const toneResult = await analyzeGeneral(analysedText, { tone, authenticated: Boolean(user) });
         const ladder = ladderFromAnalysis(toneResult);
         setToneCache((cache) => ({ ...cache, [tone]: ladder }));
       } catch (err) {
@@ -374,68 +388,15 @@ export function HomeApp() {
     [analysedText, openLogin, result, selectedTone, toneCache, user],
   );
 
-  const hasResultPanels =
-    hasCompletedAnalysis && result !== null && analysedText !== null && displayLadder !== null;
+  const hasGeneralResultPanels =
+    writingMode === "general" &&
+    hasCompletedAnalysis &&
+    result !== null &&
+    analysedText !== null &&
+    displayLadder !== null;
 
-  const handleCorrectionAttemptChange = useCallback((attempt: string) => {
-    setSelfCorrection((state) => ({ ...state, attempt, checkError: null }));
-  }, []);
-
-  const handleCheckCorrection = useCallback(async () => {
-    if (!analysedText || !result || result.errors.length === 0 || !user) return;
-
-    const attempt = selfCorrection.attempt.trim();
-    if (!attempt) return;
-
-    setSelfCorrection((state) => ({
-      ...state,
-      isChecking: true,
-      checkError: null,
-    }));
-
-    try {
-      const correctionResult = await checkCorrection(
-        analysedText,
-        attempt,
-        result.errors,
-      );
-      setSelfCorrection((state) => ({
-        ...state,
-        phase: "completed",
-        result: correctionResult,
-        isChecking: false,
-        feedbackRevealed: true,
-        collapsed: false,
-      }));
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : err instanceof Error
-            ? err.message
-            : "Could not check your correction. Please try again.";
-      setSelfCorrection((state) => ({
-        ...state,
-        isChecking: false,
-        checkError: message,
-      }));
-    }
-  }, [analysedText, result, selfCorrection.attempt, user]);
-
-  const handleSkipCorrection = useCallback(() => {
-    setSelfCorrection((state) => ({
-      ...state,
-      phase: "skipped",
-      feedbackRevealed: true,
-    }));
-  }, []);
-
-  const handleToggleCorrectionCollapse = useCallback(() => {
-    setSelfCorrection((state) => ({
-      ...state,
-      collapsed: !state.collapsed,
-    }));
-  }, []);
+  const hasPteResultPanels =
+    writingMode === "pte-essay" && hasCompletedPteScore && pteResult !== null;
 
   if (authLoading || !allowWorkspace) {
     return null;
@@ -470,8 +431,7 @@ export function HomeApp() {
                 <DashboardTab
                   isAuthenticated={isAuthenticated}
                   refreshKey={historyRefreshKey}
-                  practiceCount={practiceCount}
-                  skillPatterns={skillPatterns}
+                  user={user}
                   onSignIn={() => openLogin()}
                   onTabChange={handleTabChange}
                 />
@@ -508,47 +468,38 @@ export function HomeApp() {
                   wordCount={wordCount}
                   status={status}
                   isLoading={isLoading}
-                  loadingMessage={LOADING_MESSAGES[loadingMessageIndex]}
+                  loadingMessage={loadingMessages[loadingMessageIndex]}
                   canAnalyse={canAnalyse}
                   analyseHint={analyseHint}
+                  writingMode={writingMode}
                   errorMessage={status === "error" ? errorMessage : null}
-                  hasResults={hasResultPanels}
+                  hasGeneralResults={hasGeneralResultPanels}
+                  hasPteResults={hasPteResultPanels}
                   registerScore={result?.registerScore ?? 0}
                   registerMeterKey={revealKey}
                   errors={result?.errors ?? []}
                   activeErrorIndex={activeErrorIndex}
                   analysedText={analysedText}
                   displayLadder={displayLadder}
+                  pteResult={pteResult}
+                  isAuthenticated={isAuthenticated}
+                  user={user}
                   selectedTone={selectedTone}
                   toneLoading={toneLoading}
                   toneLoadingMessage={TONE_LOADING_MESSAGES[toneLoadingMessageIndex]}
                   toneError={toneError}
                   revealKey={revealKey}
                   animateReveal={ladderAnimateReveal}
-                  selfCorrectionPhase={selfCorrection.phase}
-                  correctionAttempt={selfCorrection.attempt}
-                  correctionResult={selfCorrection.result}
-                  correctionChecking={selfCorrection.isChecking}
-                  correctionCheckError={selfCorrection.checkError}
-                  correctionCollapsed={selfCorrection.collapsed}
-                  feedbackRevealed={selfCorrection.feedbackRevealed}
                   onTextChange={handleTextChange}
+                  onWritingModeChange={handleWritingModeChange}
                   onAnalyse={handleAnalyse}
                   onErrorHover={setActiveErrorIndex}
                   onToneChange={handleToneChange}
-                  onCorrectionAttemptChange={handleCorrectionAttemptChange}
-                  onCheckCorrection={handleCheckCorrection}
-                  onSkipCorrection={handleSkipCorrection}
-                  onToggleCorrectionCollapse={handleToggleCorrectionCollapse}
                 />
               </div>
 
               <div className={styles.tabPanel} hidden={activeTab !== "coach"} id="panel-coach">
                 <CoachTab onTabChange={handleTabChange} />
-              </div>
-
-              <div className={styles.tabPanel} hidden={activeTab !== "creative"} id="panel-creative">
-                <CreativeTab onTabChange={handleTabChange} />
               </div>
 
               <div className={styles.tabPanel} hidden={activeTab !== "history"} id="panel-history">

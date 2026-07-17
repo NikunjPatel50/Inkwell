@@ -1,9 +1,11 @@
-import type { AnalysisStatus, AppTab, CorrectionResult, LadderResult, SelfCorrectionPhase, Tone, WritingError } from "../types";
+import type { AnalysisStatus, AppTab, LadderResult, Tone, WritingError } from "../types";
+import type { PTEEssayScoreResult, WritingMode } from "../types/writingMode";
+import type { AuthUser } from "../hooks/useAuth";
 import { Editor } from "./Editor";
 import { FeedbackCard } from "./FeedbackCard";
 import { LadderPanel } from "./LadderPanel";
+import { PTEEssayResults } from "./PTEEssayResults";
 import { RegisterMeter } from "./RegisterMeter";
-import { SelfCorrectionChallenge } from "./SelfCorrectionChallenge";
 import { TabBackBar } from "./TabBackBar";
 import styles from "./WorkshopTab.module.css";
 
@@ -16,35 +18,30 @@ interface WorkshopTabProps {
   loadingMessage: string;
   canAnalyse: boolean;
   analyseHint?: string;
+  writingMode: WritingMode;
   errorMessage: string | null;
-  hasResults: boolean;
+  hasGeneralResults: boolean;
+  hasPteResults: boolean;
   registerScore: number;
   registerMeterKey: number;
   errors: WritingError[];
   activeErrorIndex: number | null;
   analysedText: string | null;
   displayLadder: LadderResult | null;
+  pteResult: PTEEssayScoreResult | null;
+  isAuthenticated: boolean;
+  user: AuthUser | null;
   selectedTone: Tone;
   toneLoading: boolean;
   toneLoadingMessage: string;
   toneError: string | null;
   revealKey: number;
   animateReveal: boolean;
-  selfCorrectionPhase: SelfCorrectionPhase;
-  correctionAttempt: string;
-  correctionResult: CorrectionResult | null;
-  correctionChecking: boolean;
-  correctionCheckError: string | null;
-  correctionCollapsed: boolean;
-  feedbackRevealed: boolean;
   onTextChange: (text: string) => void;
+  onWritingModeChange: (mode: WritingMode) => void;
   onAnalyse: () => void;
   onErrorHover: (errorIndex: number | null) => void;
   onToneChange: (tone: Tone) => void;
-  onCorrectionAttemptChange: (attempt: string) => void;
-  onCheckCorrection: () => void;
-  onSkipCorrection: () => void;
-  onToggleCorrectionCollapse: () => void;
 }
 
 export function WorkshopTab({
@@ -56,38 +53,42 @@ export function WorkshopTab({
   loadingMessage,
   canAnalyse,
   analyseHint,
+  writingMode,
   errorMessage,
-  hasResults,
+  hasGeneralResults,
+  hasPteResults,
   registerScore,
   registerMeterKey,
   errors,
   activeErrorIndex,
   analysedText,
   displayLadder,
+  pteResult,
+  isAuthenticated,
+  user,
   selectedTone,
   toneLoading,
   toneLoadingMessage,
   toneError,
   revealKey,
   animateReveal,
-  selfCorrectionPhase,
-  correctionAttempt,
-  correctionResult,
-  correctionChecking,
-  correctionCheckError,
-  correctionCollapsed,
-  feedbackRevealed,
   onTextChange,
+  onWritingModeChange,
   onAnalyse,
   onErrorHover,
   onToneChange,
-  onCorrectionAttemptChange,
-  onCheckCorrection,
-  onSkipCorrection,
-  onToggleCorrectionCollapse,
 }: WorkshopTabProps) {
-  const showSelfCorrection =
-    selfCorrectionPhase === "active" || selfCorrectionPhase === "completed";
+  const isPteMode = writingMode === "pte-essay";
+  const idleMessage = isPteMode ? (
+    <>
+      Your PTE trait scores will appear here after you click <strong>Score Essay</strong>.
+    </>
+  ) : (
+    <>
+      Your feedback and rewrites will appear here after you click <strong>Analyse</strong>.
+    </>
+  );
+
   return (
     <section className={styles.workshop}>
       <TabBackBar label="Dashboard" onBack={() => onTabChange("dashboard")} />
@@ -105,6 +106,8 @@ export function WorkshopTab({
                 isLoading={isLoading}
                 canAnalyse={canAnalyse}
                 analyseHint={analyseHint}
+                writingMode={writingMode}
+                onWritingModeChange={onWritingModeChange}
                 onTextChange={onTextChange}
                 onAnalyse={onAnalyse}
               />
@@ -128,16 +131,15 @@ export function WorkshopTab({
 
         <aside className={styles.resultsColumn} aria-label="Analysis results">
           <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Analysis &amp; rewrites</h2>
+            <h2 className={styles.panelTitle}>
+              {isPteMode ? "PTE scoring" : "Analysis & rewrites"}
+            </h2>
             <span className={styles.panelBadge}>Output</span>
           </div>
           <div className={styles.panelBody}>
             {status === "idle" && (
               <section className={styles.emptyState}>
-                <p className={styles.emptyText}>
-                  Your feedback and rewrites will appear here after you click{" "}
-                  <strong>Analyse</strong>.
-                </p>
+                <p className={styles.emptyText}>{idleMessage}</p>
               </section>
             )}
 
@@ -148,30 +150,21 @@ export function WorkshopTab({
               </section>
             )}
 
-            {hasResults && analysedText && displayLadder && (
+            {status === "error" && errorMessage && (
+              <section className={styles.errorState} role="alert">
+                <h3 className={styles.errorTitle}>Something went wrong</h3>
+                <p className={styles.errorMessage}>{errorMessage}</p>
+              </section>
+            )}
+
+            {!isPteMode && hasGeneralResults && analysedText && displayLadder && (
               <div className={styles.results}>
                 <RegisterMeter key={registerMeterKey} score={registerScore} />
-                {showSelfCorrection && analysedText && (
-                  <SelfCorrectionChallenge
-                    knownErrors={errors}
-                    attempt={correctionAttempt}
-                    isChecking={correctionChecking}
-                    checkError={correctionCheckError}
-                    result={correctionResult}
-                    collapsed={correctionCollapsed}
-                    onAttemptChange={onCorrectionAttemptChange}
-                    onCheck={onCheckCorrection}
-                    onSkip={onSkipCorrection}
-                    onToggleCollapse={onToggleCorrectionCollapse}
-                  />
-                )}
-                {feedbackRevealed && (
-                  <FeedbackCard
-                    errors={errors}
-                    activeErrorIndex={activeErrorIndex}
-                    onErrorHover={onErrorHover}
-                  />
-                )}
+                <FeedbackCard
+                  errors={errors}
+                  activeErrorIndex={activeErrorIndex}
+                  onErrorHover={onErrorHover}
+                />
                 <LadderPanel
                   original={analysedText}
                   ladder={displayLadder}
@@ -182,6 +175,18 @@ export function WorkshopTab({
                   revealKey={revealKey}
                   animateReveal={animateReveal}
                   onToneChange={onToneChange}
+                />
+              </div>
+            )}
+
+            {isPteMode && hasPteResults && pteResult && analysedText && (
+              <div className={styles.results}>
+                <PTEEssayResults
+                  originalEssay={analysedText}
+                  scoreResult={pteResult}
+                  authenticated={isAuthenticated}
+                  user={user}
+                  onApplyToInput={onTextChange}
                 />
               </div>
             )}

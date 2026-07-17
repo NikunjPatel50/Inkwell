@@ -5,10 +5,12 @@ import type {
 } from "../types";
 import type {
   CollocationEvaluateResult,
+  CollocationTopicExamples,
   CombineParagraphResult,
   EssayCoachResult,
   StepFeedbackResult,
 } from "../types/coach";
+import { COLLOCATION_ESSAY_TOPICS } from "../constants/collocationEssayTopics";
 
 const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_MODEL = "llama-3.3-70b-versatile";
@@ -291,14 +293,40 @@ export {
   checkCompleteIt,
 } from "./learnGroq";
 
+const COLLOCATION_TOPIC_PROMPT = `For each essay topic, write 2 academic sentences that naturally use different collocations from the list.
+Topics: ${COLLOCATION_ESSAY_TOPICS.join(", ")}.
+Return ONLY JSON:
+{"topicExamples":[{"topic":string,"sentences":[{"collocation":string,"sentence":string}]}]}
+Each sentence must contain the collocation phrase exactly. Use formal PTE/IELTS essay style.`;
+
+export async function generateCollocationTopicExamples(
+  anchor: string,
+  anchorType: "verb" | "noun",
+  collocations: string[],
+): Promise<CollocationTopicExamples[]> {
+  const systemPrompt = `You are an expert PTE/IELTS writing coach.
+Anchor ${anchorType}: "${anchor}".
+${COLLOCATION_TOPIC_PROMPT}`;
+
+  const content = await callGroq(
+    systemPrompt,
+    JSON.stringify({ anchor, anchorType, collocations }),
+  );
+  const data = JSON.parse(extractJsonPayload(content)) as {
+    topicExamples?: CollocationTopicExamples[];
+  };
+  return data.topicExamples ?? [];
+}
+
 export async function evaluateCollocations(
   anchor: string,
   anchorType: "verb" | "noun",
   answers: string[],
 ): Promise<CollocationEvaluateResult> {
   const systemPrompt = `You are an expert English collocation coach. Return ONLY JSON:
-{"results":[{"phrase":string,"correct":boolean,"explanation":string}],"correctCount":number,"totalCount":number,"missingCollocations":[string],"teachingSummary":string}
-Anchor ${anchorType}: "${anchor}". Evaluate each student phrase. List 5-8 missing common collocations.`;
+{"results":[{"phrase":string,"correct":boolean,"explanation":string}],"correctCount":number,"totalCount":number,"missingCollocations":[string],"teachingSummary":string,"topicExamples":[{"topic":string,"sentences":[{"collocation":string,"sentence":string}]}]}
+Anchor ${anchorType}: "${anchor}". Evaluate each student phrase. List 5-8 missing common collocations.
+${COLLOCATION_TOPIC_PROMPT} Use the student's answers plus missing collocations as your collocation list.`;
 
   const content = await callGroq(systemPrompt, JSON.stringify({ anchor, anchorType, answers }));
   return JSON.parse(extractJsonPayload(content)) as CollocationEvaluateResult;

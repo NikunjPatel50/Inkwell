@@ -200,6 +200,31 @@ User should replace the weak word with "${word.word}" naturally. JSON only.`;
   return data;
 }
 
+export async function suggestWords(query: string): Promise<string[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const systemPrompt = `You help users find English vocabulary. Given a partial or full search query, return JSON only:
+{ "suggestions": string[] }
+
+Return up to 5 real English words or phrases (1-3 words) that match or relate to the query.
+Include the exact word if the query is already a valid English word.
+Prefer common, learnable vocabulary. Lowercase single words unless a proper noun. JSON only.`;
+
+  const data = parseJson<{ suggestions: string[] }>(
+    await callGroq(systemPrompt, `Query: ${trimmed}`),
+  );
+
+  if (!Array.isArray(data.suggestions)) {
+    throw new GroqApiError("The suggestion response was invalid. Try again.");
+  }
+
+  return data.suggestions
+    .filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+    .map((entry) => entry.trim())
+    .slice(0, 5);
+}
+
 export async function generateWordDetail(word: string): Promise<WordDetail> {
   const systemPrompt = `You are an English vocabulary teacher. Return JSON only for the word requested.
 {

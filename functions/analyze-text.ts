@@ -1,7 +1,13 @@
 import { getAuthenticatedClient } from "./_shared/auth.ts";
 import { categorizeError } from "./_shared/categories.ts";
 import { handleOptions, jsonResponse } from "./_shared/cors.ts";
+import {
+  classifyErrorText,
+  exampleTextFromWritingError,
+} from "./_shared/errorClassification.ts";
+import { buildWriteErrorEvents, insertErrorEvents } from "./_shared/errorEvents.ts";
 import { analyzeWriting, GroqServiceError } from "./_shared/groq.ts";
+import { isPremiumUser } from "./_shared/premium.ts";
 
 function todayStartIso(): string {
   const now = new Date();
@@ -103,6 +109,17 @@ export default async function handler(req: Request): Promise<Response> {
 
     for (const writingError of analysis.errors) {
       await upsertSkillPattern(client, userId, categorizeError(writingError.issue));
+    }
+
+    if (isPremiumUser(userId) && analysis.errors.length > 0) {
+      const errorEvents = buildWriteErrorEvents(
+        analysis.errors,
+        classifyErrorText,
+        (issue, explanation, teaching) =>
+          exampleTextFromWritingError(issue, explanation, teaching?.example),
+        sessionId,
+      );
+      await insertErrorEvents(client, userId, errorEvents);
     }
 
     if (analysis.vocabularyCatch?.length) {
