@@ -18,6 +18,7 @@ import {
   fetchHistory,
 } from "../lib/apiClient";
 import { analyzeGeneral } from "../lib/analyzeGeneral";
+import { recordWritingDnaSubmission } from "../lib/writingDnaClient";
 import { analyzePTEEssay } from "../lib/analyzePTEEssay";
 import { setErrorTrackingUser } from "../lib/coachErrorTracking";
 import { isInsforgeConfigured } from "../lib/insforge";
@@ -249,7 +250,7 @@ export function HomeApp() {
       setHasCompletedPteScore(false);
 
       try {
-        const score = await analyzePTEEssay(trimmed, { authenticated: Boolean(user) });
+        const score = await analyzePTEEssay(trimmed, { authenticated: Boolean(user), user });
         setAnalysedText(trimmed);
         setPteResult(score);
         setStatus("success");
@@ -288,6 +289,19 @@ export function HomeApp() {
       setHasCompletedAnalysis(true);
       setRevealKey((key) => key + 1);
       setLadderAnimateReveal(true);
+      try {
+        await recordWritingDnaSubmission(user, {
+          text: trimmed,
+          sourceTool: "write",
+          errors: analysis.errors,
+          registerScore: analysis.registerScore,
+        });
+      } catch (dnaErr) {
+        // Non-blocking — Write analysis succeeded; DNA sync can be retried from the dashboard.
+        if (process.env.NODE_ENV === "development") {
+          console.warn("Writing DNA persistence failed:", dnaErr);
+        }
+      }
       setHistoryRefreshKey((key) => key + 1);
       fetchHistory()
         .then((history) => setSkillPatterns(history.skillPatterns))

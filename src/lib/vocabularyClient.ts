@@ -15,10 +15,14 @@ import { insforge, isInsforgeConfigured } from "./insforge";
 import {
   buildLocalWordDetail,
   buildLocalWordPractice,
-  buildGenericWordDetail,
   checkWordUsageLocally,
+  isValidWordDetail,
   normalizeWord,
 } from "./vocabularyLookup";
+import {
+  fetchWordDetailFromApi,
+  fetchWordSuggestionsFromApi,
+} from "./vocabularyApi";
 import {
   mergeWordSuggestions,
   searchWordSuggestions,
@@ -276,55 +280,46 @@ export async function checkReplaceIt(
 export async function generateWordDetail(word: string): Promise<WordDetail> {
   const normalized = normalizeWord(word);
   const local = buildLocalWordDetail(normalized);
-  if (local) return local;
+  if (isValidWordDetail(local)) return local;
 
-  const dedicated = await tryDedicatedVocabulary<WordDetail>({
-    action: "generate-word-detail",
-    word: normalized,
-  });
-  if (dedicated !== null) return dedicated;
+  const apiDetail = await fetchWordDetailFromApi(normalized);
+  if (isValidWordDetail(apiDetail)) return apiDetail;
 
-  if (isGroqConfigured()) {
-    try {
-      return await vocabularyGroq.generateWordDetail(normalized);
-    } catch (err) {
-      if (!isInsforgeConfigured()) {
-        throw toApiError(err);
-      }
-    }
-  }
-
-  if (isInsforgeConfigured() || isGroqConfigured()) {
-    throw new ApiError("Could not look up that word right now. Try again in a moment.");
-  }
-
-  return buildGenericWordDetail(normalized);
+  throw new ApiError(`Could not load details for "${normalized}". Try again.`);
 }
 
 export async function searchWordSuggestionsAsync(query: string): Promise<string[]> {
-  const trimmed = query.trim();
+  const trimmed = query.trim().replace(/\s+/g, " ");
   if (!trimmed) return [];
 
   const local = searchWordSuggestions(trimmed, 4);
+  let ai: string[] = [];
 
-  const dedicated = await tryDedicatedVocabulary<{ suggestions: string[] }>({
-    action: "suggest-words",
-    query: trimmed,
-  });
-  if (dedicated?.suggestions?.length) {
-    return mergeWordSuggestions(local, dedicated.suggestions);
+  try {
+    ai = await fetchWordSuggestionsFromApi(trimmed);
+  } catch {
+    // Fall through to edge function / client Groq.
   }
 
-  if (isGroqConfigured()) {
-    try {
-      const ai = await vocabularyGroq.suggestWords(trimmed);
-      return mergeWordSuggestions(local, ai);
-    } catch {
-      return local;
+  if (ai.length === 0) {
+    const dedicated = await tryDedicatedVocabulary<{ suggestions: string[] }>({
+      action: "suggest-words",
+      query: trimmed,
+    });
+    if (dedicated?.suggestions?.length) {
+      ai = dedicated.suggestions;
     }
   }
 
-  return local;
+  if (ai.length === 0 && isGroqConfigured()) {
+    try {
+      ai = await vocabularyGroq.suggestWords(trimmed);
+    } catch {
+      // Use local + query only.
+    }
+  }
+
+  return mergeWordSuggestions(local, ai, { limit: 6, query: trimmed });
 }
 
 export async function generateWordPractice(

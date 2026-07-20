@@ -1,4 +1,7 @@
 :root {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+
   --color-paper: #faf7f2;
   --color-paper-deep: #f0ebe3;
   --color-ink: #1a2332;

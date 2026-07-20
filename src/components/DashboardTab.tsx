@@ -12,6 +12,7 @@ import { DashboardCard } from "./dashboard/DashboardCard";
 import { PTESessionDetail } from "./dashboard/PTESessionDetail";
 import { TraitBreakdownChart } from "./dashboard/TraitBreakdownChart";
 import { RecurringErrorsCard } from "./dashboard/RecurringErrorsCard";
+import { WritingDnaSection } from "./writing-dna/WritingDnaSection";
 import { TabPageShell } from "./TabPageShell";
 import type { AppTab } from "../types";
 import type { PTEEssaySession } from "../types/writingMode";
@@ -101,11 +102,10 @@ function DashboardBody({
 
   return (
     <div className={styles.content}>
-      <div className={styles.dashboardGrid}>
+      <div className={styles.dashboardStack}>
         <DashboardCard
           title="Key metrics"
           subtitle="PTE essay readiness from your scored sessions"
-          className={styles.spanFull}
         >
           <div className={styles.metricsGrid}>
             <MetricTile
@@ -159,35 +159,39 @@ function DashboardBody({
           </div>
         </DashboardCard>
 
-        <DashboardCard
-          title="Score trajectory"
-          subtitle="Total essay score per attempt (out of 26)"
-          badge={stats.sessionCount > 0 ? `${stats.sessionCount} attempts` : undefined}
-          className={styles.spanHalf}
-        >
-          <ScoreTrajectoryChart
-            data={stats.trajectory}
-            emptyMessage="Score a few essays to see your trend."
-          />
-        </DashboardCard>
+        <div className={styles.cardRow}>
+          <div className={styles.cardColumn}>
+            <DashboardCard
+              title="Score trajectory"
+              subtitle="Total essay score per attempt (out of 26)"
+              badge={stats.sessionCount > 0 ? `${stats.sessionCount} attempts` : undefined}
+            >
+              <ScoreTrajectoryChart
+                data={stats.trajectory}
+                emptyMessage="Score a few essays to see your trend."
+              />
+            </DashboardCard>
+          </div>
 
-        <DashboardCard
-          title="Trait breakdown"
-          subtitle="Average score vs max across recent sessions"
-          className={styles.spanHalf}
-        >
-          <TraitBreakdownChart
-            traits={stats.traitAverages}
-            emptyMessage="Score your first essay to see your trait profile."
-            hasData={!stats.readiness.empty}
-          />
-        </DashboardCard>
+          <div className={styles.cardColumn}>
+            <DashboardCard
+              title="Trait breakdown"
+              subtitle="Average score vs max across recent sessions"
+            >
+              <TraitBreakdownChart
+                traits={stats.traitAverages}
+                emptyMessage="Score your first essay to see your trait profile."
+                hasData={!stats.readiness.empty}
+              />
+            </DashboardCard>
+          </div>
+        </div>
 
-        <DashboardCard
-          title="Common weakness patterns"
-          subtitle="Most frequent feedback from your essays"
-          className={styles.spanThird}
-        >
+        <div className={styles.cardRow3}>
+          <DashboardCard
+            title="Common weakness patterns"
+            subtitle="Most frequent feedback from your essays"
+          >
           {stats.weaknessPatterns.length === 0 ? (
             <p className={styles.muted}>
               {isPreview
@@ -204,13 +208,12 @@ function DashboardBody({
               ))}
             </ol>
           )}
-        </DashboardCard>
+          </DashboardCard>
 
-        <DashboardCard
-          title="Recommended focus"
-          subtitle="Next step based on your weakest trait"
-          className={styles.spanThird}
-        >
+          <DashboardCard
+            title="Recommended focus"
+            subtitle="Next step based on your weakest trait"
+          >
           <div className={styles.focusContent}>
             <p className={styles.focusSkill}>{stats.focus.title}</p>
             <p className={styles.focusReason}>{stats.focus.description}</p>
@@ -218,13 +221,12 @@ function DashboardBody({
               {isPreview ? "Sign in to unlock" : stats.focus.ctaLabel}
             </button>
           </div>
-        </DashboardCard>
+          </DashboardCard>
 
-        <DashboardCard
-          title="Recent sessions"
-          subtitle="Latest PTE essay scores"
-          className={styles.spanThird}
-        >
+          <DashboardCard
+            title="Recent sessions"
+            subtitle="Latest PTE essay scores"
+          >
           {stats.recentSessions.length === 0 ? (
             <p className={styles.muted}>
               {isPreview
@@ -275,7 +277,8 @@ function DashboardBody({
               })}
             </ul>
           )}
-        </DashboardCard>
+          </DashboardCard>
+        </div>
 
         <RecurringErrorsCard user={user} refreshKey={refreshKey} />
       </div>
@@ -315,7 +318,11 @@ export function DashboardTab({
   }, [loadSessions]);
 
   return (
-    <TabPageShell id="panel-dashboard" labelledBy="tab-dashboard">
+    <TabPageShell
+      id="panel-dashboard"
+      labelledBy="tab-dashboard"
+      contentClassName={styles.dashboardPage}
+    >
       <DashboardBody
         isPreview={!isAuthenticated}
         sessions={sessions}
@@ -323,6 +330,12 @@ export function DashboardTab({
         refreshKey={refreshKey}
         onSignIn={onSignIn}
         onTabChange={onTabChange}
+      />
+      <WritingDnaSection
+        user={user}
+        isAuthenticated={isAuthenticated}
+        refreshKey={refreshKey}
+        onSignIn={onSignIn}
       />
     </TabPageShell>
   );

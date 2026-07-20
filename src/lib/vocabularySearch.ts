@@ -23,12 +23,19 @@ export function searchWordSuggestions(query: string, limit = 4): string[] {
 export function mergeWordSuggestions(
   local: string[],
   ai: string[],
-  limit = 6,
+  options?: { limit?: number; query?: string },
 ): string[] {
+  const limit = options?.limit ?? 6;
+  const query = options?.query?.trim();
   const seen = new Set<string>();
   const merged: string[] = [];
 
-  for (const entry of [...local, ...ai]) {
+  if (query) {
+    seen.add(query.toLowerCase());
+    merged.push(query);
+  }
+
+  for (const entry of [...ai, ...local]) {
     const trimmed = entry.trim();
     if (!trimmed) continue;
     const key = trimmed.toLowerCase();
@@ -43,7 +50,13 @@ export function mergeWordSuggestions(
 
 export function isSearchableQuery(query: string): boolean {
   const trimmed = query.trim();
-  return trimmed.length >= 2 && /[\p{L}]/u.test(trimmed);
+  return trimmed.length >= 1 && /[\p{L}]/u.test(trimmed);
+}
+
+export function isValidWordLookup(query: string): boolean {
+  const trimmed = query.trim().replace(/\s+/g, " ");
+  if (trimmed.length < 1 || trimmed.length > 64) return false;
+  return /^[\p{L}][\p{L}\s'-]*$/u.test(trimmed);
 }
 
 function normalizeWord(word: string): string {

@@ -11,6 +11,7 @@ const bundles = [
   { name: "check-correction", shared: ["cors", "auth", "groq"] },
   { name: "get-history", shared: ["cors", "auth"] },
   { name: "get-vocabulary", shared: ["cors", "auth"] },
+  { name: "save-vocabulary-word", shared: ["cors", "auth"] },
   { name: "generate-duel-sentence", shared: ["cors", "creative"] },
   { name: "judge-duel", shared: ["cors", "creative"] },
   { name: "rewrite-with-emotion", shared: ["cors", "creative"] },
@@ -23,6 +24,9 @@ const bundles = [
   { name: "coach-evaluate", shared: ["cors", "coach"] },
   { name: "get-error-patterns", shared: ["cors", "auth", "premium", "errorClassification"] },
   { name: "record-error-events", shared: ["cors", "auth", "premium", "errorClassification", "errorEvents"] },
+  { name: "get-writing-dna", shared: ["cors", "auth", "premium", "writingDnaAnalysis"] },
+  { name: "record-writing-dna", shared: ["cors", "auth", "premium", "writingDnaAnalysis", "writingDnaPersistence"] },
+  { name: "manage-writing-dna-goals", shared: ["cors", "auth", "premium"] },
   { name: "grammar-learning", shared: ["cors", "grammarLearning"] },
   { name: "vocabulary-learning", shared: ["cors", "vocabularyLearning"] },
 ];

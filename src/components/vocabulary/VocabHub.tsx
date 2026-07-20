@@ -1,24 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type TransitionEvent } from "react";
 import { WORD_COLLECTIONS } from "../../constants/wordCollections";
-import { getWordOfTheDay } from "../../constants/wordOfTheDay";
-import { addRecentWord, readRecentWords } from "../../lib/vocabularyLookup";
+import { addRecentWord, normalizeWord, readRecentWords } from "../../lib/vocabularyLookup";
 import { searchWordSuggestionsAsync } from "../../lib/vocabularyClient";
-import { isSearchableQuery, searchWordSuggestions } from "../../lib/vocabularySearch";
+import { isSearchableQuery, isValidWordLookup, searchWordSuggestions } from "../../lib/vocabularySearch";
+import { WordDetailExpandCard } from "./WordDetailExpandCard";
 import styles from "../learning/LearningTab.module.css";
 
 interface VocabHubProps {
-  onSelectWord: (word: string) => void;
   onSelectCollection: (collectionId: string) => void;
 }
 
-export function VocabHub({ onSelectWord, onSelectCollection }: VocabHubProps) {
-  const wordOfDay = useMemo(() => getWordOfTheDay(), []);
+export function VocabHub({ onSelectCollection }: VocabHubProps) {
   const [query, setQuery] = useState("");
   const [recent, setRecent] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [detailWord, setDetailWord] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const pendingCloseRef = useRef(false);
 
   const trimmedQuery = query.trim();
   const showSuggestions = isSearchableQuery(query);
@@ -62,14 +63,44 @@ export function VocabHub({ onSelectWord, onSelectCollection }: VocabHubProps) {
     };
   }, [showSuggestions, trimmedQuery, localSuggestions]);
 
-  const submitWord = (word: string) => {
-    const next = word.trim();
+  const openWordDetail = (word: string) => {
+    const next = normalizeWord(word.trim());
     if (!next) return;
     setQuery("");
     setSuggestions([]);
     setRecent(addRecentWord(next));
-    onSelectWord(next);
+    if (detailWord === next && detailOpen) {
+      closeWordDetail();
+      return;
+    }
+    pendingCloseRef.current = false;
+    setDetailWord(next);
+    setDetailOpen(true);
   };
+
+  const closeWordDetail = () => {
+    pendingCloseRef.current = true;
+    setDetailOpen(false);
+  };
+
+  const clearWordDetail = () => {
+    setDetailWord(null);
+    pendingCloseRef.current = false;
+  };
+
+  const handleLayoutTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
+    if (event.propertyName !== "grid-template-columns") return;
+    if (!detailOpen && pendingCloseRef.current) {
+      clearWordDetail();
+    }
+  };
+
+  const submitWord = (word: string) => {
+    if (!isValidWordLookup(word)) return;
+    openWordDetail(word);
+  };
+
+  const canSubmitQuery = isValidWordLookup(trimmedQuery);
 
   const dropdownSuggestions = suggestions.filter(
     (word) => word.toLowerCase() !== trimmedQuery.toLowerCase(),
@@ -84,105 +115,135 @@ export function VocabHub({ onSelectWord, onSelectCollection }: VocabHubProps) {
         </p>
       </header>
 
-      <div className={styles.searchWrap}>
-        <label className={styles.srOnly} htmlFor="vocab-search">
-          Search for a word
-        </label>
-        <input
-          id="vocab-search"
-          className={styles.searchInput}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && trimmedQuery) submitWord(trimmedQuery);
-          }}
-          placeholder="Search any word — AI-powered lookup"
-          autoComplete="off"
-          spellCheck={false}
-        />
-        {showSuggestions && (
-          <div className={styles.suggestions} role="listbox" aria-label="Word suggestions">
+      <div
+        className={`${styles.hubLayout} ${detailWord ? styles.hubLayoutHasDetail : ""} ${detailOpen ? styles.hubLayoutDetailOpen : ""}`}
+        onTransitionEnd={handleLayoutTransitionEnd}
+      >
+        <div className={styles.hubMain}>
+          <div className={styles.searchWrap}>
+            <label className={styles.srOnly} htmlFor="vocab-search">
+              Search for a word
+            </label>
+          <div className={styles.searchRow}>
+            <input
+              id="vocab-search"
+              className={styles.searchInput}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && canSubmitQuery) submitWord(trimmedQuery);
+              }}
+              placeholder="Search any English word or phrase"
+              autoComplete="off"
+              spellCheck={false}
+              aria-describedby="vocab-search-hint"
+            />
             <button
               type="button"
-              className={`${styles.suggestionItem} ${styles.suggestionPrimary}`}
-              role="option"
+              className={styles.searchButton}
               onClick={() => submitWord(trimmedQuery)}
+              disabled={!canSubmitQuery}
             >
-              Look up &ldquo;{trimmedQuery}&rdquo;
+              Look up
             </button>
-            {suggestionsLoading && dropdownSuggestions.length === 0 && (
-              <p className={styles.suggestionLoading}>Finding words…</p>
-            )}
-            {dropdownSuggestions.map((word) => (
-              <button
-                key={word}
-                type="button"
-                className={styles.suggestionItem}
-                role="option"
-                onClick={() => submitWord(word)}
-              >
-                {word}
-              </button>
-            ))}
           </div>
+          <p id="vocab-search-hint" className={styles.searchHint}>
+            Look up any English word — common, rare, or technical. AI generates the full entry.
+          </p>
+          {showSuggestions && (
+            <div className={styles.suggestions} role="listbox" aria-label="Word suggestions">
+              <button
+                type="button"
+                className={`${styles.suggestionItem} ${styles.suggestionWord}`}
+                role="option"
+                onClick={() => submitWord(trimmedQuery)}
+              >
+                <span className={styles.suggestionWordTitle}>{trimmedQuery}</span>
+                <span className={styles.suggestionWordMeta}>
+                  View definition, examples, synonyms & practice
+                </span>
+              </button>
+                {suggestionsLoading && dropdownSuggestions.length === 0 && (
+                  <p className={styles.suggestionLoading}>Finding words…</p>
+                )}
+                {dropdownSuggestions.map((word) => (
+                  <button
+                    key={word}
+                    type="button"
+                    className={styles.suggestionItem}
+                    role="option"
+                    onClick={() => submitWord(word)}
+                  >
+                    {word}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <section aria-labelledby="collections-heading">
+            <h3 id="collections-heading" className={styles.sectionHeading}>
+              Word collections
+            </h3>
+            <div className={styles.collectionGrid}>
+              {WORD_COLLECTIONS.map((collection) => (
+                <article key={collection.id} className={styles.collectionCard}>
+                  <h4 className={styles.collectionTitle}>{collection.title}</h4>
+                  <p className={styles.collectionTeaser}>{collection.teaser}…</p>
+                  <p className={styles.collectionMeta}>{collection.words.length} words</p>
+                  <button
+                    type="button"
+                    className={styles.collectionExplore}
+                    onClick={() => onSelectCollection(collection.id)}
+                  >
+                    Explore
+                  </button>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          {recent.length > 0 && (
+            <section aria-labelledby="recent-heading">
+              <h3 id="recent-heading" className={styles.sectionHeading}>
+                Recently looked up
+              </h3>
+              <div className={styles.recentChips}>
+                {recent.map((word) => (
+                  <button
+                    key={word}
+                    type="button"
+                    className={styles.recentChip}
+                    onClick={() => openWordDetail(word)}
+                  >
+                    {word}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        {detailWord && (
+          <aside
+            className={styles.hubDetailSlot}
+            aria-label="Word detail"
+            onClick={closeWordDetail}
+          >
+            <div
+              className={styles.hubDetailInner}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <WordDetailExpandCard
+                key={detailWord}
+                word={detailWord}
+                open={detailOpen}
+                onClose={closeWordDetail}
+              />
+            </div>
+          </aside>
         )}
       </div>
-
-      <button
-        type="button"
-        className={styles.wordOfDayCard}
-        onClick={() => submitWord(wordOfDay.word)}
-      >
-        <p className={styles.wordOfDayLabel}>Word of the day</p>
-        <p className={styles.wordOfDayWord}>{wordOfDay.word}</p>
-        <p className={styles.definition}>
-          <span className={styles.posBadge}>{wordOfDay.partOfSpeech}</span>{" "}
-          {wordOfDay.definition}
-        </p>
-        <p className={styles.subtitle}>{wordOfDay.example}</p>
-      </button>
-
-      <section aria-labelledby="collections-heading">
-        <h3 id="collections-heading" className={styles.sectionHeading}>
-          Word collections
-        </h3>
-        <div className={styles.collectionGrid}>
-          {WORD_COLLECTIONS.map((collection) => (
-            <article key={collection.id} className={styles.collectionCard}>
-              <h4 className={styles.collectionTitle}>{collection.title}</h4>
-              <p className={styles.collectionTeaser}>{collection.teaser}…</p>
-              <p className={styles.collectionMeta}>{collection.words.length} words</p>
-              <button
-                type="button"
-                className={styles.collectionExplore}
-                onClick={() => onSelectCollection(collection.id)}
-              >
-                Explore
-              </button>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {recent.length > 0 && (
-        <section aria-labelledby="recent-heading">
-          <h3 id="recent-heading" className={styles.sectionHeading}>
-            Recently looked up
-          </h3>
-          <div className={styles.recentChips}>
-            {recent.map((word) => (
-              <button
-                key={word}
-                type="button"
-                className={styles.recentChip}
-                onClick={() => onSelectWord(word)}
-              >
-                {word}
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }

@@ -88,7 +88,7 @@ export function VocabularyTab({
       labelledBy="tab-vocabulary"
       backTo={{ label: "Dashboard", onBack: handleBackToDashboard }}
     >
-      <VocabHub onSelectWord={handleSelectWord} onSelectCollection={handleSelectCollection} />
+      <VocabHub onSelectCollection={handleSelectCollection} />
     </TabPageShell>
   );
 }

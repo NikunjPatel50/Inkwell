@@ -33,6 +33,7 @@ export function buildLocalWordDetail(word: string): WordDetail | null {
 
   const partOfSpeech = collectionEntry?.partOfSpeech ?? wordOfDay?.partOfSpeech ?? "word";
   const definition = collectionEntry?.definition ?? wordOfDay?.definition ?? "";
+  if (!definition.trim()) return null;
   const primaryExample =
     wordOfDay?.example ??
     `She used the word ${normalized} naturally in her essay.`;
@@ -123,7 +124,21 @@ export function buildGenericWordDetail(word: string): WordDetail {
 }
 
 export function normalizeWord(word: string): string {
-  return word.trim().toLowerCase();
+  return word.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+export function isPlaceholderWordDetail(detail: WordDetail): boolean {
+  return detail.level1.definition.includes("Full AI detail was unavailable");
+}
+
+export function isValidWordDetail(detail: WordDetail | null | undefined): detail is WordDetail {
+  return Boolean(
+    detail?.word &&
+      detail.level1?.definition?.trim() &&
+      Array.isArray(detail.level1.examples) &&
+      detail.level1.examples.length > 0 &&
+      !isPlaceholderWordDetail(detail),
+  );
 }
 
 function escapeRegex(value: string): string {

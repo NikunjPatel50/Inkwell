@@ -41,15 +41,12 @@ export async function getAuthenticatedClient(req: Request) {
 }
 
 // shared: premium
-export function isPremiumUser(userId: string): boolean {
-  if (Deno.env.get("PREMIUM_STUB_ALL") === "true") return true;
-
-  const allowlist = (Deno.env.get("PREMIUM_STUB_USER_IDS") ?? "")
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-
-  return allowlist.includes(userId);
+/**
+ * Premium features are open to all authenticated users during beta.
+ * Auth is enforced by each handler before this check.
+ */
+export function isPremiumUser(_userId: string): boolean {
+  return true;
 }
 
 // shared: errorClassification

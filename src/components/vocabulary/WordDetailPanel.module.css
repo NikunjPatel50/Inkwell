@@ -1,0 +1,291 @@
+.dictEntry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.dictHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--color-chrome-border);
+}
+
+.dictHeaderMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.dictSyllables {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--color-ink-muted);
+  letter-spacing: 0.02em;
+}
+
+.dictPhoneticRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dictPhonetic {
+  font-size: 0.82rem;
+  color: var(--color-ink-muted);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.audioButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-brand-teal);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.audioButton:hover {
+  background: rgba(26, 158, 150, 0.08);
+}
+
+.dictPos {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-style: italic;
+  color: #2f6db5;
+  white-space: nowrap;
+}
+
+.synonymsLine,
+.antonymsLine {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+.synonymsLabel,
+.antonymsLabel {
+  font-weight: 600;
+  color: #2f6db5;
+  margin-right: 0.35rem;
+}
+
+.synonymsWords,
+.antonymsWords {
+  color: var(--color-ink);
+}
+
+.senseList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.senseItem {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.35rem 0.5rem;
+  align-items: start;
+}
+
+.senseNumber {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.55;
+  padding-top: 0.05rem;
+}
+
+.senseContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.senseDefinition {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--color-ink);
+}
+
+.senseExample {
+  margin: 0;
+  padding-left: 0.85rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--color-ink-muted);
+}
+
+.relatedForms {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-chrome-border);
+}
+
+.relatedForm {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.relatedForm strong {
+  font-weight: 700;
+  margin-right: 0.35rem;
+}
+
+.relatedPos {
+  font-style: italic;
+  color: #2f6db5;
+  font-size: 0.78rem;
+}
+
+.extraBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--color-chrome-border);
+}
+
+.extraLine {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-ink-muted);
+}
+
+.extraLine strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-top: 0.55rem;
+  margin-top: 0.15rem;
+  border-top: 1px solid var(--color-chrome-border);
+}
+
+.actionRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.secondaryButton,
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.secondaryButton {
+  border: 1px solid var(--color-chrome-border);
+  background: var(--color-surface);
+  color: var(--color-brand-teal);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  border-color: rgba(26, 158, 150, 0.35);
+  background: rgba(26, 158, 150, 0.05);
+}
+
+.primaryButton {
+  border: 1px solid var(--color-brand-teal);
+  background: var(--color-brand-teal);
+  color: var(--color-on-accent);
+  box-shadow: 0 2px 8px rgba(26, 158, 150, 0.22);
+}
+
+.primaryButton:hover:not(:disabled) {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.primaryButtonFull {
+  grid-column: 1 / -1;
+}
+
+.loading,
+.error {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.loading {
+  padding: 1rem 0.25rem;
+  color: var(--color-ink-muted);
+  font-style: italic;
+  text-align: center;
+}
+
+.error {
+  color: var(--color-terracotta);
+}
+
+.stateCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: var(--radius-md);
+  background: var(--color-workspace-bg);
+}
+
+.practiceWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-top: 0.15rem;
+}
+
+@media (max-width: 420px) {
+  .actionRow {
+    grid-template-columns: 1fr;
+  }
+}

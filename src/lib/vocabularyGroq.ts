@@ -204,12 +204,12 @@ export async function suggestWords(query: string): Promise<string[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const systemPrompt = `You help users find English vocabulary. Given a partial or full search query, return JSON only:
+  const systemPrompt = `You help users find English vocabulary. Given any partial or full search query, return JSON only:
 { "suggestions": string[] }
 
-Return up to 5 real English words or phrases (1-3 words) that match or relate to the query.
-Include the exact word if the query is already a valid English word.
-Prefer common, learnable vocabulary. Lowercase single words unless a proper noun. JSON only.`;
+Return up to 5 real English words or short phrases (1-3 words) that match or relate to the query.
+Include the exact query when it is already a valid English word or phrase.
+Cover common, advanced, and specialized vocabulary. Lowercase single words unless a proper noun. JSON only.`;
 
   const data = parseJson<{ suggestions: string[] }>(
     await callGroq(systemPrompt, `Query: ${trimmed}`),
@@ -226,7 +226,11 @@ Prefer common, learnable vocabulary. Lowercase single words unless a proper noun
 }
 
 export async function generateWordDetail(word: string): Promise<WordDetail> {
-  const systemPrompt = `You are an English vocabulary teacher. Return JSON only for the word requested.
+  const systemPrompt = `You are a comprehensive English dictionary and vocabulary teacher.
+The user may look up ANY real English word or short phrase (1-3 words) — common, rare, technical, literary, archaic, slang, or regional.
+If the word exists in English, return an accurate, helpful entry.
+If the input is a close misspelling, resolve to the intended English word.
+Return JSON only:
 {
   "word": string,
   "phonetic": string,
@@ -254,7 +258,7 @@ export async function generateWordDetail(word: string): Promise<WordDetail> {
 Plain English. Examples must use the word naturally. Omit empty word forms in level2.wordForms. JSON only.`;
 
   const data = parseJson<WordDetail>(
-    await callGroq(systemPrompt, `Word: ${word.trim()}`),
+    await callGroq(systemPrompt, `Word or phrase: ${word.trim().toLowerCase()}`),
   );
 
   if (!data.word || !data.level1?.definition || !data.level1.examples?.length) {

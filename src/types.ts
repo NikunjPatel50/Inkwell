@@ -69,11 +69,11 @@ export type AppTab =
   | "history";
 
 export const APP_TABS: { id: AppTab; label: string; description: string }[] = [
-  { id: "dashboard", label: "Dashboard", description: "Practice overview and quick actions" },
+  { id: "dashboard", label: "Dashboard", description: "Practice overview, PTE metrics, and Writing DNA™" },
+  { id: "write", label: "Write", description: "Analyse drafts with grammar feedback and rewrites" },
   { id: "learn", label: "Learn", description: "Adaptive curriculum and skill exercises" },
   { id: "grammar", label: "Grammar", description: "In-context grammar lessons and exercises" },
   { id: "vocabulary", label: "Vocabulary", description: "Words learned through real sentences" },
-  { id: "write", label: "Write", description: "Analyse drafts with grammar feedback and rewrites" },
   { id: "coach", label: "AI Writing Coach", description: "Learn how to write with guided coaching levels" },
   { id: "history", label: "History", description: "Session history and progress tracking" },
 ];
@@ -303,6 +303,13 @@ export interface SynonymAntonym {
   note: string;
 }
 
+export interface WordSense {
+  number: number;
+  subLabel?: string;
+  definition: string;
+  examples: string[];
+}
+
 export interface WordDetailLevel1 {
   definition: string;
   examples: string[];
@@ -333,6 +340,8 @@ export interface WordDetail {
   word: string;
   phonetic: string;
   partOfSpeech: string;
+  audioUrl?: string;
+  senses?: WordSense[];
   level1: WordDetailLevel1;
   level2: WordDetailLevel2;
   level3: WordDetailLevel3;

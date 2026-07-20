@@ -1,0 +1,105 @@
+.shell {
+  height: 100%;
+  min-height: 0;
+  perspective: 1200px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  border: 1px solid color-mix(in srgb, var(--color-brand-teal) 14%, var(--color-chrome-border));
+  border-radius: var(--enterprise-card-radius);
+  background:
+    linear-gradient(180deg, rgba(26, 158, 150, 0.04) 0%, transparent 2.5rem),
+    var(--color-surface);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 16px 40px rgba(22, 34, 51, 0.1);
+  transform-origin: left center;
+  transform: rotateY(-18deg) translateX(18px) scale(0.98);
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 340ms ease,
+    box-shadow 460ms ease;
+}
+
+.shellOpen .panel {
+  transform: rotateY(0deg) translateX(0) scale(1);
+  opacity: 1;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 22px 48px rgba(22, 34, 51, 0.12);
+}
+
+.shellClosing .panel {
+  transform: rotateY(14deg) translateX(22px) scale(0.98);
+  opacity: 0;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 0.9rem 0.7rem;
+  border-bottom: 1px solid var(--color-chrome-border);
+  background: color-mix(in srgb, var(--color-workspace-bg) 70%, var(--color-surface));
+  flex-shrink: 0;
+}
+
+.panelHeaderText {
+  min-width: 0;
+}
+
+.panelWord {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--color-chrome-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.closeButton:hover {
+  border-color: rgba(26, 158, 150, 0.35);
+  color: var(--color-ink);
+}
+
+.panelBody {
+  flex: 1;
+  min-height: 0;
+  padding: 0.8rem 0.9rem 0.9rem;
+  overflow-y: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+  }
+}

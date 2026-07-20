@@ -464,15 +464,12 @@ Evaluate how well the student addressed each known error. One warm encouragement
 }
 
 // shared: premium
-export function isPremiumUser(userId: string): boolean {
-  if (Deno.env.get("PREMIUM_STUB_ALL") === "true") return true;
-
-  const allowlist = (Deno.env.get("PREMIUM_STUB_USER_IDS") ?? "")
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-
-  return allowlist.includes(userId);
+/**
+ * Premium features are open to all authenticated users during beta.
+ * Auth is enforced by each handler before this check.
+ */
+export function isPremiumUser(_userId: string): boolean {
+  return true;
 }
 
 // shared: errorClassification
@@ -851,18 +848,22 @@ export default async function handler(req: Request): Promise<Response> {
       sessionId = newSession?.id ?? null;
     }
 
-    await client.database.from("analyzed_sentences").insert([
-      {
-        user_id: userId,
-        session_id: sessionId,
-        original_text: text,
-        register_score: analysis.registerScore,
-        simple_version: analysis.simple,
-        intermediate_version: analysis.intermediate,
-        advanced_version: analysis.advanced,
-        error_count: analysis.errors.length,
-      },
-    ]);
+    const { data: analyzedSentence } = await client.database
+      .from("analyzed_sentences")
+      .insert([
+        {
+          user_id: userId,
+          session_id: sessionId,
+          original_text: text,
+          register_score: analysis.registerScore,
+          simple_version: analysis.simple,
+          intermediate_version: analysis.intermediate,
+          advanced_version: analysis.advanced,
+          error_count: analysis.errors.length,
+        },
+      ])
+      .select("id")
+      .single();
 
     for (const writingError of analysis.errors) {
       await upsertSkillPattern(client, userId, categorizeError(writingError.issue));
@@ -895,6 +896,20 @@ export default async function handler(req: Request): Promise<Response> {
         .from("practice_sessions")
         .update({ sentence_count: currentCount + 1 })
         .eq("id", sessionId);
+    }
+
+    if (isPremiumUser(userId)) {
+      try {
+        await persistWritingDna(client, userId, {
+          text,
+          sourceTool: "write",
+          errors: analysis.errors,
+          registerScore: analysis.registerScore,
+          analyzedSentenceId: analyzedSentence?.id ?? null,
+        });
+      } catch {
+        // Non-blocking — analysis response should still succeed.
+      }
     }
 
     const { count: sentencesToday } = await client.database
