@@ -1,6 +1,6 @@
-import { getAuthenticatedClient } from "./_shared/auth.ts";
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
-import { isPremiumUser } from "./_shared/premium.ts";
+import { getAuthenticatedClient } from "../../functions/_shared/auth.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
+import { isPremiumUser } from "../../functions/_shared/premium.ts";
 
 const GOAL_TYPES = new Set([
   "daily_words",

@@ -16,6 +16,8 @@ out
 !.env.example
 dist-ssr
 *.local
+tsconfig.tsbuildinfo
+deno.lock
 
 # Editor directories and files
 .vscode/*

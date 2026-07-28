@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppBrand } from "../AppBrand";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "../../lib/site";
+import { FEATURED_DISCOVER_LINKS } from "../../lib/seo/featuredDiscoverLinks";
 import { MARKETING_NAV, PRICING_NAV } from "../../lib/seo/publicRoutes";
 import { MARKETING_TESTIMONIALS } from "../../lib/seo/testimonials";
 import { PricingSection } from "../marketing/PricingSection";
@@ -367,6 +368,16 @@ export function LandingPage() {
               <Link href="/login" className={styles.footerLink}>
                 Get started free
               </Link>
+            </div>
+          </div>
+          <div>
+            <p className={styles.footerHeading}>Popular guides</p>
+            <div className={styles.footerLinks}>
+              {FEATURED_DISCOVER_LINKS.map((item) => (
+                <Link key={item.href} href={item.href} className={styles.footerLink}>
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </div>
           <div>

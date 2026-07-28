@@ -7,7 +7,7 @@ const bundledDir = join(root, "functions", "bundled");
 mkdirSync(bundledDir, { recursive: true });
 
 const bundles = [
-  { name: "analyze-text", shared: ["cors", "auth", "categories", "groq", "premium", "errorClassification", "errorEvents"] },
+  { name: "analyze-text", shared: ["cors", "auth", "categories", "groq", "premium", "errorClassification", "errorEvents", "writingDnaAnalysis", "writingDnaPersistence"] },
   { name: "check-correction", shared: ["cors", "auth", "groq"] },
   { name: "get-history", shared: ["cors", "auth"] },
   { name: "get-vocabulary", shared: ["cors", "auth"] },
@@ -37,7 +37,7 @@ function stripImports(content) {
     .trim();
 }
 
-const npmImports = `import { createClient } from "npm:@insforge/sdk@latest";\n\n`;
+const npmImports = `import { createClient } from "npm:@insforge/sdk@1.4.3";\n\n`;
 
 for (const bundle of bundles) {
   const parts = bundle.shared.map((file) => {
@@ -45,7 +45,7 @@ for (const bundle of bundles) {
     return `// shared: ${file}\n${stripImports(content)}`;
   });
 
-  const main = stripImports(readFileSync(join(root, "functions", `${bundle.name}.ts`), "utf8"));
+  const main = stripImports(readFileSync(join(root, "edge", "handlers", `${bundle.name}.ts`), "utf8"));
 
   writeFileSync(
     join(bundledDir, `${bundle.name}.ts`),

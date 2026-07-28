@@ -1,8 +1,8 @@
-import { getAuthenticatedClient } from "./_shared/auth.ts";
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
-import { ERROR_CATEGORIES } from "./_shared/errorClassification.ts";
-import { insertErrorEvents, type ErrorEventInsert } from "./_shared/errorEvents.ts";
-import { isPremiumUser } from "./_shared/premium.ts";
+import { getAuthenticatedClient } from "../../functions/_shared/auth.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
+import { ERROR_CATEGORIES } from "../../functions/_shared/errorClassification.ts";
+import { insertErrorEvents, type ErrorEventInsert } from "../../functions/_shared/errorEvents.ts";
+import { isPremiumUser } from "../../functions/_shared/premium.ts";
 
 function isValidEvent(event: unknown): event is ErrorEventInsert {
   if (!event || typeof event !== "object") return false;

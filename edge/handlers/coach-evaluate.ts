@@ -1,4 +1,4 @@
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
 import {
   combineParagraph,
   evaluateCollocations,
@@ -6,7 +6,7 @@ import {
   evaluateStepFeedback,
   generateCollocationTopicExamples,
   GroqServiceError,
-} from "./_shared/coach.ts";
+} from "../../functions/_shared/coach.ts";
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return handleOptions();

@@ -1,5 +1,5 @@
-import { getAuthenticatedClient } from "./_shared/auth.ts";
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
+import { getAuthenticatedClient } from "../../functions/_shared/auth.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return handleOptions();

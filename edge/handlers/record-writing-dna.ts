@@ -1,7 +1,7 @@
-import { getAuthenticatedClient } from "./_shared/auth.ts";
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
-import { isPremiumUser } from "./_shared/premium.ts";
-import { persistWritingDna } from "./_shared/writingDnaPersistence.ts";
+import { getAuthenticatedClient } from "../../functions/_shared/auth.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
+import { isPremiumUser } from "../../functions/_shared/premium.ts";
+import { persistWritingDna } from "../../functions/_shared/writingDnaPersistence.ts";
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return handleOptions();

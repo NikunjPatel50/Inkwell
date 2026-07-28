@@ -1,5 +1,5 @@
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
-import { generateBuildItExercise, GroqServiceError } from "./_shared/learn.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
+import { generateCompleteItExercise, GroqServiceError } from "../../functions/_shared/learn.ts";
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return handleOptions();
@@ -13,7 +13,7 @@ export default async function handler(req: Request): Promise<Response> {
     if (!body.skill?.name || !body.varietySeed) {
       return jsonResponse({ error: "Skill and varietySeed are required." }, 400);
     }
-    const result = await generateBuildItExercise(body.skill, body.varietySeed);
+    const result = await generateCompleteItExercise(body.skill, body.varietySeed);
     return jsonResponse(result);
   } catch (err) {
     const message = err instanceof GroqServiceError ? err.message : "Could not generate exercise.";

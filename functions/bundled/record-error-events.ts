@@ -1,4 +1,4 @@
-import { createClient } from "npm:@insforge/sdk@latest";
+import { createClient } from "npm:@insforge/sdk@1.4.3";
 
 // shared: cors
 export const corsHeaders: Record<string, string> = {
@@ -295,7 +295,7 @@ export interface ErrorEventInsert {
 }
 
 export async function insertErrorEvents(
-  client: ReturnType<typeof import("npm:@insforge/sdk@latest").createClient>,
+  client: ReturnType<typeof import("npm:@insforge/sdk@1.4.3").createClient>,
   userId: string,
   events: ErrorEventInsert[],
 ): Promise<void> {

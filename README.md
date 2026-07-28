@@ -53,14 +53,16 @@ src/
 ├── lib/                    # API clients, InsForge, utilities
 ├── constants/
 └── types.ts
-functions/                    # InsForge edge functions (deploy separately)
-```
+functions/
+├── _shared/                # Shared modules (bundled into deploy artifacts)
+├── bundled/                # Generated — deploy these via InsForge CLI
+└── ../edge/handlers/       # Function source (npm run bundle-functions)
 
 ## InsForge edge functions
 
 ```bash
 npm run bundle-functions
-# Deploy bundled functions via InsForge CLI
+npx @insforge/cli functions deploy <slug> --file functions/bundled/<slug>.ts
 ```
 
 ## License

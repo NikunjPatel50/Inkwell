@@ -1,4 +1,4 @@
-import { createClient } from "npm:@insforge/sdk@latest";
+import { createClient } from "npm:@insforge/sdk@1.4.3";
 
 export async function getAuthenticatedClient(req: Request) {
   const authHeader = req.headers.get("Authorization");

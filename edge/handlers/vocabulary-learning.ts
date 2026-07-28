@@ -1,4 +1,4 @@
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
 import {
   checkReplaceIt,
   checkUseIt,
@@ -9,7 +9,7 @@ import {
   GroqServiceError,
   suggestWords,
   type VocabularyWordInput,
-} from "./_shared/vocabularyLearning.ts";
+} from "../../functions/_shared/vocabularyLearning.ts";
 
 type WordAction =
   | "generate-use-it"

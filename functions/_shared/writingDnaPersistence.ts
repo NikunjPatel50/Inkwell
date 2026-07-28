@@ -10,7 +10,7 @@ import {
   type WritingDnaMetrics,
 } from "./writingDnaAnalysis.ts";
 
-type DbClient = ReturnType<typeof import("npm:@insforge/sdk@latest").createClient>;
+type DbClient = ReturnType<typeof import("npm:@insforge/sdk@1.4.3").createClient>;
 
 export interface PersistWritingDnaInput {
   text: string;
@@ -42,12 +42,12 @@ function daysBetween(a: string, b: string): number {
   return Math.round(ms / 86_400_000);
 }
 
-function tokenizeWords(text: string): string[] {
+function vocabTokenizeWords(text: string): string[] {
   return text.toLowerCase().match(/[a-z']+/g) ?? [];
 }
 
 async function upsertVocabulary(client: DbClient, userId: string, text: string): Promise<void> {
-  const words = [...new Set(tokenizeWords(text).filter((w) => w.length > 2))];
+  const words = [...new Set(vocabTokenizeWords(text).filter((w) => w.length > 2))];
   if (words.length === 0) return;
 
   const now = new Date().toISOString();

@@ -1,4 +1,4 @@
-import { createClient } from "npm:@insforge/sdk@latest";
+import { createClient } from "npm:@insforge/sdk@1.4.3";
 
 // shared: cors
 export const corsHeaders: Record<string, string> = {

@@ -1,7 +1,7 @@
-import { getAuthenticatedClient } from "./_shared/auth.ts";
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
-import { ACHIEVEMENT_DEFS, GRAMMAR_HEATMAP_CATEGORIES } from "./_shared/writingDnaAnalysis.ts";
-import { isPremiumUser } from "./_shared/premium.ts";
+import { getAuthenticatedClient } from "../../functions/_shared/auth.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
+import { ACHIEVEMENT_DEFS, GRAMMAR_HEATMAP_CATEGORIES } from "../../functions/_shared/writingDnaAnalysis.ts";
+import { isPremiumUser } from "../../functions/_shared/premium.ts";
 
 const SESSION_PAGE_SIZE = 20;
 const VOCAB_PAGE_SIZE = 30;

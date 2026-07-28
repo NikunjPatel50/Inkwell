@@ -1,4 +1,4 @@
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
 import {
   checkFillBlank,
   checkTransformIt,
@@ -7,7 +7,7 @@ import {
   generateTransformItExercise,
   GroqServiceError,
   type GrammarTopicInput,
-} from "./_shared/grammarLearning.ts";
+} from "../../functions/_shared/grammarLearning.ts";
 
 type GrammarAction =
   | "generate-identify-it"

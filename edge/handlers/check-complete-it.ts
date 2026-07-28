@@ -1,5 +1,5 @@
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
-import { checkCompleteIt, GroqServiceError } from "./_shared/learn.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
+import { checkCompleteIt, GroqServiceError } from "../../functions/_shared/learn.ts";
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return handleOptions();

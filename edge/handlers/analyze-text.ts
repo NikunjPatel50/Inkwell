@@ -1,14 +1,14 @@
-import { getAuthenticatedClient } from "./_shared/auth.ts";
-import { categorizeError } from "./_shared/categories.ts";
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
+import { getAuthenticatedClient } from "../../functions/_shared/auth.ts";
+import { categorizeError } from "../../functions/_shared/categories.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
 import {
   classifyErrorText,
   exampleTextFromWritingError,
-} from "./_shared/errorClassification.ts";
-import { buildWriteErrorEvents, insertErrorEvents } from "./_shared/errorEvents.ts";
-import { analyzeWriting, GroqServiceError } from "./_shared/groq.ts";
-import { isPremiumUser } from "./_shared/premium.ts";
-import { persistWritingDna } from "./_shared/writingDnaPersistence.ts";
+} from "../../functions/_shared/errorClassification.ts";
+import { buildWriteErrorEvents, insertErrorEvents } from "../../functions/_shared/errorEvents.ts";
+import { analyzeWriting, GroqServiceError } from "../../functions/_shared/groq.ts";
+import { isPremiumUser } from "../../functions/_shared/premium.ts";
+import { persistWritingDna } from "../../functions/_shared/writingDnaPersistence.ts";
 
 function todayStartIso(): string {
   const now = new Date();
@@ -16,7 +16,7 @@ function todayStartIso(): string {
 }
 
 async function upsertSkillPattern(
-  client: ReturnType<typeof import("npm:@insforge/sdk@latest").createClient>,
+  client: ReturnType<typeof import("npm:@insforge/sdk@1.4.3").createClient>,
   userId: string,
   category: string,
 ) {

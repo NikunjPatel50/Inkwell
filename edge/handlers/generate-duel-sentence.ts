@@ -1,5 +1,5 @@
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
-import { rewriteWithEmotion, GroqServiceError } from "./_shared/creative.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
+import { generateDuelSentence, GroqServiceError } from "../../functions/_shared/creative.ts";
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return handleOptions();
@@ -9,14 +9,7 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   try {
-    const body = (await req.json()) as { text?: string };
-    const text = body.text?.trim() ?? "";
-
-    if (!text) {
-      return jsonResponse({ error: "Text is required." }, 400);
-    }
-
-    const result = await rewriteWithEmotion(text);
+    const result = await generateDuelSentence();
     return jsonResponse(result);
   } catch (err) {
     const message =
@@ -24,7 +17,7 @@ export default async function handler(req: Request): Promise<Response> {
         ? err.message
         : err instanceof Error
           ? err.message
-          : "Could not rewrite with emotion.";
+          : "Could not generate a duel sentence.";
     return jsonResponse({ error: message }, 500);
   }
 }

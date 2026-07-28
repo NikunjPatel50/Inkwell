@@ -1,7 +1,7 @@
-import { getAuthenticatedClient } from "./_shared/auth.ts";
-import { handleOptions, jsonResponse } from "./_shared/cors.ts";
-import { ERROR_CATEGORY_META } from "./_shared/errorClassification.ts";
-import { isPremiumUser } from "./_shared/premium.ts";
+import { getAuthenticatedClient } from "../../functions/_shared/auth.ts";
+import { handleOptions, jsonResponse } from "../../functions/_shared/cors.ts";
+import { ERROR_CATEGORY_META } from "../../functions/_shared/errorClassification.ts";
+import { isPremiumUser } from "../../functions/_shared/premium.ts";
 
 const WINDOW_DAYS = 30;
 const TOP_LIMIT = 5;
