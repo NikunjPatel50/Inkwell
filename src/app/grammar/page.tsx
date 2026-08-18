@@ -9,13 +9,12 @@ import { GRAMMAR_CATEGORIES } from "@/constants/grammarTopics";
 import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
 import { GRAMMAR_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { GRAMMAR_HUB_META_DESCRIPTION } from "@/lib/seo/descriptions";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Grammar Lessons Taught Through Real Sentences",
-  description:
-    "Explore 40 grammar topics across parts of speech, tenses, punctuation, and common mistakes. Each lesson shows rules inside sentences you can read, fix, and practice — free overview pages you can read without signing in.",
+  description: GRAMMAR_HUB_META_DESCRIPTION,
   path: "/grammar",
-  keywords: ["English grammar lessons", "grammar topics", "grammar in context", "writing grammar"],
 });
 
 export default function GrammarOverviewPage() {

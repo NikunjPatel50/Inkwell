@@ -1,5 +1,6 @@
 import { getSiteUrl, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 import { absoluteUrl } from "./metadata";
+import type { FaqItem } from "./pricingContent";
 
 export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
   return {
@@ -14,6 +15,23 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
   };
 }
 
+export function organizationJsonLd() {
+  const siteUrl = getSiteUrl();
+  return {
+    "@type": "Organization",
+    "@id": `${siteUrl}/#organization`,
+    name: SITE_NAME,
+    url: siteUrl,
+    logo: {
+      "@type": "ImageObject",
+      url: `${siteUrl}/wrytesmart-logo.png`,
+      width: 512,
+      height: 512,
+    },
+    image: `${siteUrl}/wrytesmart-logo.png`,
+  };
+}
+
 export function softwareApplicationJsonLd() {
   const siteUrl = getSiteUrl();
   return {
@@ -22,11 +40,28 @@ export function softwareApplicationJsonLd() {
     name: SITE_NAME,
     applicationCategory: "EducationalApplication",
     operatingSystem: "Web",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
+    offers: [
+      {
+        "@type": "Offer",
+        name: "Starter",
+        price: "0",
+        priceCurrency: "USD",
+        description: "Free grammar, vocabulary, and writing practice with daily limits.",
+      },
+      {
+        "@type": "Offer",
+        name: "Pro",
+        price: "49",
+        priceCurrency: "INR",
+        description: "Unlimited analysis, PTE/IELTS essay scoring, and progress tracking.",
+        priceSpecification: {
+          "@type": "UnitPriceSpecification",
+          price: "49",
+          priceCurrency: "INR",
+          unitText: "MONTH",
+        },
+      },
+    ],
     description: SITE_DESCRIPTION,
     url: `${siteUrl}/app`,
   };
@@ -55,7 +90,7 @@ export function reviewJsonLd(
   }));
 }
 
-export function faqPageJsonLd(faqs: { question: string; answer: string }[]) {
+export function faqPageJsonLd(faqs: FaqItem[] | { question: string; answer: string }[]) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -74,6 +109,7 @@ export function learningResourceJsonLd(options: {
   name: string;
   description: string;
   path: string;
+  resourceType?: string;
 }) {
   return {
     "@context": "https://schema.org",
@@ -81,7 +117,7 @@ export function learningResourceJsonLd(options: {
     name: options.name,
     description: options.description,
     url: absoluteUrl(options.path),
-    learningResourceType: "grammar lesson",
+    learningResourceType: options.resourceType ?? "lesson",
     inLanguage: "en",
     isAccessibleForFree: true,
     provider: {
@@ -105,6 +141,7 @@ export function aggregateRatingJsonLd(reviewCount: number) {
 
 export function homepageGraphJsonLd(
   reviews: { quote: string; author: string; role: string }[],
+  pricingFaqs: FaqItem[] | { question: string; answer: string }[],
 ) {
   const siteUrl = getSiteUrl();
   const app = softwareApplicationJsonLd();
@@ -118,18 +155,14 @@ export function homepageGraphJsonLd(
         name: SITE_NAME,
         description: SITE_DESCRIPTION,
         inLanguage: "en",
+        publisher: { "@id": `${siteUrl}/#organization` },
       },
+      organizationJsonLd(),
       {
         ...app,
         aggregateRating: aggregateRatingJsonLd(reviews.length),
       },
-      {
-        "@type": "Organization",
-        "@id": `${siteUrl}/#organization`,
-        name: SITE_NAME,
-        url: siteUrl,
-        logo: `${siteUrl}/wrytesmart-logo.png`,
-      },
+      faqPageJsonLd(pricingFaqs),
       ...reviewJsonLd(reviews),
     ],
   };

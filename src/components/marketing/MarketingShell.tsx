@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { AppBrand } from "@/components/AppBrand";
 import { MarketingBodyClass } from "@/components/landing/MarketingBodyClass";
-import { MARKETING_HEADER_NAV } from "@/lib/seo/publicRoutes";
+import { EXAM_PREP_LINKS, MARKETING_HEADER_NAV } from "@/lib/seo/publicRoutes";
 import styles from "./MarketingPage.module.css";
 
 interface MarketingShellProps {
@@ -71,12 +71,11 @@ export function MarketingShell({ children, breadcrumbs }: MarketingShellProps) {
           <div>
             <p className={styles.footerHeading}>Exam prep</p>
             <div className={styles.footerLinks}>
-              <Link href="/ielts-writing-practice" className={styles.footerLink}>
-                IELTS writing
-              </Link>
-              <Link href="/pte-writing-practice" className={styles.footerLink}>
-                PTE writing
-              </Link>
+              {EXAM_PREP_LINKS.map((item) => (
+                <Link key={item.href} href={item.href} className={styles.footerLink}>
+                  {item.label}
+                </Link>
+              ))}
               <Link href="/login" className={styles.footerLink}>
                 Get started free
               </Link>

@@ -12,6 +12,12 @@ export const MARKETING_NAV = [
 
 export const PRICING_NAV = { label: "Pricing", href: "/pricing" } as const;
 
+export const EXAM_PREP_LINKS = [
+  { label: "English writing practice", href: "/english-writing-practice" },
+  { label: "IELTS writing", href: "/ielts-writing-practice" },
+  { label: "PTE writing", href: "/pte-writing-practice" },
+] as const;
+
 export const MARKETING_HEADER_NAV = [...MARKETING_NAV, PRICING_NAV] as const;
 
 export const STATIC_MARKETING_PATHS = [
@@ -23,6 +29,7 @@ export const STATIC_MARKETING_PATHS = [
   "/coach",
   "/creative",
   "/pricing",
+  "/english-writing-practice",
   "/ielts-writing-practice",
   "/pte-writing-practice",
 ] as const;

@@ -1,27 +1,26 @@
 import type { Metadata } from "next";
 import { getSiteUrl, SITE_NAME } from "@/lib/site";
+import { trimMetaDescription } from "./descriptions";
 
 interface PageMetadataInput {
   title: string;
   description: string;
   path: string;
-  keywords?: string[];
 }
 
 export function buildPageMetadata({
   title,
   description,
   path,
-  keywords,
 }: PageMetadataInput): Metadata {
   const siteUrl = getSiteUrl();
   const canonical = `${siteUrl}${path.startsWith("/") ? path : `/${path}`}`;
   const fullTitle = title.includes(SITE_NAME) ? title : `${title} · ${SITE_NAME}`;
+  const metaDescription = trimMetaDescription(description);
 
   return {
-    title: fullTitle,
-    description,
-    ...(keywords ? { keywords } : {}),
+    title: { absolute: fullTitle },
+    description: metaDescription,
     alternates: { canonical },
     openGraph: {
       type: "website",
@@ -29,7 +28,7 @@ export function buildPageMetadata({
       url: canonical,
       siteName: SITE_NAME,
       title: fullTitle,
-      description,
+      description: metaDescription,
       images: [
         {
           url: `${siteUrl}/wrytesmart-logo.png`,
@@ -42,7 +41,7 @@ export function buildPageMetadata({
     twitter: {
       card: "summary_large_image",
       title: fullTitle,
-      description,
+      description: metaDescription,
       images: [`${siteUrl}/wrytesmart-logo.png`],
     },
     robots: {

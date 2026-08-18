@@ -9,6 +9,13 @@ import { WORD_COLLECTIONS } from "@/constants/wordCollections";
 import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
 import { VOCABULARY_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { VOCABULARY_HUB_META_DESCRIPTION } from "@/lib/seo/descriptions";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Vocabulary Builder — Words in Real Context",
+  description: VOCABULARY_HUB_META_DESCRIPTION,
+  path: "/vocabulary",
+});
 
 const DEPTH_LEVELS = [
   {
@@ -32,14 +39,6 @@ const DEPTH_LEVELS = [
     text: "Origin and subtle shade of meaning for advanced learners and exam prep.",
   },
 ];
-
-export const metadata: Metadata = buildPageMetadata({
-  title: "Vocabulary Builder — Words in Real Context",
-  description:
-    "Build vocabulary through curated word collections and four depth levels — from definition to etymology. Explore 14 free collection guides with sample words and meanings, no login required.",
-  path: "/vocabulary",
-  keywords: ["vocabulary builder", "English vocabulary", "word collections", "academic vocabulary"],
-});
 
 export default function VocabularyOverviewPage() {
   return (

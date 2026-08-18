@@ -17,8 +17,7 @@ export function AppBrand({
   const logo = (
     <img
       src="/wrytesmart-logo-transparent.png"
-      alt=""
-      aria-hidden="true"
+      alt="Wrytesmart logo"
       className={`${styles.logo} ${size === "header" ? styles.logoHeader : ""}`}
     />
   );

@@ -1,5 +1,10 @@
 export const PRICING_NAV = { label: "Pricing", href: "/pricing" } as const;
 
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface PricingTier {
   id: "starter" | "pro";
   name: string;
@@ -50,7 +55,7 @@ export const PRICING_TIERS: PricingTier[] = [
   },
 ];
 
-export const PRICING_FAQS = [
+export const PRICING_FAQS: FaqItem[] = [
   {
     question: "What's the difference between Starter and Pro?",
     answer:

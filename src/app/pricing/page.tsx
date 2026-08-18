@@ -5,19 +5,13 @@ import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { PricingSection } from "@/components/marketing/PricingSection";
 import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { PRICING_META_DESCRIPTION } from "@/lib/seo/descriptions";
 import { PRICING_FAQS } from "@/lib/seo/pricingContent";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Pricing — Starter Free & Pro Plans",
-  description:
-    "Compare Wrytesmart Starter (free) and Pro (₹49/month). Get grammar, vocabulary, and writing practice free — upgrade for PTE/IELTS essay scoring, unlimited analysis, and progress tracking.",
+  description: PRICING_META_DESCRIPTION,
   path: "/pricing",
-  keywords: [
-    "Wrytesmart pricing",
-    "PTE writing subscription",
-    "IELTS essay scoring",
-    "English learning plans",
-  ],
 });
 
 export default function PricingPage() {

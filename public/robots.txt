@@ -1,0 +1,10 @@
+# Static fallback — Next.js also serves /robots.txt from src/app/robots.ts at runtime.
+User-agent: *
+Allow: /
+
+Disallow: /app
+Disallow: /admin
+Disallow: /api/
+Disallow: /login
+
+Sitemap: https://www.wrytesmart.com/sitemap.xml

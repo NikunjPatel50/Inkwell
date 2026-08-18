@@ -21,9 +21,15 @@ export function PricingSection({
       aria-labelledby="pricing-heading"
     >
       <div className={styles.sectionIntro}>
-        <h2 id="pricing-heading" className={styles.sectionTitle}>
-          Simple pricing for every learner
-        </h2>
+        {variant === "page" ? (
+          <h1 id="pricing-heading" className={styles.sectionTitle}>
+            Simple pricing for every learner
+          </h1>
+        ) : (
+          <h2 id="pricing-heading" className={styles.sectionTitle}>
+            Simple pricing for every learner
+          </h2>
+        )}
         <p className={styles.sectionLead}>
           Start free with grammar, vocabulary, and writing practice. Upgrade when you need full
           exam scoring, unlimited analysis, and progress tracking.
@@ -75,10 +81,18 @@ export function PricingSection({
 
       {showFaq ? (
         <div className={styles.faqSection}>
-          <h3 className={styles.faqTitle}>Pricing questions</h3>
+          {variant === "page" ? (
+            <h2 className={styles.faqTitle}>Pricing questions</h2>
+          ) : (
+            <h3 className={styles.faqTitle}>Pricing questions</h3>
+          )}
           {PRICING_FAQS.map((faq) => (
             <div key={faq.question} className={styles.faqItem}>
-              <h4 className={styles.faqQuestion}>{faq.question}</h4>
+              {variant === "page" ? (
+                <h3 className={styles.faqQuestion}>{faq.question}</h3>
+              ) : (
+                <h4 className={styles.faqQuestion}>{faq.question}</h4>
+              )}
               <p className={styles.faqAnswer}>{faq.answer}</p>
             </div>
           ))}

@@ -7,13 +7,12 @@ import styles from "@/components/marketing/MarketingPage.module.css";
 import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
 import { COACH_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { COACH_META_DESCRIPTION } from "@/lib/seo/descriptions";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "AI Essay Coach — Step-by-Step Writing Guidance",
-  description:
-    "Structured essay coaching for academic and exam writing. See a sample walkthrough of how Wrytesmart Coach explains thesis, evidence, and structure — readable without signing in.",
+  description: COACH_META_DESCRIPTION,
   path: "/coach",
-  keywords: ["essay coach", "writing coach", "academic writing", "essay feedback", "IELTS essay"],
 });
 
 const COACH_STEPS = [

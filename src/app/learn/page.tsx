@@ -7,13 +7,12 @@ import styles from "@/components/marketing/MarketingPage.module.css";
 import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
 import { LEARN_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { LEARN_META_DESCRIPTION } from "@/lib/seo/descriptions";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Adaptive English Learning — Practice Weak Skills in Context",
-  description:
-    "Wrytesmart Learn adapts to your weak spots with build-it, spot-the-error, and complete-it exercises — always inside real sentences. See how adaptive practice works before you sign up.",
+  description: LEARN_META_DESCRIPTION,
   path: "/learn",
-  keywords: ["adaptive English learning", "grammar exercises", "English practice", "skill drills"],
 });
 
 export default function LearnFeaturePage() {

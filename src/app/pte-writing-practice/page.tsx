@@ -5,6 +5,7 @@ import { MarketingCta } from "@/components/marketing/MarketingCta";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import styles from "@/components/marketing/MarketingPage.module.css";
 import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
+import { PTE_META_DESCRIPTION } from "@/lib/seo/descriptions";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 const PTE_FAQS = [
@@ -27,10 +28,8 @@ const PTE_FAQS = [
 
 export const metadata: Metadata = buildPageMetadata({
   title: "PTE Writing Practice — Summaries, Essays & Grammar",
-  description:
-    "Prepare for PTE Academic writing with in-context grammar lessons, workspace feedback, essay coaching, and vocabulary collections. Free overview of how Wrytesmart supports PTE writing practice.",
+  description: PTE_META_DESCRIPTION,
   path: "/pte-writing-practice",
-  keywords: ["PTE writing practice", "PTE Academic", "PTE essay", "PTE grammar", "PTE preparation"],
 });
 
 export default function PteWritingPracticePage() {

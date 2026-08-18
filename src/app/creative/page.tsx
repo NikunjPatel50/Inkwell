@@ -7,13 +7,12 @@ import styles from "@/components/marketing/MarketingPage.module.css";
 import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
 import { CREATIVE_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { CREATIVE_META_DESCRIPTION } from "@/lib/seo/descriptions";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Creative Writing Drills — Playful English Practice",
-  description:
-    "Word duels, emotion rewrites, and playful drills that keep English practice engaging. Learn how Wrytesmart Creative builds fluency without boring repetition.",
+  description: CREATIVE_META_DESCRIPTION,
   path: "/creative",
-  keywords: ["creative writing practice", "English games", "writing drills", "vocabulary games"],
 });
 
 export default function CreativeFeaturePage() {

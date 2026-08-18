@@ -13,7 +13,10 @@ import {
   getGrammarTopic,
 } from "@/constants/grammarTopics";
 import { breadcrumbJsonLd, learningResourceJsonLd } from "@/lib/seo/jsonLd";
+import { grammarTopicMetaDescription } from "@/lib/seo/descriptions";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { getGrammarRelatedTopics } from "@/lib/seo/relatedLinks";
+import { RelatedTopicLinks } from "@/components/marketing/RelatedTopicLinks";
 
 interface GrammarTopicPageProps {
   params: Promise<{ topic: string }>;
@@ -30,17 +33,12 @@ export async function generateMetadata({ params }: GrammarTopicPageProps): Promi
   const topic = getGrammarTopic(topicId);
   if (!topic) return {};
 
-  const seo = getGrammarTopicSeo(topicId);
   const category = GRAMMAR_CATEGORIES.find((entry) => entry.id === topic.categoryId);
-  const description = seo
-    ? `${topic.keyRule} ${seo.whyThisHappens.slice(0, 120)}…`
-    : `${topic.keyRule} Read explanations, see highlighted examples, and practice ${topic.name.toLowerCase()} in context with Wrytesmart.${category ? ` Part of ${category.title}.` : ""}`;
 
   return buildPageMetadata({
     title: `${topic.name} — Grammar Guide`,
-    description,
+    description: grammarTopicMetaDescription(topic.name, topic.keyRule, category?.title),
     path: `/grammar/${topic.id}`,
-    keywords: [topic.name, "English grammar", topic.categoryId.replace(/-/g, " ")],
   });
 }
 
@@ -52,6 +50,7 @@ export default async function GrammarTopicPage({ params }: GrammarTopicPageProps
   const seo = getGrammarTopicSeo(topicId);
   const category = GRAMMAR_CATEGORIES.find((entry) => entry.id === topic.categoryId);
   const fallbackExample = topic.examples[0];
+  const relatedTopics = getGrammarRelatedTopics(topicId);
 
   return (
     <MarketingShell
@@ -72,6 +71,7 @@ export default async function GrammarTopicPage({ params }: GrammarTopicPageProps
             name: topic.name,
             description: topic.keyRule,
             path: `/grammar/${topic.id}`,
+            resourceType: "grammar lesson",
           }),
         ]}
       />
@@ -167,6 +167,8 @@ export default async function GrammarTopicPage({ params }: GrammarTopicPageProps
           primaryLabel="Try this topic free"
           primaryHref="/login"
         />
+
+        <RelatedTopicLinks title="Related grammar topics" links={relatedTopics} />
 
         <p>
           <Link href="/grammar">← All grammar topics</Link>

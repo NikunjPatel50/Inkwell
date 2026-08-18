@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { AppBrand } from "../AppBrand";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "../../lib/site";
+import { SITE_DESCRIPTION, SITE_NAME } from "../../lib/site";
 import { FEATURED_DISCOVER_LINKS } from "../../lib/seo/featuredDiscoverLinks";
-import { MARKETING_NAV, PRICING_NAV } from "../../lib/seo/publicRoutes";
+import { EXAM_PREP_LINKS, MARKETING_NAV, PRICING_NAV } from "../../lib/seo/publicRoutes";
 import { MARKETING_TESTIMONIALS } from "../../lib/seo/testimonials";
 import { PricingSection } from "../marketing/PricingSection";
 import { MarketingBodyClass } from "./MarketingBodyClass";
@@ -64,9 +64,9 @@ const TOOL_GROUPS = [
   {
     title: "Exam prep",
     tools: [
+      { name: "English writing practice", desc: "Grammar, feedback, and vocabulary", href: "/english-writing-practice" },
       { name: "IELTS writing practice", desc: "Essays, grammar, and coaching", href: "/ielts-writing-practice" },
       { name: "PTE writing practice", desc: "Summaries, essays, and feedback", href: "/pte-writing-practice" },
-      { name: "Sign in to save progress", desc: "Free account, works in browser", href: "/login" },
     ],
   },
 ];
@@ -181,11 +181,12 @@ export function LandingPage() {
         <section className={styles.hero} aria-labelledby="hero-heading">
           <p className={styles.heroEyebrow}>In-context English learning</p>
           <h1 id="hero-heading" className={styles.heroTitle}>
-            Create stronger writing today
+            English writing practice that helps you write with confidence
           </h1>
           <p className={styles.heroLead}>
-            {SITE_TAGLINE}. Grammar, vocabulary, coaching, and feedback — all inside sentences you
-            read, edit, and practice.
+            Wrytesmart is built for english writing practice in context — grammar, vocabulary,
+            coaching, and feedback inside sentences you read, edit, and practice.{" "}
+            <Link href="/english-writing-practice">See how our writing practice works</Link>.
           </p>
 
           <HeroWorkspace />
@@ -359,12 +360,11 @@ export function LandingPage() {
           <div>
             <p className={styles.footerHeading}>Exam prep</p>
             <div className={styles.footerLinks}>
-              <Link href="/ielts-writing-practice" className={styles.footerLink}>
-                IELTS writing
-              </Link>
-              <Link href="/pte-writing-practice" className={styles.footerLink}>
-                PTE writing
-              </Link>
+              {EXAM_PREP_LINKS.map((item) => (
+                <Link key={item.href} href={item.href} className={styles.footerLink}>
+                  {item.label}
+                </Link>
+              ))}
               <Link href="/login" className={styles.footerLink}>
                 Get started free
               </Link>

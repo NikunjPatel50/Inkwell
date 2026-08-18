@@ -7,7 +7,10 @@ import { MarketingShell } from "@/components/marketing/MarketingShell";
 import styles from "@/components/marketing/MarketingPage.module.css";
 import { WORD_COLLECTIONS, getWordCollection } from "@/constants/wordCollections";
 import { breadcrumbJsonLd, learningResourceJsonLd } from "@/lib/seo/jsonLd";
+import { vocabularyCollectionMetaDescription } from "@/lib/seo/descriptions";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { getVocabularyRelatedCollections } from "@/lib/seo/relatedLinks";
+import { RelatedTopicLinks } from "@/components/marketing/RelatedTopicLinks";
 
 interface VocabularyCollectionPageProps {
   params: Promise<{ collection: string }>;
@@ -28,9 +31,8 @@ export async function generateMetadata({
 
   return buildPageMetadata({
     title: `${collection.title} — Vocabulary Collection`,
-    description: `Learn ${collection.teaser} and more. Sample definitions from the ${collection.title} collection in Wrytesmart — vocabulary taught through real sentences and four depth levels.`,
+    description: vocabularyCollectionMetaDescription(collection.title, collection.teaser),
     path: `/vocabulary/${collection.id}`,
-    keywords: [collection.title, "English vocabulary", "word list", collection.id],
   });
 }
 
@@ -40,6 +42,7 @@ export default async function VocabularyCollectionPage({ params }: VocabularyCol
   if (!collection) notFound();
 
   const previewWords = collection.words.slice(0, 8);
+  const relatedCollections = getVocabularyRelatedCollections(collectionId);
 
   return (
     <MarketingShell
@@ -60,6 +63,7 @@ export default async function VocabularyCollectionPage({ params }: VocabularyCol
             name: collection.title,
             description: `Vocabulary collection: ${collection.teaser}`,
             path: `/vocabulary/${collection.id}`,
+            resourceType: "vocabulary collection",
           }),
         ]}
       />
@@ -100,6 +104,8 @@ export default async function VocabularyCollectionPage({ params }: VocabularyCol
           title="Explore the full collection in your workspace"
           lead="Free to start. Build vocabulary depth and practice words in the same place you write."
         />
+
+        <RelatedTopicLinks title="Related vocabulary collections" links={relatedCollections} />
 
         <p>
           <Link href="/vocabulary">← All vocabulary collections</Link>

@@ -5,6 +5,7 @@ import { MarketingCta } from "@/components/marketing/MarketingCta";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import styles from "@/components/marketing/MarketingPage.module.css";
 import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
+import { IELTS_META_DESCRIPTION } from "@/lib/seo/descriptions";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 const IELTS_FAQS = [
@@ -27,10 +28,8 @@ const IELTS_FAQS = [
 
 export const metadata: Metadata = buildPageMetadata({
   title: "IELTS Writing Practice — Essays, Grammar & Feedback",
-  description:
-    "Prepare for IELTS writing with in-context grammar, essay coaching, register-aware rewrites, and adaptive exercises. Free guide to how Wrytesmart supports Task 1 and Task 2 practice.",
+  description: IELTS_META_DESCRIPTION,
   path: "/ielts-writing-practice",
-  keywords: ["IELTS writing practice", "IELTS essay", "IELTS Task 2", "IELTS grammar", "IELTS preparation"],
 });
 
 export default function IeltsWritingPracticePage() {

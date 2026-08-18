@@ -7,13 +7,12 @@ import styles from "@/components/marketing/MarketingPage.module.css";
 import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonLd";
 import { WRITE_HUB_FAQS } from "@/lib/seo/hubFaqs";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { WRITE_META_DESCRIPTION } from "@/lib/seo/descriptions";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Writing Workspace — Register Scoring, Feedback & Rewrites",
-  description:
-    "Paste any draft into Wrytesmart Write for register scoring, in-context grammar teaching, and simple-to-advanced rewrites. See a real example of how the writing workspace works — no login required to read.",
+  description: WRITE_META_DESCRIPTION,
   path: "/write",
-  keywords: ["writing feedback", "grammar checker", "text rewriter", "register scoring", "English writing"],
 });
 
 export default function WriteFeaturePage() {
