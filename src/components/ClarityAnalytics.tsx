@@ -1,7 +1,8 @@
 import Script from "next/script";
 
 function getClarityProjectId(): string | null {
-  const id = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID?.trim();
+  const id =
+    process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID?.trim() || "y48zzw02jv";
   return id || null;
 }
 
